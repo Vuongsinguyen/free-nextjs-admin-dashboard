@@ -43,5 +43,11 @@
   "signIn": "サインイン",
   "signUp": "サインアップ",
   "ecommerce": "Eコマース",
-  "404Error": "404エラー"
+  "404Error": "404エラー",
+  "roleAdmin": "管理者",
+  "roleBuildingOwner": "ビルオーナー",
+  "roleHomeOwner": "住宅所有者",
+  "roleTenant": "テナント",
+  "roleGuest": "ゲスト",
+  "roleOthers": "その他"
 }

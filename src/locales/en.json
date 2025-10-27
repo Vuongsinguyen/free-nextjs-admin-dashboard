@@ -117,5 +117,12 @@
     "userDeleted": "User deleted successfully",
     "saveSuccess": "Saved successfully",
     "deleteConfirm": "Are you sure you want to delete this item?"
-  }
+  },
+  
+  "roleAdmin": "Admin",
+  "roleBuildingOwner": "Building Owner",
+  "roleHomeOwner": "Home Owner",
+  "roleTenant": "Tenant",
+  "roleGuest": "Guest",
+  "roleOthers": "Others"
 }

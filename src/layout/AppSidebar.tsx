@@ -133,7 +133,7 @@ const AppSidebar: React.FC = () => {
       icon: <PlugInIcon />,
       nameKey: "nav.authentication",
       subItems: [
-        { nameKey: "nav.signIn", path: "/signin", pro: false },
+        { nameKey: "nav.signIn", path: "/", pro: false },
         { nameKey: "nav.signUp", path: "/signup", pro: false },
       ],
     },

@@ -112,10 +112,17 @@
   },
   
   "notifications": {
-    "userCreated": "Tạo người dùng thành công",
-    "userUpdated": "Cập nhật người dùng thành công",
-    "userDeleted": "Xóa người dùng thành công",
+    "userCreated": "Người dùng đã được tạo thành công",
+    "userUpdated": "Người dùng đã được cập nhật thành công",
+    "userDeleted": "Người dùng đã được xóa thành công",
     "saveSuccess": "Lưu thành công",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này không?"
-  }
+  },
+  
+  "roleAdmin": "Quản trị viên",
+  "roleBuildingOwner": "Chủ tòa nhà",
+  "roleHomeOwner": "Chủ nhà",
+  "roleTenant": "Người thuê",
+  "roleGuest": "Khách",
+  "roleOthers": "Khác"
 }

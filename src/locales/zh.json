@@ -43,5 +43,11 @@
   "signIn": "登录",
   "signUp": "注册",
   "ecommerce": "电子商务",
-  "404Error": "404错误"
+  "404Error": "404错误",
+  "roleAdmin": "管理员",
+  "roleBuildingOwner": "建筑业主",
+  "roleHomeOwner": "房屋业主",
+  "roleTenant": "租户",
+  "roleGuest": "访客",
+  "roleOthers": "其他"
 }

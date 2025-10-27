@@ -43,5 +43,11 @@
   "signIn": "로그인",
   "signUp": "회원가입",
   "ecommerce": "전자상거래",
-  "404Error": "404 오류"
+  "404Error": "404 오류",
+  "roleAdmin": "관리자",
+  "roleBuildingOwner": "빌딩 소유자",
+  "roleHomeOwner": "주택 소유자",
+  "roleTenant": "임차인",
+  "roleGuest": "게스트",
+  "roleOthers": "기타"
 }
