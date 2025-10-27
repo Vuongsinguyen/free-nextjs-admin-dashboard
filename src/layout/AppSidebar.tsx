@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useRef, useState,useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useLocale } from "../context/LocaleContext";
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -20,83 +21,123 @@ import {
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
-  name: string;
+  nameKey: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { nameKey: string; path: string; pro?: boolean; new?: boolean }[];
 };
-
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
-  },
-];
-
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
-];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { t } = useLocale();
   const pathname = usePathname();
+
+  const getNavItems = (): NavItem[] => [
+    {
+      icon: <GridIcon />,
+      nameKey: "nav.dashboard",
+      subItems: [{ nameKey: "nav.ecommerce", path: "/", pro: false }],
+    },
+    {
+      icon: <CalenderIcon />,
+      nameKey: "nav.calendar",
+      path: "/calendar",
+    },
+    {
+      icon: <UserCircleIcon />,
+      nameKey: "nav.userManagement",
+      subItems: [
+        { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
+        { nameKey: "nav.addUser", path: "/user-management/add", pro: false },
+        { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
+      ],
+    },
+    {
+      icon: <TableIcon />,
+      nameKey: "nav.serviceFeeInvoice",
+      subItems: [
+        { nameKey: "nav.allInvoices", path: "/invoices", pro: false },
+        { nameKey: "nav.createInvoice", path: "/invoices/create", pro: false },
+        { nameKey: "nav.invoiceReports", path: "/invoices/reports", pro: false },
+      ],
+    },
+    {
+      icon: <CalenderIcon />,
+      nameKey: "nav.eventsAnnouncements",
+      subItems: [
+        { nameKey: "nav.allEvents", path: "/events", pro: false },
+        { nameKey: "nav.addEvent", path: "/events/add", pro: false },
+        { nameKey: "nav.announcements", path: "/announcements", pro: false },
+      ],
+    },
+    {
+      icon: <PieChartIcon />,
+      nameKey: "nav.vouchersPromotions",
+      subItems: [
+        { nameKey: "nav.allVouchers", path: "/vouchers", pro: false },
+        { nameKey: "nav.createVoucher", path: "/vouchers/create", pro: false },
+        { nameKey: "nav.promotions", path: "/promotions", pro: false },
+      ],
+    },
+    {
+      icon: <GridIcon />,
+      nameKey: "nav.facilities",
+      subItems: [
+        { nameKey: "nav.allFacilities", path: "/facilities", pro: false },
+        { nameKey: "nav.addFacility", path: "/facilities/add", pro: false },
+        { nameKey: "nav.bookingManagement", path: "/facilities/bookings", pro: false },
+      ],
+    },
+    {
+      nameKey: "nav.forms",
+      icon: <ListIcon />,
+      subItems: [{ nameKey: "nav.formElements", path: "/form-elements", pro: false }],
+    },
+    {
+      nameKey: "nav.tables",
+      icon: <TableIcon />,
+      subItems: [{ nameKey: "nav.basicTables", path: "/basic-tables", pro: false }],
+    },
+    {
+      nameKey: "nav.pages",
+      icon: <PageIcon />,
+      subItems: [
+        { nameKey: "nav.blankPage", path: "/blank", pro: false },
+        { nameKey: "nav.404Error", path: "/error-404", pro: false },
+      ],
+    },
+  ];
+
+  const getOthersItems = (): NavItem[] => [
+    {
+      icon: <PieChartIcon />,
+      nameKey: "nav.charts",
+      subItems: [
+        { nameKey: "nav.lineChart", path: "/line-chart", pro: false },
+        { nameKey: "nav.barChart", path: "/bar-chart", pro: false },
+      ],
+    },
+    {
+      icon: <BoxCubeIcon />,
+      nameKey: "nav.uiElements",
+      subItems: [
+        { nameKey: "nav.alerts", path: "/alerts", pro: false },
+        { nameKey: "nav.avatar", path: "/avatars", pro: false },
+        { nameKey: "nav.badge", path: "/badge", pro: false },
+        { nameKey: "nav.buttons", path: "/buttons", pro: false },
+        { nameKey: "nav.images", path: "/images", pro: false },
+        { nameKey: "nav.videos", path: "/videos", pro: false },
+      ],
+    },
+    {
+      icon: <PlugInIcon />,
+      nameKey: "nav.authentication",
+      subItems: [
+        { nameKey: "nav.signIn", path: "/signin", pro: false },
+        { nameKey: "nav.signUp", path: "/signup", pro: false },
+      ],
+    },
+  ];
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -104,7 +145,7 @@ const AppSidebar: React.FC = () => {
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
-        <li key={nav.name}>
+        <li key={nav.nameKey}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
@@ -128,7 +169,7 @@ const AppSidebar: React.FC = () => {
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className={`menu-item-text`}>{nav.name}</span>
+                <span className={`menu-item-text`}>{t(nav.nameKey)}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -159,7 +200,7 @@ const AppSidebar: React.FC = () => {
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{nav.name}</span>
+                  <span className={`menu-item-text`}>{t(nav.nameKey)}</span>
                 )}
               </Link>
             )
@@ -179,7 +220,7 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
+                  <li key={subItem.nameKey}>
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${
@@ -188,7 +229,7 @@ const AppSidebar: React.FC = () => {
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
-                      {subItem.name}
+                      {t(subItem.nameKey)}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
@@ -233,14 +274,13 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => path === pathname;
-   const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  const isActive = useCallback((path: string) => path === pathname, [pathname]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+      const items = menuType === "main" ? getNavItems() : getOthersItems();
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -260,7 +300,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [pathname,isActive]);
+  }, [pathname, isActive]);
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened
@@ -348,12 +388,12 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  t("nav.menu")
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(getNavItems(), "main")}
             </div>
 
             <div className="">
@@ -365,12 +405,12 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
+                  t("nav.others")
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(getOthersItems(), "others")}
             </div>
           </div>
         </nav>
