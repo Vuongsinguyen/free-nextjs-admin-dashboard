@@ -39,16 +39,10 @@ const AppSidebar: React.FC = () => {
       subItems: [{ nameKey: "nav.ecommerce", path: "/", pro: false }],
     },
     {
-      icon: <CalenderIcon />,
-      nameKey: "nav.calendar",
-      path: "/calendar",
-    },
-    {
       icon: <UserCircleIcon />,
       nameKey: "nav.userManagement",
       subItems: [
         { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
-        { nameKey: "nav.addUser", path: "/user-management/add", pro: false },
         { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
       ],
     },
@@ -88,60 +82,52 @@ const AppSidebar: React.FC = () => {
         { nameKey: "nav.bookingManagement", path: "/facilities/bookings", pro: false },
       ],
     },
-    {
-      nameKey: "nav.forms",
-      icon: <ListIcon />,
-      subItems: [{ nameKey: "nav.formElements", path: "/form-elements", pro: false }],
-    },
-    {
-      nameKey: "nav.tables",
-      icon: <TableIcon />,
-      subItems: [{ nameKey: "nav.basicTables", path: "/basic-tables", pro: false }],
-    },
-    {
-      nameKey: "nav.pages",
-      icon: <PageIcon />,
-      subItems: [
-        { nameKey: "nav.blankPage", path: "/blank", pro: false },
-        { nameKey: "nav.404Error", path: "/error-404", pro: false },
-      ],
-    },
   ];
 
-  const getOthersItems = (): NavItem[] => [
+  const getMasterDataItems = (): NavItem[] => [
     {
-      icon: <PieChartIcon />,
-      nameKey: "nav.charts",
+      icon: <GridIcon />,
+      nameKey: "nav.locations",
       subItems: [
-        { nameKey: "nav.lineChart", path: "/line-chart", pro: false },
-        { nameKey: "nav.barChart", path: "/bar-chart", pro: false },
+        { nameKey: "nav.allLocations", path: "/locations", pro: false },
+        { nameKey: "nav.addLocation", path: "/locations/add", pro: false },
       ],
     },
     {
       icon: <BoxCubeIcon />,
-      nameKey: "nav.uiElements",
+      nameKey: "nav.building", 
       subItems: [
-        { nameKey: "nav.alerts", path: "/alerts", pro: false },
-        { nameKey: "nav.avatar", path: "/avatars", pro: false },
-        { nameKey: "nav.badge", path: "/badge", pro: false },
-        { nameKey: "nav.buttons", path: "/buttons", pro: false },
-        { nameKey: "nav.images", path: "/images", pro: false },
-        { nameKey: "nav.videos", path: "/videos", pro: false },
+        { nameKey: "nav.allBuildings", path: "/buildings", pro: false },
+        { nameKey: "nav.addBuilding", path: "/buildings/add", pro: false },
+        { nameKey: "nav.buildingManagement", path: "/buildings/management", pro: false },
       ],
     },
     {
-      icon: <PlugInIcon />,
-      nameKey: "nav.authentication",
+      icon: <ListIcon />,
+      nameKey: "nav.assetMaintenance",
       subItems: [
-        { nameKey: "nav.signIn", path: "/", pro: false },
-        { nameKey: "nav.signUp", path: "/signup", pro: false },
+        { nameKey: "nav.allAssets", path: "/assets", pro: false },
+        { nameKey: "nav.maintenance", path: "/maintenance", pro: false },
+        { nameKey: "nav.maintenanceSchedule", path: "/maintenance/schedule", pro: false },
+      ],
+    },
+  ];
+
+  const getSystemConfigItems = (): NavItem[] => [
+    {
+      icon: <PlugInIcon />,
+      nameKey: "nav.settings",
+      subItems: [
+        { nameKey: "nav.generalSettings", path: "/settings/general", pro: false },
+        { nameKey: "nav.systemConfig", path: "/settings/system", pro: false },
+        { nameKey: "nav.notifications", path: "/settings/notifications", pro: false },
       ],
     },
   ];
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others"
+    menuType: "main" | "others" | "masterData" | "systemConfig"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -266,7 +252,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main" | "others" | "masterData" | "systemConfig";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -279,14 +265,20 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? getNavItems() : getOthersItems();
-      items.forEach((nav, index) => {
+    const menuTypes: { type: "main" | "masterData" | "systemConfig"; getItems: () => NavItem[] }[] = [
+      { type: "main", getItems: getNavItems },
+      { type: "masterData", getItems: getMasterDataItems },
+      { type: "systemConfig", getItems: getSystemConfigItems }
+    ];
+    
+    menuTypes.forEach(({ type, getItems }) => {
+      const items = getItems();
+      items.forEach((nav: NavItem, index: number) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others",
+                type,
                 index,
               });
               submenuMatched = true;
@@ -315,7 +307,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "masterData" | "systemConfig") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -388,7 +380,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  t("nav.menu")
+                  "QUICK ACCESS"
                 ) : (
                   <HorizontaLDots />
                 )}
@@ -405,12 +397,29 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  t("nav.others")
+                  "MASTER DATA"
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(getOthersItems(), "others")}
+              {renderMenuItems(getMasterDataItems(), "masterData")}
+            </div>
+
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "SYSTEM CONFIGURATION"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(getSystemConfigItems(), "systemConfig")}
             </div>
           </div>
         </nav>

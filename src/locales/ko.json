@@ -44,10 +44,18 @@
   "signUp": "회원가입",
   "ecommerce": "전자상거래",
   "404Error": "404 오류",
+  "locations": "위치",
+  "building": "건물",
+  "assetMaintenance": "자산/유지보수",
+  "settings": "설정",
   "roleAdmin": "관리자",
   "roleBuildingOwner": "빌딩 소유자",
   "roleHomeOwner": "주택 소유자",
   "roleTenant": "임차인",
   "roleGuest": "게스트",
-  "roleOthers": "기타"
+  "roleOthers": "기타",
+  "selectYourRole": "역할을 선택하세요",
+  "pleaseSelectAppropriateRole": "계속하려면 적절한 역할을 선택하세요",
+  "processing": "처리 중...",
+  "continue": "계속"
 }

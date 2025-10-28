@@ -1,0 +1,120 @@
+{
+  "accounts": [
+    {
+      "id": 1,
+      "role": "admin",
+      "email": "admin@gardencity.com",
+      "password": "Admin@123!!!",
+      "name": "System Administrator",
+      "permissions": [
+        "user_management",
+        "service_fee_invoice",
+        "events_announcements",
+        "vouchers_promotions",
+        "facilities",
+        "full_access"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "lastLogin": "2024-10-28T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "role": "building-owner",
+      "email": "bowner@example.com",
+      "password": "Owner@123!!!",
+      "name": "Building Owner",
+      "permissions": [
+        "user_management",
+        "service_fee_invoice", 
+        "events_announcements",
+        "facilities",
+        "reports"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-27T14:30:00Z"
+    },
+    {
+      "id": 3,
+      "role": "home-owner",
+      "email": "howner@example.com",
+      "password": "Owner@123!!!",
+      "name": "Home Owner",
+      "permissions": [
+        "service_fee_invoice",
+        "events_announcements",
+        "facilities",
+        "vouchers_promotions"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-01T00:00:00Z",
+      "lastLogin": "2024-10-26T09:15:00Z"
+    },
+    {
+      "id": 4,
+      "role": "tenant",
+      "email": "tenant@example.com",
+      "password": "Tenant@123!",
+      "name": "Tenant User",
+      "permissions": [
+        "events_announcements",
+        "facilities",
+        "vouchers_promotions",
+        "basic_profile"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-01T00:00:00Z",
+      "lastLogin": "2024-10-25T16:45:00Z"
+    },
+    {
+      "id": 5,
+      "role": "guest",
+      "email": "guest@example.com",
+      "password": "guest@123!",
+      "name": "Guest User",
+      "permissions": [
+        "events_announcements",
+        "facilities",
+        "basic_access"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-01T00:00:00Z",
+      "lastLogin": "2024-10-24T11:20:00Z"
+    },
+    {
+      "id": 6,
+      "role": "others",
+      "email": "others@example.com",
+      "password": "others@123!",
+      "name": "Other User",
+      "permissions": [
+        "basic_access",
+        "limited_facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-01T00:00:00Z",
+      "lastLogin": "2024-10-23T08:00:00Z"
+    }
+  ],
+  "roleHierarchy": {
+    "admin": 6,
+    "building-owner": 5,
+    "home-owner": 4,
+    "tenant": 3,
+    "guest": 2,
+    "others": 1
+  },
+  "permissionLevels": {
+    "full_access": "Complete system access",
+    "user_management": "Create, edit, delete users",
+    "service_fee_invoice": "Manage service fees and invoices",
+    "events_announcements": "Create and manage events/announcements",
+    "vouchers_promotions": "Manage vouchers and promotions",
+    "facilities": "Access and book facilities",
+    "reports": "View and generate reports",
+    "basic_profile": "Manage own profile",
+    "basic_access": "Basic platform access",
+    "limited_facilities": "Limited facility access"
+  }
+}

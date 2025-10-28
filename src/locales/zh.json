@@ -44,10 +44,18 @@
   "signUp": "注册",
   "ecommerce": "电子商务",
   "404Error": "404错误",
+  "locations": "位置",
+  "building": "建筑",
+  "assetMaintenance": "资产/维护",
+  "settings": "设置",
   "roleAdmin": "管理员",
   "roleBuildingOwner": "建筑业主",
   "roleHomeOwner": "房屋业主",
   "roleTenant": "租户",
   "roleGuest": "访客",
-  "roleOthers": "其他"
+  "roleOthers": "其他",
+  "selectYourRole": "选择您的角色",
+  "pleaseSelectAppropriateRole": "请选择适当的角色以继续",
+  "processing": "处理中...",
+  "continue": "继续"
 }
