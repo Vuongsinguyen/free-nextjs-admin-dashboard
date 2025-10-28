@@ -125,7 +125,7 @@ export default function MonthlyTarget() {
           </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          +120 households paid today. No issues reported
+          +120 households paid today.<br />No issues reported
         </p>
       </div>
 

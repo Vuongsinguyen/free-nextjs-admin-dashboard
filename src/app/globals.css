@@ -4,7 +4,7 @@
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-montserrat: Montserrat, sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -43,7 +43,7 @@
   --color-brand-50: #ECFFF3;
   --color-brand-100: #dde9ff;
   --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
+  --color-brand-300: #A0E8B3;
   --color-brand-400: #88F5A1;
   --color-brand-500: #009E38;
   --color-brand-600: #009434;
@@ -189,7 +189,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-montserrat z-1 bg-gray-50;
   }
 }
 

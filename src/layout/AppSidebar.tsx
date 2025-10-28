@@ -41,20 +41,10 @@ const AppSidebar: React.FC = () => {
       ],
     },
     {
-      icon: <UserCircleIcon />,
-      nameKey: "nav.userManagement",
-      subItems: [
-        { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
-        { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
-        { nameKey: "nav.rolePermissions", path: "/user-management/permissions", pro: false },
-      ],
-    },
-    {
       icon: <TableIcon />,
       nameKey: "nav.serviceFeeInvoice",
       subItems: [
         { nameKey: "nav.allInvoices", path: "/invoices", pro: false },
-        { nameKey: "nav.createInvoice", path: "/invoices/create", pro: false },
         { nameKey: "nav.invoiceReports", path: "/invoices/reports", pro: false },
       ],
     },
@@ -63,7 +53,6 @@ const AppSidebar: React.FC = () => {
       nameKey: "nav.eventsAnnouncements",
       subItems: [
         { nameKey: "nav.allEvents", path: "/events", pro: false },
-        { nameKey: "nav.addEvent", path: "/events/add", pro: false },
         { nameKey: "nav.announcements", path: "/announcements", pro: false },
       ],
     },
@@ -80,7 +69,6 @@ const AppSidebar: React.FC = () => {
       nameKey: "nav.facilities",
       subItems: [
         { nameKey: "nav.allFacilities", path: "/facilities", pro: false },
-        { nameKey: "nav.addFacility", path: "/facilities/add", pro: false },
         { nameKey: "nav.bookingManagement", path: "/facilities/bookings", pro: false },
       ],
     },
@@ -91,17 +79,23 @@ const AppSidebar: React.FC = () => {
       icon: <GridIcon />,
       nameKey: "nav.locations",
       subItems: [
-        { nameKey: "nav.allLocations", path: "/locations", pro: false },
-        { nameKey: "nav.addLocation", path: "/locations/add", pro: false },
+        { nameKey: "nav.country", path: "/locations/country", pro: false },
+        { nameKey: "nav.province", path: "/locations/province", pro: false },
+        { nameKey: "nav.district", path: "/locations/district", pro: false },
+        { nameKey: "nav.ward", path: "/locations/ward", pro: false },
+        { nameKey: "nav.hamlet", path: "/locations/hamlet", pro: false },
       ],
     },
     {
       icon: <BoxCubeIcon />,
       nameKey: "nav.building", 
       subItems: [
-        { nameKey: "nav.allBuildings", path: "/buildings", pro: false },
-        { nameKey: "nav.addBuilding", path: "/buildings/add", pro: false },
-        { nameKey: "nav.buildingManagement", path: "/buildings/management", pro: false },
+        { nameKey: "nav.buildingCategory", path: "/buildings/category", pro: false },
+        { nameKey: "nav.property", path: "/buildings/property", pro: false },
+        { nameKey: "nav.zoneAreaSection", path: "/buildings/zone-area-section", pro: false },
+        { nameKey: "nav.buildingBlock", path: "/buildings/building-block", pro: false },
+        { nameKey: "nav.floor", path: "/buildings/floor", pro: false },
+        { nameKey: "nav.propertyUnit", path: "/buildings/property-unit", pro: false },
       ],
     },
     {
@@ -111,6 +105,15 @@ const AppSidebar: React.FC = () => {
         { nameKey: "nav.allAssets", path: "/assets", pro: false },
         { nameKey: "nav.maintenance", path: "/maintenance", pro: false },
         { nameKey: "nav.maintenanceSchedule", path: "/maintenance/schedule", pro: false },
+      ],
+    },
+    {
+      icon: <UserCircleIcon />,
+      nameKey: "nav.userManagement",
+      subItems: [
+        { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
+        { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
+        { nameKey: "nav.rolePermissions", path: "/user-management/permissions", pro: false },
       ],
     },
   ];

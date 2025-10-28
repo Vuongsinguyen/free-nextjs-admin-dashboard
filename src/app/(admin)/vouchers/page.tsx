@@ -10,42 +10,46 @@ interface Voucher {
   value: number;
   category: string;
   companyName: string;
-  status: "active" | "inactive" | "used";
+  status: "active" | "inactive";
+  quantity: {
+    used: number;
+    total: number;
+  };
   startDate: string; // ISO date
   endDate: string;   // ISO date
 }
 
 const initialVouchers: Voucher[] = [
-  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", status: "active", startDate: "2025-01-01", endDate: "2025-12-31" },
-  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", status: "inactive", startDate: "2025-06-01", endDate: "2025-09-30" },
-  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", status: "active", startDate: "2025-03-01", endDate: "2025-05-31" },
-  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", status: "used", startDate: "2025-01-15", endDate: "2025-12-15" },
-  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", status: "active", startDate: "2025-02-01", endDate: "2025-11-30" },
-  { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", status: "active", startDate: "2025-01-10", endDate: "2025-12-20" },
-  { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", status: "used", startDate: "2025-03-05", endDate: "2025-08-05" },
-  { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", status: "active", startDate: "2025-01-01", endDate: "2025-12-31" },
-  { id: 9, code: "FRESH40", name: "Fresh 40k", type: "fixed", value: 40000, category: "Supermarket", companyName: "Market Box", status: "inactive", startDate: "2025-04-01", endDate: "2025-07-31" },
-  { id: 10, code: "SWIM10", name: "Swim 10%", type: "percentage", value: 10, category: "Pool", companyName: "Vincom", status: "active", startDate: "2025-02-10", endDate: "2025-12-10" },
-  { id: 11, code: "MOVIE50", name: "Movie Night 50k", type: "fixed", value: 50000, category: "Fest", companyName: "CGV", status: "used", startDate: "2025-01-20", endDate: "2025-10-20" },
-  { id: 12, code: "BREW20", name: "Brew Time 20%", type: "percentage", value: 20, category: "Coffee Shop", companyName: "Coffee House", status: "active", startDate: "2025-01-05", endDate: "2025-12-25" },
-  { id: 13, code: "SNACK15", name: "Snack 15k", type: "fixed", value: 15000, category: "Convenience Store", companyName: "Becamex Store", status: "active", startDate: "2025-02-15", endDate: "2025-09-15" },
-  { id: 14, code: "DINE25", name: "Dine Out 25%", type: "percentage", value: 25, category: "Restaurant", companyName: "Maisa", status: "used", startDate: "2025-03-10", endDate: "2025-08-10" },
-  { id: 15, code: "MART60", name: "Mart Special 60k", type: "fixed", value: 60000, category: "Supermarket", companyName: "Market Box", status: "active", startDate: "2025-01-25", endDate: "2025-11-25" },
-  { id: 16, code: "AQUA30", name: "Aqua Fun 30%", type: "percentage", value: 30, category: "Pool", companyName: "Vincom", status: "inactive", startDate: "2025-04-05", endDate: "2025-09-05" },
-  { id: 17, code: "CINEMA70", name: "Cinema Pass 70k", type: "fixed", value: 70000, category: "Fest", companyName: "CGV", status: "active", startDate: "2025-02-20", endDate: "2025-12-20" },
-  { id: 18, code: "LATTE18", name: "Latte Lover 18%", type: "percentage", value: 18, category: "Coffee Shop", companyName: "CONG Coffee", status: "used", startDate: "2025-01-15", endDate: "2025-10-15" },
-  { id: 19, code: "QUICK20", name: "Quick Shop 20k", type: "fixed", value: 20000, category: "Convenience Store", companyName: "Becamex Store", status: "active", startDate: "2025-03-01", endDate: "2025-11-01" },
-  { id: 20, code: "FEAST30", name: "Feast Time 30%", type: "percentage", value: 30, category: "Restaurant", companyName: "Maisa", status: "active", startDate: "2025-01-08", endDate: "2025-12-08" },
-  { id: 21, code: "GROCERY80", name: "Grocery 80k", type: "fixed", value: 80000, category: "Supermarket", companyName: "Market Box", status: "used", startDate: "2025-02-12", endDate: "2025-09-12" },
-  { id: 22, code: "SPLASH12", name: "Splash Day 12%", type: "percentage", value: 12, category: "Pool", companyName: "Vincom", status: "active", startDate: "2025-01-30", endDate: "2025-12-30" },
-  { id: 23, code: "SHOW90", name: "Show Time 90k", type: "fixed", value: 90000, category: "Fest", companyName: "CGV", status: "inactive", startDate: "2025-03-15", endDate: "2025-08-15" },
-  { id: 24, code: "ESPRESSO22", name: "Espresso Deal 22%", type: "percentage", value: 22, category: "Coffee Shop", companyName: "Coffee House", status: "active", startDate: "2025-01-12", endDate: "2025-11-12" },
-  { id: 25, code: "GRAB25", name: "Grab & Go 25k", type: "fixed", value: 25000, category: "Convenience Store", companyName: "Becamex Store", status: "used", startDate: "2025-02-25", endDate: "2025-10-25" },
-  { id: 26, code: "GOURMET35", name: "Gourmet 35%", type: "percentage", value: 35, category: "Restaurant", companyName: "Maisa", status: "active", startDate: "2025-01-18", endDate: "2025-12-18" },
-  { id: 27, code: "FRESH100", name: "Fresh Pick 100k", type: "fixed", value: 100000, category: "Supermarket", companyName: "Market Box", status: "active", startDate: "2025-03-20", endDate: "2025-11-20" },
-  { id: 28, code: "DIVE15", name: "Dive In 15%", type: "percentage", value: 15, category: "Pool", companyName: "Vincom", status: "used", startDate: "2025-02-05", endDate: "2025-09-05" },
-  { id: 29, code: "EVENT60", name: "Event Special 60k", type: "fixed", value: 60000, category: "Fest", companyName: "CGV", status: "active", startDate: "2025-01-22", endDate: "2025-12-22" },
-  { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", status: "active", startDate: "2025-01-28", endDate: "2025-11-28" },
+  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31" },
+  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30" },
+  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31" },
+  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15" },
+  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30" },
+  { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", status: "active", quantity: { used: 67, total: 100 }, startDate: "2025-01-10", endDate: "2025-12-20" },
+  { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", status: "inactive", quantity: { used: 50, total: 50 }, startDate: "2025-03-05", endDate: "2025-08-05" },
+  { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", status: "active", quantity: { used: 234, total: 1000 }, startDate: "2025-01-01", endDate: "2025-12-31" },
+  { id: 9, code: "FRESH40", name: "Fresh 40k", type: "fixed", value: 40000, category: "Supermarket", companyName: "Market Box", status: "inactive", quantity: { used: 15, total: 100 }, startDate: "2025-04-01", endDate: "2025-07-31" },
+  { id: 10, code: "SWIM10", name: "Swim 10%", type: "percentage", value: 10, category: "Pool", companyName: "Vincom", status: "active", quantity: { used: 78, total: 200 }, startDate: "2025-02-10", endDate: "2025-12-10" },
+  { id: 11, code: "MOVIE50", name: "Movie Night 50k", type: "fixed", value: 50000, category: "Fest", companyName: "CGV", status: "active", quantity: { used: 450, total: 800 }, startDate: "2025-01-20", endDate: "2025-10-20" },
+  { id: 12, code: "BREW20", name: "Brew Time 20%", type: "percentage", value: 20, category: "Coffee Shop", companyName: "Coffee House", status: "active", quantity: { used: 12, total: 75 }, startDate: "2025-01-05", endDate: "2025-12-25" },
+  { id: 13, code: "SNACK15", name: "Snack 15k", type: "fixed", value: 15000, category: "Convenience Store", companyName: "Becamex Store", status: "active", quantity: { used: 0, total: 300 }, startDate: "2025-02-15", endDate: "2025-09-15" },
+  { id: 14, code: "DINE25", name: "Dine Out 25%", type: "percentage", value: 25, category: "Restaurant", companyName: "Maisa", status: "inactive", quantity: { used: 100, total: 100 }, startDate: "2025-03-10", endDate: "2025-08-10" },
+  { id: 15, code: "MART60", name: "Mart Special 60k", type: "fixed", value: 60000, category: "Supermarket", companyName: "Market Box", status: "active", quantity: { used: 567, total: 1000 }, startDate: "2025-01-25", endDate: "2025-11-25" },
+  { id: 16, code: "AQUA30", name: "Aqua Fun 30%", type: "percentage", value: 30, category: "Pool", companyName: "Vincom", status: "inactive", quantity: { used: 25, total: 50 }, startDate: "2025-04-05", endDate: "2025-09-05" },
+  { id: 17, code: "CINEMA70", name: "Cinema Pass 70k", type: "fixed", value: 70000, category: "Fest", companyName: "CGV", status: "active", quantity: { used: 89, total: 250 }, startDate: "2025-02-20", endDate: "2025-12-20" },
+  { id: 18, code: "LATTE18", name: "Latte Lover 18%", type: "percentage", value: 18, category: "Coffee Shop", companyName: "CONG Coffee", status: "active", quantity: { used: 150, total: 150 }, startDate: "2025-01-15", endDate: "2025-10-15" },
+  { id: 19, code: "QUICK20", name: "Quick Shop 20k", type: "fixed", value: 20000, category: "Convenience Store", companyName: "Becamex Store", status: "active", quantity: { used: 34, total: 100 }, startDate: "2025-03-01", endDate: "2025-11-01" },
+  { id: 20, code: "FEAST30", name: "Feast Time 30%", type: "percentage", value: 30, category: "Restaurant", companyName: "Maisa", status: "active", quantity: { used: 401, total: 500 }, startDate: "2025-01-08", endDate: "2025-12-08" },
+  { id: 21, code: "GROCERY80", name: "Grocery 80k", type: "fixed", value: 80000, category: "Supermarket", companyName: "Market Box", status: "inactive", quantity: { used: 75, total: 75 }, startDate: "2025-02-12", endDate: "2025-09-12" },
+  { id: 22, code: "SPLASH12", name: "Splash Day 12%", type: "percentage", value: 12, category: "Pool", companyName: "Vincom", status: "active", quantity: { used: 56, total: 200 }, startDate: "2025-01-30", endDate: "2025-12-30" },
+  { id: 23, code: "SHOW90", name: "Show Time 90k", type: "fixed", value: 90000, category: "Fest", companyName: "CGV", status: "inactive", quantity: { used: 10, total: 100 }, startDate: "2025-03-15", endDate: "2025-08-15" },
+  { id: 24, code: "ESPRESSO22", name: "Espresso Deal 22%", type: "percentage", value: 22, category: "Coffee Shop", companyName: "Coffee House", status: "active", quantity: { used: 45, total: 120 }, startDate: "2025-01-12", endDate: "2025-11-12" },
+  { id: 25, code: "GRAB25", name: "Grab & Go 25k", type: "fixed", value: 25000, category: "Convenience Store", companyName: "Becamex Store", status: "active", quantity: { used: 80, total: 80 }, startDate: "2025-02-25", endDate: "2025-10-25" },
+  { id: 26, code: "GOURMET35", name: "Gourmet 35%", type: "percentage", value: 35, category: "Restaurant", companyName: "Maisa", status: "active", quantity: { used: 123, total: 300 }, startDate: "2025-01-18", endDate: "2025-12-18" },
+  { id: 27, code: "FRESH100", name: "Fresh Pick 100k", type: "fixed", value: 100000, category: "Supermarket", companyName: "Market Box", status: "active", quantity: { used: 234, total: 600 }, startDate: "2025-03-20", endDate: "2025-11-20" },
+  { id: 28, code: "DIVE15", name: "Dive In 15%", type: "percentage", value: 15, category: "Pool", companyName: "Vincom", status: "inactive", quantity: { used: 30, total: 30 }, startDate: "2025-02-05", endDate: "2025-09-05" },
+  { id: 29, code: "EVENT60", name: "Event Special 60k", type: "fixed", value: 60000, category: "Fest", companyName: "CGV", status: "active", quantity: { used: 178, total: 400 }, startDate: "2025-01-22", endDate: "2025-12-22" },
+  { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", status: "active", quantity: { used: 67, total: 150 }, startDate: "2025-01-28", endDate: "2025-11-28" },
 ];
 
 export default function VouchersPage() {
@@ -70,6 +74,7 @@ export default function VouchersPage() {
       category: "Restaurant",
       companyName: "Coffee House",
       status: "active",
+      quantity: { used: 0, total: 100 },
       startDate: new Date().toISOString().slice(0, 10),
       endDate: new Date().toISOString().slice(0, 10),
     });
@@ -221,7 +226,6 @@ export default function VouchersPage() {
               <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
-              <option value="used">Used</option>
             </select>
           </div>
 
@@ -266,6 +270,7 @@ export default function VouchersPage() {
                 <th className="px-6 py-4">COMPANY</th>
                 <th className="px-6 py-4">TYPE</th>
                 <th className="px-6 py-4">VALUE</th>
+                <th className="px-6 py-4">QUANTITY</th>
                 <th className="px-6 py-4">STATUS</th>
                 <th className="px-6 py-4">START</th>
                 <th className="px-6 py-4">END</th>
@@ -284,12 +289,35 @@ export default function VouchersPage() {
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                     {v.type === "percentage" ? `${v.value}%` : v.value.toLocaleString()}
                   </td>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium ${
+                        v.quantity.used >= v.quantity.total
+                          ? "text-red-600 dark:text-red-400"
+                          : v.quantity.used >= v.quantity.total * 0.8
+                          ? "text-orange-600 dark:text-orange-400"
+                          : "text-gray-900 dark:text-white"
+                      }`}>
+                        {v.quantity.used}/{v.quantity.total}
+                      </span>
+                      <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${
+                            v.quantity.used >= v.quantity.total
+                              ? "bg-red-600"
+                              : v.quantity.used >= v.quantity.total * 0.8
+                              ? "bg-orange-500"
+                              : "bg-green-500"
+                          }`}
+                          style={{ width: `${Math.min((v.quantity.used / v.quantity.total) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
                       v.status === "active"
                         ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-                        : v.status === "used"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400"
                         : "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400"
                     }`}>
                       {v.status}
@@ -494,6 +522,30 @@ export default function VouchersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Quantity Used
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editing.quantity.used}
+                    onChange={(e) => setEditing({ ...editing!, quantity: { ...editing!.quantity, used: Number(e.target.value) } })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Total Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editing.quantity.total}
+                    onChange={(e) => setEditing({ ...editing!, quantity: { ...editing!.quantity, total: Number(e.target.value) } })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Status
                   </label>
                   <select
@@ -503,7 +555,6 @@ export default function VouchersPage() {
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                    <option value="used">Used</option>
                   </select>
                 </div>
                 <div>

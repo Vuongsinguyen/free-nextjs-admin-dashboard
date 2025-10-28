@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -20,43 +20,43 @@ const roleOptions: RoleOption[] = [
   {
     id: "admin",
     nameKey: "roleAdmin",
-    description: "Quản trị viên hệ thống",
-    icon: "👑",
+    description: "System Administrator",
+    icon: "/images/icons/Setting.png",
     color: "bg-gradient-to-br from-yellow-400 to-orange-500"
   },
   {
     id: "building-owner",
     nameKey: "roleBuildingOwner", 
     description: "Chủ sở hữu tòa nhà",
-    icon: "🏢",
+    icon: "/images/icons/Info.png",
     color: "bg-gradient-to-br from-blue-500 to-purple-600"
   },
   {
     id: "home-owner",
     nameKey: "roleHomeOwner",
     description: "Chủ sở hữu nhà",
-    icon: "🏠",
+    icon: "/images/icons/home-owner.png",
     color: "bg-gradient-to-br from-green-500 to-teal-600"
   },
   {
     id: "tenant",
     nameKey: "roleTenant",
     description: "Người thuê nhà",
-    icon: "👤",
+    icon: "/images/icons/Calendar.png",
     color: "bg-gradient-to-br from-indigo-500 to-blue-600"
   },
   {
     id: "guest",
     nameKey: "roleGuest",
     description: "Khách",
-    icon: "👋",
+    icon: "/images/icons/guest.png",
     color: "bg-gradient-to-br from-gray-500 to-gray-600"
   },
   {
     id: "others",
     nameKey: "roleOthers",
     description: "Khác",
-    icon: "❓",
+    icon: "/images/icons/Clock.png",
     color: "bg-gradient-to-br from-pink-500 to-rose-600"
   }
 ];
@@ -65,10 +65,27 @@ export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const router = useRouter();
   const { isAuthenticated, loading } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
+
+  // Background images array
+  const backgroundImages = [
+    "/images/background/bg1.avif",
+    "/images/background/bg2.avif",
+    "/images/background/bg3.avif"
+  ];
+
+  // Auto-change background with fade effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBgIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
+    }, 10000); // Change every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Comment out auto redirect - luôn hiển thị trang chọn role
   // useEffect(() => {
@@ -129,7 +146,30 @@ export default function HomePage() {
   // }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-blue-light-50 dark:from-gray-950 dark:to-gray-900 pt-[100px] pb-8 px-4">
+    <div className="relative min-h-screen pt-[100px] pb-8 px-4 overflow-hidden">
+      {/* Background Image Slideshow with Fade Effect */}
+      <div className="fixed inset-0 -z-10">
+        {backgroundImages.map((image, index) => (
+          <div
+            key={image}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentBgIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <Image
+              src={image}
+              alt={`Background ${index + 1}`}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              quality={90}
+            />
+            {/* Linear gradient overlay - light blue-white at top (70%) fading to transparent at bottom (30%) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/85 from-70% to-transparent dark:from-cyan-900/50 dark:from-70% dark:to-transparent"></div>
+          </div>
+        ))}
+      </div>
+
       {/* Language Switcher & Theme Toggle */}
       <div className="fixed top-6 right-6 z-10 flex items-center gap-3">
         {/* Theme Toggle Button */}
@@ -192,24 +232,24 @@ export default function HomePage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <Image
-              className="dark:hidden"
+              className="dark:hidden drop-shadow-lg"
               src="/images/logo/logo.svg"
               alt="Logo"
               width={280}
               height={70}
             />
             <Image
-              className="hidden dark:block"
+              className="hidden dark:block drop-shadow-lg"
               src="/images/logo/logo-dark.svg"
               alt="Logo"
               width={280}
               height={70}
             />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {t('selectYourRole')}
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 drop-shadow-lg text-center">
+            WELCOME TO SPM - SMART POCKET HOME APPLICATION MANAGEMENT SYSTEM
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-700 dark:text-white/90 drop-shadow-md">
             {t('pleaseSelectAppropriateRole')}
           </p>
         </div>
@@ -221,10 +261,10 @@ export default function HomePage() {
               key={role.id}
               onClick={() => handleRoleSelect(role.id)}
               className={`
-                relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105
+                relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm
                 ${selectedRole === role.id 
-                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10 shadow-lg' 
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-brand-300'
+                  ? 'border-brand-500 bg-white/95 dark:bg-brand-500/20 shadow-lg shadow-brand-500/50' 
+                  : 'border-white/30 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 hover:border-brand-300 hover:bg-white/95'
                 }
               `}
             >
@@ -238,17 +278,26 @@ export default function HomePage() {
               )}
 
               {/* Role Icon */}
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-4 ${role.color}`}>
-                <span className="text-2xl">{role.icon}</span>
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+                {role.icon.startsWith('/images/') ? (
+                  <Image
+                    src={role.icon}
+                    alt={t(role.nameKey)}
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl ${role.color}`}>
+                    <span className="text-2xl">{role.icon}</span>
+                  </div>
+                )}
               </div>
 
               {/* Role Info */}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {t(role.nameKey)}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {role.description}
-              </p>
             </div>
           ))}
         </div>

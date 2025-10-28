@@ -70,14 +70,14 @@ export default function DemographicCard() {
               <Image
                 width={48}
                 height={48}
-                src="/images/country/country-01.svg"
-                alt="usa"
+                src="/images/country/vietnam.svg"
+                alt="vietnam"
                 className="w-full"
               />
             </div>
             <div>
               <p className="font-semibold text-gray-800 text-theme-sm dark:text-white/90">
-                USA
+                Vietnam
               </p>
               <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                 2,379 Customers
@@ -102,13 +102,13 @@ export default function DemographicCard() {
                 width={48}
                 height={48}
                 className="w-full"
-                src="/images/country/country-02.svg"
-                alt="france"
+                src="/images/country/japan.svg"
+                alt="japan"
               />
             </div>
             <div>
               <p className="font-semibold text-gray-800 text-theme-sm dark:text-white/90">
-                France
+                Japan
               </p>
               <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                 589 Customers
