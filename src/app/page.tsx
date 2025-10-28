@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
 import { useLocale } from "@/context/LocaleContext";
 import { locales, localeNames, localeFlags } from "@/lib/i18n";
@@ -67,13 +68,14 @@ export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated, loading } = useAuth();
   const { t, locale, setLocale } = useLocale();
+  const { theme, toggleTheme } = useTheme();
 
-  // Nếu đã đăng nhập, redirect đến dashboard
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, loading, router]);
+  // Comment out auto redirect - luôn hiển thị trang chọn role
+  // useEffect(() => {
+  //   if (!loading && isAuthenticated) {
+  //     router.replace('/dashboard');
+  //   }
+  // }, [isAuthenticated, loading, router]);
 
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
@@ -91,9 +93,14 @@ export default function HomePage() {
     const savedRole = localStorage.getItem("selectedRole");
     console.log("Role saved:", savedRole); // Debug log
     
-    // Chuyển hướng đến trang login
+    // Nếu đã đăng nhập, chuyển thẳng đến dashboard
+    // Nếu chưa đăng nhập, chuyển đến trang login
     setTimeout(() => {
-      router.push("/signin");
+      if (isAuthenticated) {
+        router.push("/dashboard");
+      } else {
+        router.push("/signin");
+      }
     }, 300);
   };
 
@@ -109,22 +116,40 @@ export default function HomePage() {
     );
   }
 
-  // Nếu đã đăng nhập, hiển thị loading redirect
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Đang chuyển đến dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // Luôn hiển thị trang chọn role, không redirect tự động
+  // if (isAuthenticated) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+  //       <div className="text-center">
+  //         <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+  //         <p className="text-gray-600 dark:text-gray-300">Đang chuyển đến dashboard...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-brand-50 to-blue-light-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4 z-50">
-      {/* Language Switcher */}
-      <div className="absolute top-6 right-6 z-10">
+      {/* Language Switcher & Theme Toggle */}
+      <div className="absolute top-6 right-6 z-10 flex items-center gap-3">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700 hover:scale-105"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? (
+            <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+            </svg>
+          )}
+        </button>
+
+        {/* Language Switcher */}
         <div className="relative">
           <button
             onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}

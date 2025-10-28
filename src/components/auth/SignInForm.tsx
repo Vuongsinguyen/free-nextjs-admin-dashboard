@@ -4,15 +4,41 @@ import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import { useAuth } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
+import { locales, localeNames, localeFlags } from "@/lib/i18n";
 import AccountsInfo from "@/components/auth/AccountsInfo";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const { login, loading } = useAuth();
+  const { t, locale, setLocale } = useLocale();
+
+  // Lấy role đã chọn từ localStorage
+  useEffect(() => {
+    const savedRole = localStorage.getItem('selectedRole');
+    if (savedRole) {
+      setSelectedRole(savedRole);
+    }
+  }, []);
+
+  // Function để lấy tên role hiển thị
+  const getRoleDisplayName = (roleId: string): string => {
+    const roleMap: Record<string, string> = {
+      'admin': t('roleAdmin'),
+      'building-owner': t('roleBuildingOwner'),
+      'home-owner': t('roleHomeOwner'),
+      'tenant': t('roleTenant'),
+      'guest': t('roleGuest'),
+      'others': t('roleOthers')
+    };
+    return roleMap[roleId] || roleId;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +64,45 @@ export default function SignInForm() {
     }
   };
   return (
-    <div className="flex flex-col flex-1 lg:w-1/2 w-full">
+    <div className="flex flex-col flex-1 lg:w-1/2 w-full relative">
+      {/* Language Switcher */}
+      <div className="absolute top-6 right-6 z-10">
+        <div className="relative">
+          <button
+            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
+          >
+            <span className="text-lg">{localeFlags[locale]}</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {localeNames[locale]}
+            </span>
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {showLanguageDropdown && (
+            <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 min-w-[160px]">
+              {locales.map((loc) => (
+                <button
+                  key={loc}
+                  onClick={() => {
+                    setLocale(loc);
+                    setShowLanguageDropdown(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                    locale === loc ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400' : 'text-gray-700 dark:text-gray-300'
+                  } ${loc === locales[0] ? 'rounded-t-lg' : ''} ${loc === locales[locales.length - 1] ? 'rounded-b-lg' : ''}`}
+                >
+                  <span className="text-lg">{localeFlags[loc]}</span>
+                  <span className="text-sm font-medium">{localeNames[loc]}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
         <Link
           href="/"
@@ -51,6 +115,13 @@ export default function SignInForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
+            {selectedRole && (
+              <div className="mb-3">
+                <p className="text-lg font-medium text-brand-600 dark:text-brand-400">
+                  Welcome {getRoleDisplayName(selectedRole)}
+                </p>
+              </div>
+            )}
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign In
             </h1>
