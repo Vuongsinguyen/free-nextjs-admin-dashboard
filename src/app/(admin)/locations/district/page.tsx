@@ -123,7 +123,7 @@ export default function DistrictPage() {
           <div>
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
+              onChange={(e) => setFilterType(e.target.value as "urban" | "rural" | "town" | "all")}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="all">All Types</option>

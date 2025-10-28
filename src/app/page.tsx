@@ -85,7 +85,7 @@ export default function HomePage() {
     }, 10000); // Change every 10 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [backgroundImages.length]);
 
   // Comment out auto redirect - luôn hiển thị trang chọn role
   // useEffect(() => {

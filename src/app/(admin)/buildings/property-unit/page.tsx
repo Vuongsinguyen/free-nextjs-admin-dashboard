@@ -183,7 +183,6 @@ const PropertyUnitPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const totalArea = units.reduce((sum, u) => sum + u.area, 0);
   const availableCount = units.filter((u) => u.status === "available").length;
   const occupiedCount = units.filter((u) => u.status === "occupied").length;
   const occupancyRate = units.length > 0 ? ((occupiedCount / units.length) * 100).toFixed(1) : 0;

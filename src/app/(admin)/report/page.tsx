@@ -172,16 +172,6 @@ export default function ReportPage() {
     );
   };
 
-  const handleDateChange = (reportId: string, type: 'start' | 'end', value: string) => {
-    setDateRanges(prev => ({
-      ...prev,
-      [reportId]: {
-        ...prev[reportId],
-        [type]: value
-      }
-    }));
-  };
-
   const handleDownload = (report: ReportCard) => {
     const dateRange = dateRanges[report.id];
     
