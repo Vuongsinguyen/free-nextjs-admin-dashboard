@@ -6,7 +6,6 @@ import { useLocale } from "@/context/LocaleContext";
 import UserTable from "@/components/user-management/UserTable";
 import UserModal from "@/components/user-management/UserModal";
 import UserFilters from "@/components/user-management/UserFilters";
-import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { User, UserFilters as IUserFilters, SortConfig } from "@/types/user-management";
 import mockAccounts from "@/data/mockAccounts.json";
 
@@ -163,9 +162,6 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <PageBreadCrumb pageTitle={t('userManagement.title')} />
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

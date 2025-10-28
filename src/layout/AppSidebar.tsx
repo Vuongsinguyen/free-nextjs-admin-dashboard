@@ -46,6 +46,7 @@ const AppSidebar: React.FC = () => {
       subItems: [
         { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
         { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
+        { nameKey: "nav.rolePermissions", path: "/user-management/permissions", pro: false },
       ],
     },
     {
