@@ -191,7 +191,15 @@ export default function HomePage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <Image
+              className="dark:hidden"
               src="/images/logo/logo.svg"
+              alt="Logo"
+              width={200}
+              height={50}
+            />
+            <Image
+              className="hidden dark:block"
+              src="/images/logo/logo-dark.svg"
               alt="Logo"
               width={200}
               height={50}

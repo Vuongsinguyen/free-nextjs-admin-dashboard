@@ -15,16 +15,6 @@ const roles = [
 
 export default function UserModal({ user, onClose, onSave }: UserModalProps) {
   const { t } = useLocale();
-
-  const permissionOptions = [
-    { value: "read", label: "View" },
-    { value: "write", label: "Edit" },
-    { value: "delete", label: "Delete" },
-    { value: "admin", label: "Admin" },
-    { value: "manage_users", label: "Manage Users" },
-    { value: "manage_buildings", label: "Manage Buildings" },
-    { value: "view_reports", label: "View Reports" },
-  ];
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -91,15 +81,6 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
     
     onSave(formData);
     setIsLoading(false);
-  };
-
-  const handlePermissionChange = (permission: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: checked
-        ? [...prev.permissions, permission]
-        : prev.permissions.filter(p => p !== permission)
-    }));
   };
 
   return (
@@ -206,30 +187,7 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
                 </select>
               </div>
 
-              {/* Permissions */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  {t('userManagement.permissions')}
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {permissionOptions.map((permission) => (
-                    <label
-                      key={permission.value}
-                      className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.permissions.includes(permission.value)}
-                        onChange={(e) => handlePermissionChange(permission.value, e.target.checked)}
-                        className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {permission.label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Permissions selection removed: permissions are assigned via Role */}
             </div>
 
             {/* Actions */}
