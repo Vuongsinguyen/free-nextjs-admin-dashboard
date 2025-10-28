@@ -129,9 +129,9 @@ export default function HomePage() {
   // }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-brand-50 to-blue-light-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-blue-light-50 dark:from-gray-950 dark:to-gray-900 pt-[100px] pb-8 px-4">
       {/* Language Switcher & Theme Toggle */}
-      <div className="absolute top-6 right-6 z-10 flex items-center gap-3">
+      <div className="fixed top-6 right-6 z-10 flex items-center gap-3">
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
@@ -186,7 +186,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl">
+      {/* Main Content Container */}
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -194,15 +195,15 @@ export default function HomePage() {
               className="dark:hidden"
               src="/images/logo/logo.svg"
               alt="Logo"
-              width={200}
-              height={50}
+              width={280}
+              height={70}
             />
             <Image
               className="hidden dark:block"
               src="/images/logo/logo-dark.svg"
               alt="Logo"
-              width={200}
-              height={50}
+              width={280}
+              height={70}
             />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -214,7 +215,7 @@ export default function HomePage() {
         </div>
 
         {/* Role Selection Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
           {roleOptions.map((role) => (
             <div
               key={role.id}
