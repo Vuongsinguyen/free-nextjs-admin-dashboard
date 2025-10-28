@@ -2,6 +2,11 @@
   "nav": {
     "menu": "Menu",
     "others": "Others",
+    "mainMenu": "Main Menu",
+    "serviceInvoice": "Service Invoice",
+    "myVouchers": "My Vouchers",
+    "events": "Events",
+    "myProperties": "My Properties",
     "dashboard": "Dashboard",
     "calendar": "Calendar",
     "userManagement": "User Management",

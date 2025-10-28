@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { useLocale } from "../context/LocaleContext";
+import { useAuth } from "../context/AuthContext";
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -30,6 +31,43 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const { t } = useLocale();
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
+
+  const getSmartHomeItems = (): NavItem[] => [
+    {
+      icon: <GridIcon />,
+      nameKey: "nav.mainMenu",
+      path: "/mainmenu",
+    },
+    {
+      icon: <TableIcon />,
+      nameKey: "nav.serviceInvoice",
+      path: "/invoices",
+    },
+    {
+      icon: <PieChartIcon />,
+      nameKey: "nav.myVouchers",
+      path: "/vouchers",
+    },
+    {
+      icon: <CalenderIcon />,
+      nameKey: "nav.announcements",
+      path: "/announcements",
+    },
+    {
+      icon: <CalenderIcon />,
+      nameKey: "nav.events",
+      path: "/events",
+    },
+    {
+      icon: <BoxCubeIcon />,
+      nameKey: "nav.myProperties",
+      path: "/buildings/property",
+    },
+  ];
 
   const getNavItems = (): NavItem[] => [
     {
@@ -132,7 +170,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "masterData" | "systemConfig"
+    menuType: "main" | "others" | "masterData" | "systemConfig" | "smartHome"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -257,7 +295,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "masterData" | "systemConfig";
+    type: "main" | "others" | "masterData" | "systemConfig" | "smartHome";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -270,7 +308,8 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    const menuTypes: { type: "main" | "masterData" | "systemConfig"; getItems: () => NavItem[] }[] = [
+    const menuTypes: { type: "main" | "masterData" | "systemConfig" | "smartHome"; getItems: () => NavItem[] }[] = [
+      { type: "smartHome", getItems: getSmartHomeItems },
       { type: "main", getItems: getNavItems },
       { type: "masterData", getItems: getMasterDataItems },
       { type: "systemConfig", getItems: getSystemConfigItems }
@@ -312,7 +351,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "masterData" | "systemConfig") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "masterData" | "systemConfig" | "smartHome") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -376,56 +415,81 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "QUICK ACCESS"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(getNavItems(), "main")}
-            </div>
+            {/* SMART HOME - Visible to NON-ADMIN users only */}
+            {!isAdmin && (
+              <div>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "SMART HOME"
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(getSmartHomeItems(), "smartHome")}
+              </div>
+            )}
 
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "MASTER DATA"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(getMasterDataItems(), "masterData")}
-            </div>
+            {/* Admin-only sections */}
+            {isAdmin && (
+              <>
+                <div>
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "QUICK ACCESS"
+                    ) : (
+                      <HorizontaLDots />
+                    )}
+                  </h2>
+                  {renderMenuItems(getNavItems(), "main")}
+                </div>
 
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "SYSTEM CONFIGURATION"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(getSystemConfigItems(), "systemConfig")}
-            </div>
+                <div className="">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "MASTER DATA"
+                    ) : (
+                      <HorizontaLDots />
+                    )}
+                  </h2>
+                  {renderMenuItems(getMasterDataItems(), "masterData")}
+                </div>
+
+                <div className="">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "SYSTEM CONFIGURATION"
+                    ) : (
+                      <HorizontaLDots />
+                    )}
+                  </h2>
+                  {renderMenuItems(getSystemConfigItems(), "systemConfig")}
+                </div>
+              </>
+            )}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
