@@ -26,7 +26,7 @@ export interface UserTableProps {
   onSort: (key: keyof User) => void;
   onEdit: (user: User) => void;
   onDelete: (userId: number) => void;
-  currentUser: any;
+  currentUser: { id: number; role: string; email: string; name: string } | null;
 }
 
 export interface UserModalProps {

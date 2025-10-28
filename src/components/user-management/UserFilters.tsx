@@ -111,7 +111,7 @@ export default function UserFilters({ filters, onFiltersChange, users }: UserFil
             <span className="text-sm text-gray-600 dark:text-gray-300">{t('userManagement.activeFilters')}</span>
             {filters.search && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-brand-100 text-brand-800 dark:bg-brand-900/20 dark:text-brand-400">
-                {t('userManagement.search')}: "{filters.search}"
+                {t('userManagement.search')}: &quot;{filters.search}&quot;
                 <button
                   onClick={() => handleFilterChange("search", "")}
                   className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-brand-400 hover:bg-brand-200 hover:text-brand-500 focus:outline-none focus:bg-brand-200 focus:text-brand-500"
