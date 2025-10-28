@@ -81,7 +81,7 @@ export default function MonthlyTarget() {
               This Month's Apartment Fee
             </h3>
             <p className="mt-1 font-normal text-gray-500 text-theme-sm dark:text-gray-400">
-              Target you've set for each month
+              Households That Have Fully Paid Their Fees
             </p>
           </div>
           <div className="relative inline-block">
@@ -125,8 +125,7 @@ export default function MonthlyTarget() {
           </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
-          good work!
+          +120 households paid today. No issues reported
         </p>
       </div>
 
