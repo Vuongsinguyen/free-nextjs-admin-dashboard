@@ -99,6 +99,7 @@ const AppSidebar: React.FC = () => {
       nameKey: "nav.vouchersPromotions",
       subItems: [
         { nameKey: "nav.allVouchers", path: "/vouchers", pro: false },
+        { nameKey: "nav.myVouchers", path: "/myvouchers", pro: false },
         { nameKey: "nav.promotions", path: "/promotions", pro: false },
       ],
     },
