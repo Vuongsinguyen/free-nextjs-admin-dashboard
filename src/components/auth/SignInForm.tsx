@@ -57,7 +57,13 @@ export default function SignInForm() {
     if (success) {
       // Đợi một chút để đảm bảo authentication state đã được update
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        // Redirect based on role
+        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
+        if (nonAdminRoles.includes(selectedRole)) {
+          window.location.href = '/mainmenu';
+        } else {
+          window.location.href = '/dashboard';
+        }
       }, 200);
     } else {
       setError('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');

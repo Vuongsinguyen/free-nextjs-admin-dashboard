@@ -110,11 +110,16 @@ export default function HomePage() {
     const savedRole = localStorage.getItem("selectedRole");
     console.log("Role saved:", savedRole); // Debug log
     
-    // Nếu đã đăng nhập, chuyển thẳng đến dashboard
+    // Nếu đã đăng nhập, chuyển đến trang tương ứng với role
     // Nếu chưa đăng nhập, chuyển đến trang login
     setTimeout(() => {
       if (isAuthenticated) {
-        router.push("/dashboard");
+        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
+        if (nonAdminRoles.includes(selectedRole)) {
+          router.push("/mainmenu");
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         router.push("/signin");
       }
