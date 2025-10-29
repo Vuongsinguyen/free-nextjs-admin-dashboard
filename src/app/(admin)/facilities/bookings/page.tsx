@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 interface Booking {
   id: number;
@@ -25,7 +24,7 @@ interface Booking {
 }
 
 export default function FacilityBookingsPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);

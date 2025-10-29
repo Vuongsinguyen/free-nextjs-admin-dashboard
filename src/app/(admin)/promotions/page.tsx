@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 interface Promotion {
   id: number;
@@ -20,7 +19,7 @@ interface Promotion {
 }
 
 export default function PromotionsPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [filteredPromotions, setFilteredPromotions] = useState<Promotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);

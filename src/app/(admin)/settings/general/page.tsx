@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 export default function GeneralSettingsPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     siteName: "Smart Property Management",
@@ -38,7 +37,7 @@ export default function GeneralSettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">General Settings</h1>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Manage your application's general configuration and preferences
+          Manage your application&apos;s general configuration and preferences
         </p>
       </div>
 

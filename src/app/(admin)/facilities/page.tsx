@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 interface Facility {
   id: number;
@@ -21,7 +20,7 @@ interface Facility {
 }
 
 export default function FacilitiesPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [filteredFacilities, setFilteredFacilities] = useState<Facility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -254,10 +253,6 @@ export default function FacilitiesPage() {
       style: "currency",
       currency: "VND",
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
   const getOccupancyPercentage = (current: number, capacity: number) => {

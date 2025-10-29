@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 interface MaintenanceSchedule {
   id: number;
@@ -21,7 +20,7 @@ interface MaintenanceSchedule {
 }
 
 export default function MaintenanceSchedulePage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [schedules, setSchedules] = useState<MaintenanceSchedule[]>([]);
   const [filteredSchedules, setFilteredSchedules] = useState<MaintenanceSchedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);

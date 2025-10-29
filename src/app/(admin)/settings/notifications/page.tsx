@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 export default function NotificationSettingsPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     // Email Notifications

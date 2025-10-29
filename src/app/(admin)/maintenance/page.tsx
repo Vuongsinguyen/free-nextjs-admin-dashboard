@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useLocale } from "@/context/LocaleContext";
 
 interface MaintenanceRequest {
   id: number;
@@ -25,7 +24,7 @@ interface MaintenanceRequest {
 }
 
 export default function MaintenancePage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MaintenanceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
