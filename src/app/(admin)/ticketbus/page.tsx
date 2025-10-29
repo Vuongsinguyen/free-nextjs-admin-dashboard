@@ -65,41 +65,41 @@ export default function TicketBusPage() {
           </div>
 
           <div className="p-6 md:p-8">
-            <div className="grid md:grid-cols-1 gap-8">
-              {/* User Information */}
-              <div className="space-y-6">
-                {/* User Photo */}
-                <div className="flex justify-center">
-                  <div className="relative">
-                    <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-brand-500 shadow-lg">
-                      <Image
-                        src={userData.photo}
-                        alt={userData.name}
-                        width={160}
-                        height={160}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    {isConfirmed && (
-                      <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-3 shadow-lg animate-bounce">
-                        <svg
-                          className="w-8 h-8 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                    )}
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left Side - User Photo */}
+              <div className="flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-brand-500 shadow-lg">
+                    <Image
+                      src={userData.photo}
+                      alt={userData.name}
+                      width={256}
+                      height={256}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
+                  {isConfirmed && (
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-3 shadow-lg animate-bounce">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
+              </div>
 
+              {/* Right Side - User Information & Confirmation */}
+              <div className="space-y-6 flex flex-col justify-center">
                 {/* User Details */}
                 <div className="space-y-4">
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
