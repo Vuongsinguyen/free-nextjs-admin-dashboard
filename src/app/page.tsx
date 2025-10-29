@@ -63,7 +63,6 @@ const roleOptions: RoleOption[] = [
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const router = useRouter();
@@ -97,9 +96,6 @@ export default function HomePage() {
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
     
-    // Auto continue when role is selected
-    setIsLoading(true);
-    
     // Lưu role vào localStorage
     localStorage.setItem("selectedRole", roleId);
     
@@ -120,36 +116,7 @@ export default function HomePage() {
       } else {
         router.push("/signin");
       }
-      setIsLoading(false);
     }, 500);
-  };
-
-  const handleContinue = () => {
-    if (!selectedRole) return;
-    
-    setIsLoading(true);
-    
-    // Lưu role vào localStorage
-    localStorage.setItem("selectedRole", selectedRole);
-    
-    // Verify role được lưu thành công
-    const savedRole = localStorage.getItem("selectedRole");
-    console.log("Role saved:", savedRole); // Debug log
-    
-    // Nếu đã đăng nhập, chuyển đến trang tương ứng với role
-    // Nếu chưa đăng nhập, chuyển đến trang login
-    setTimeout(() => {
-      if (isAuthenticated) {
-        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
-        if (nonAdminRoles.includes(selectedRole)) {
-          router.push("/mainmenu");
-        } else {
-          router.push("/dashboard");
-        }
-      } else {
-        router.push("/signin");
-      }
-    }, 300);
   };
 
   // Hiển thị loading khi đang kiểm tra authentication
