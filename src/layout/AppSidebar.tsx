@@ -50,7 +50,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <PieChartIcon />,
       nameKey: "nav.myVouchers",
-      path: "/vouchers",
+      path: "/myvouchers",
     },
     {
       icon: <CalenderIcon />,
