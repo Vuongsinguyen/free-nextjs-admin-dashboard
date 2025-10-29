@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLocale } from "@/context/LocaleContext";
 
 export default function MainMenuPage() {
-  const { t } = useLocale();
+  // const { t } = useLocale();
 
   const menuItems = [
     {
