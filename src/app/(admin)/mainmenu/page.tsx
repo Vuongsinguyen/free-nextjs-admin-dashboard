@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "@/context/LocaleContext";
+// import { useLocale } from "@/context/LocaleContext";
 
 export default function MainMenuPage() {
   // const { t } = useLocale();
