@@ -55,7 +55,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <CalenderIcon />,
       nameKey: "nav.announcements",
-      path: "/announcements",
+      path: "/allannouncements",
     },
     {
       icon: <CalenderIcon />,
@@ -91,7 +91,7 @@ const AppSidebar: React.FC = () => {
       nameKey: "nav.eventsAnnouncements",
       subItems: [
         { nameKey: "nav.allEvents", path: "/events", pro: false },
-        { nameKey: "nav.announcements", path: "/announcements", pro: false },
+        { nameKey: "nav.announcements", path: "/allannouncements", pro: false },
       ],
     },
     {
