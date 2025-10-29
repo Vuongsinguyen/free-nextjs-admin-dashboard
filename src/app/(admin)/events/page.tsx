@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
 interface Event {
   id: number;
@@ -139,7 +138,15 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-6">
-      <PageBreadcrumb pageTitle="Events Management" />
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Events Management
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
+          Manage and track all building events, meetings, and activities
+        </p>
+      </div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
