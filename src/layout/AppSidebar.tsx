@@ -99,7 +99,6 @@ const AppSidebar: React.FC = () => {
       nameKey: "nav.vouchersPromotions",
       subItems: [
         { nameKey: "nav.allVouchers", path: "/vouchers", pro: false },
-        { nameKey: "nav.myVouchers", path: "/myvouchers", pro: false },
         { nameKey: "nav.promotions", path: "/promotions", pro: false },
       ],
     },
@@ -416,7 +415,7 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            {/* SMART HOME - Visible to NON-ADMIN users only */}
+            {/* MY SMART HOME - Visible to NON-ADMIN users only */}
             {!isAdmin && (
               <div>
                 <h2
@@ -427,7 +426,7 @@ const AppSidebar: React.FC = () => {
                   }`}
                 >
                   {isExpanded || isHovered || isMobileOpen ? (
-                    "SMART HOME"
+                    "MY SMART HOME"
                   ) : (
                     <HorizontaLDots />
                   )}
@@ -454,6 +453,23 @@ const AppSidebar: React.FC = () => {
                     )}
                   </h2>
                   {renderMenuItems(getNavItems(), "main")}
+                </div>
+
+                <div>
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "MY SMART HOME"
+                    ) : (
+                      <HorizontaLDots />
+                    )}
+                  </h2>
+                  {renderMenuItems(getSmartHomeItems(), "smartHome")}
                 </div>
 
                 <div className="">

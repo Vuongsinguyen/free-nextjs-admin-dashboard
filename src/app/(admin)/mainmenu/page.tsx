@@ -55,6 +55,30 @@ export default function MainMenuPage() {
       color: "from-pink-500 to-pink-600",
       href: "/vouchers",
     },
+    {
+      id: "announcements",
+      title: "Announcements",
+      description: "View latest announcements",
+      icon: "📢",
+      color: "from-orange-500 to-orange-600",
+      href: "/announcements",
+    },
+    {
+      id: "profile",
+      title: "My Profile",
+      description: "Manage your profile settings",
+      icon: "👤",
+      color: "from-teal-500 to-teal-600",
+      href: "/profile",
+    },
+    {
+      id: "ticketbus",
+      title: "Ticket Bus",
+      description: "Book and manage bus tickets",
+      icon: "🚌",
+      color: "from-red-500 to-red-600",
+      href: "/ticketbus",
+    },
   ];
 
   return (
