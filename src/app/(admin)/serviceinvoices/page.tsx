@@ -103,7 +103,7 @@ export default function ServiceInvoicesPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Service Invoices</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">User's monthly utility and service invoices</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">User&apos;s monthly utility and service invoices</p>
       </div>
 
       {/* User Card */}
@@ -142,7 +142,7 @@ export default function ServiceInvoicesPage() {
           />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as "all" | InvoiceStatus)}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
           >
             <option value="all">All Status</option>

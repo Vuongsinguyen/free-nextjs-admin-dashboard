@@ -20,7 +20,7 @@ interface Property {
 }
 
 const PropertyPage = () => {
-  const [properties, setProperties] = useState<Property[]>([
+  const [properties] = useState<Property[]>([
     {
       id: 1,
       code: "PRJ001",
