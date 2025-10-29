@@ -219,83 +219,67 @@ const PropertyPage = () => {
         </div>
       </div>
 
-      {/* Projects Grid (Cards) */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredProperties.map((property) => (
-          <div
-            key={property.id}
-            className="bg-white rounded-lg shadow dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden"
-          >
-            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {property.name}
-                </h3>
-                {getStatusBadge(property.status)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Code: <span className="font-mono font-semibold">{property.code}</span>
-              </div>
-            </div>
-
-            <div className="p-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 12.414a4 4 0 10-1.414 1.414l4.243 4.243a1 1 0 001.414-1.414z" />
-                </svg>
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Location</div>
-                  <div className="text-sm text-gray-900 dark:text-white">{property.location}</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h3m10-12h1a2 2 0 012 2v3m-6 6h3a2 2 0 002-2v-3M9 21V9a2 2 0 012-2h2a2 2 0 012 2v12M9 7V3h6v4" />
-                </svg>
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Developer</div>
-                  <div className="text-sm text-gray-900 dark:text-white">{property.developer}</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
-                </svg>
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Category</div>
-                  <div className="text-sm text-gray-900 dark:text-white">{property.categoryName}</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8m-6-4h4M7 3h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
-                </svg>
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Area</div>
-                  <div className="text-sm text-gray-900 dark:text-white">{property.totalArea} ha</div>
-                </div>
-              </div>
-              {property.description && (
-                <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{property.description}</div>
-              )}
-            </div>
-
-            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">Zones: {property.totalZones}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">Buildings: {property.totalBuildings}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">Units: {property.totalUnits}</span>
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* Projects Table (Admin) */}
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900">
+        <div className="flex items-center p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Real Estate Projects</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Code</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Project Name</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Location</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Developer</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Category</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Area (ha)</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Zones</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Buildings</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Units</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Status</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+              {filteredProperties.map((property) => (
+                <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 py-1 text-xs font-semibold text-brand-700 bg-brand-100 rounded dark:bg-brand-900/20 dark:text-brand-400">
+                      {property.code}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{property.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{property.description}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.location}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.developer}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.categoryName}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.totalArea}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.totalZones}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.totalBuildings}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="text-sm text-gray-900 dark:text-white">{property.totalUnits}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(property.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Modal removed (no editing in card view) */}
     </div>
   );
 };

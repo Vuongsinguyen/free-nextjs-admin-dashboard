@@ -65,7 +65,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <BoxCubeIcon />,
       nameKey: "nav.myProperties",
-      path: "/buildings/property",
+      path: "/buildings/myproperty",
     },
   ];
 
