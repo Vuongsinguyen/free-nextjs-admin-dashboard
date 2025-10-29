@@ -44,8 +44,8 @@ const AppSidebar: React.FC = () => {
     },
     {
       icon: <TableIcon />,
-      nameKey: "nav.serviceInvoice",
-      path: "/invoices",
+  nameKey: "nav.serviceInvoice",
+  path: "/serviceinvoices",
     },
     {
       icon: <PieChartIcon />,

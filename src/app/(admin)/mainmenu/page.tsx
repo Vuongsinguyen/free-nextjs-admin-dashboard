@@ -37,7 +37,7 @@ export default function MainMenuPage() {
       description: "View service invoices",
       icon: "📄",
       color: "from-purple-500 to-purple-600",
-      href: "/invoices",
+      href: "/serviceinvoices",
     },
     {
       id: "properties",
