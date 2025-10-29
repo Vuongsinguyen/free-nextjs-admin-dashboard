@@ -55,7 +55,7 @@ const AppSidebar: React.FC = () => {
     {
       icon: <CalenderIcon />,
       nameKey: "nav.announcements",
-      path: "/allannouncements",
+      path: "/announcements",
     },
     {
       icon: <CalenderIcon />,

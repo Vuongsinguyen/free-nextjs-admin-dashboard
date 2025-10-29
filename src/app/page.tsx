@@ -96,6 +96,32 @@ export default function HomePage() {
 
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
+    
+    // Auto continue when role is selected
+    setIsLoading(true);
+    
+    // Lưu role vào localStorage
+    localStorage.setItem("selectedRole", roleId);
+    
+    // Verify role được lưu thành công
+    const savedRole = localStorage.getItem("selectedRole");
+    console.log("Role saved:", savedRole); // Debug log
+    
+    // Nếu đã đăng nhập, chuyển đến trang tương ứng với role
+    // Nếu chưa đăng nhập, chuyển đến trang login
+    setTimeout(() => {
+      if (isAuthenticated) {
+        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
+        if (nonAdminRoles.includes(roleId)) {
+          router.push("/mainmenu");
+        } else {
+          router.push("/dashboard");
+        }
+      } else {
+        router.push("/signin");
+      }
+      setIsLoading(false);
+    }, 500);
   };
 
   const handleContinue = () => {
@@ -305,30 +331,6 @@ export default function HomePage() {
               </h3>
             </div>
           ))}
-        </div>
-
-        {/* Continue Button */}
-        <div className="text-center">
-          <button
-            onClick={handleContinue}
-            disabled={!selectedRole || isLoading}
-            className={`
-              px-8 py-3 rounded-lg font-medium text-white transition-all duration-200
-              ${selectedRole && !isLoading
-                ? 'bg-brand-500 hover:bg-brand-600 shadow-lg hover:shadow-xl'
-                : 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-              }
-            `}
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {t('processing')}
-              </div>
-            ) : (
-              t('continue')
-            )}
-          </button>
         </div>
       </div>
     </div>
