@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 export default function TicketBusPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -19,11 +18,10 @@ export default function TicketBusPage() {
 
   // Mock user data
   const userData = {
-    name: "Nguyễn Văn A",
+    name: "Nguyen Van A",
     dateOfBirth: "15/05/1990",
     idNumber: "001234567890",
-    photo: "/images/user/user-01.png",
-    busImage: "/images/product/product-01.png", // You can change this to actual bus image
+    photo: "/images/user/owner.jpg",
   };
 
   const formatTime = (date: Date) => {
@@ -46,14 +44,6 @@ export default function TicketBusPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <PageBreadCrumb
-        pageName="Ticket Bus"
-        items={[
-          { name: "Dashboard", path: "/" },
-          { name: "Ticket Bus", path: "/ticketbus" },
-        ]}
-      />
-
       <div className="mt-6 max-w-4xl mx-auto">
         {/* Bus Ticket Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border-2 border-brand-500">
@@ -62,7 +52,7 @@ export default function TicketBusPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-white">Bus Ticket</h2>
-                <p className="text-brand-100 text-sm">Vé xe buýt cư dân</p>
+                <p className="text-brand-100 text-sm">Resident Bus Ticket</p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                 <div className="text-white text-center">
@@ -75,8 +65,8 @@ export default function TicketBusPage() {
           </div>
 
           <div className="p-6 md:p-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left Side - User Information */}
+            <div className="grid md:grid-cols-1 gap-8">
+              {/* User Information */}
               <div className="space-y-6">
                 {/* User Photo */}
                 <div className="flex justify-center">
@@ -114,7 +104,7 @@ export default function TicketBusPage() {
                 <div className="space-y-4">
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                      Họ và tên
+                      Full Name
                     </label>
                     <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                       {userData.name}
@@ -123,7 +113,7 @@ export default function TicketBusPage() {
 
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                      Ngày tháng năm sinh
+                      Date of Birth
                     </label>
                     <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                       {userData.dateOfBirth}
@@ -132,29 +122,11 @@ export default function TicketBusPage() {
 
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                      Căn cước ID / Mã định danh
+                      ID Number
                     </label>
                     <p className="text-lg font-bold text-gray-900 dark:text-white mt-1 font-mono">
                       {userData.idNumber}
                     </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side - Bus Information */}
-              <div className="space-y-6">
-                {/* Bus Image */}
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 block">
-                    Hình ảnh xe bus
-                  </label>
-                  <div className="relative aspect-video rounded-lg overflow-hidden shadow-md">
-                    <Image
-                      src={userData.busImage}
-                      alt="Bus"
-                      fill
-                      className="object-cover"
-                    />
                   </div>
                 </div>
 
@@ -174,10 +146,10 @@ export default function TicketBusPage() {
                     </svg>
                     <div>
                       <h4 className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
-                        Chống gian lận
+                        Anti-Fraud Protection
                       </h4>
                       <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                        Thời gian hiển thị real-time để đảm bảo vé không thể sao chép hoặc tái sử dụng.
+                        Real-time clock display ensures tickets cannot be copied or reused.
                       </p>
                     </div>
                   </div>
@@ -208,7 +180,7 @@ export default function TicketBusPage() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      Đã xác nhận
+                      Confirmed
                     </span>
                   ) : (
                     "Confirmation"
@@ -235,10 +207,10 @@ export default function TicketBusPage() {
                     />
                   </svg>
                   <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">
-                    Vé đã được xác nhận
+                    Ticket Confirmed
                   </h3>
                   <p className="text-green-600 dark:text-green-500">
-                    Vé hợp lệ lúc {formatTime(currentTime)} - {formatDate(currentTime)}
+                    Valid at {formatTime(currentTime)} - {formatDate(currentTime)}
                   </p>
                 </div>
               </div>
@@ -252,7 +224,7 @@ export default function TicketBusPage() {
                 Ticket ID: <span className="font-mono font-semibold">BUS-{Date.now().toString().slice(-8)}</span>
               </span>
               <span className="text-gray-600 dark:text-gray-400">
-                Cư dân hợp lệ
+                Valid Resident
               </span>
             </div>
           </div>
