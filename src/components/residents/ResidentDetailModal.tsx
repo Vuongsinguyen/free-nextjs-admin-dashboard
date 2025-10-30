@@ -10,21 +10,21 @@ interface ResidentDetailModalProps {
 export default function ResidentDetailModal({ user, onClose }: ResidentDetailModalProps) {
   if (!user) return null;
 
-  // Mock additional data for the resident details
+  // Use actual user data instead of mock data
   const residentDetails = {
-    propertyName: "Garden City Tower A",
-    roomNumber: "A-1501",
-    fullName: user.name,
-    gender: "Male",
-    contractType: user.role === "admin" ? "Owner" : user.role === "building-owner" ? "Landlord" : user.role === "home-owner" ? "SA" : "BTOS",
-    phoneNumber: "+84 123 456 789",
+    propertyName: user.propertyName || "Not specified",
+    roomNumber: user.roomNumber || "Not specified",
+    fullName: user.fullName || user.name,
+    gender: user.gender || "Not specified",
+    contractType: user.contractType || "Not specified",
+    phoneNumber: user.phoneNumber || "Not specified",
     email: user.email,
-    nationality: "Vietnamese",
-    passportNumber: "VN123456789",
-    passportIssueDate: "2020-01-15",
-    passportIssuePlace: "Ho Chi Minh City",
-    cohabitants: "Spouse: Nguyen Thi B, Child: Nguyen Van C (5 years old)",
-    otherInfo: "Corporate entity: ABC Company Ltd."
+    nationality: user.nationality || "Not specified",
+    passportNumber: user.passportNumber || "Not specified",
+    passportIssueDate: user.passportIssueDate || "Not specified",
+    passportIssuePlace: user.passportIssuePlace || "Not specified",
+    cohabitants: user.cohabitants || "None",
+    otherInfo: user.otherInfo || "Individual resident"
   };
 
   return (

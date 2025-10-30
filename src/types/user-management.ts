@@ -7,6 +7,19 @@ export interface User {
   permissions: string[];
   createdAt: string;
   updatedAt: string;
+  // New resident-specific fields
+  propertyName?: string;
+  roomNumber?: string;
+  fullName?: string;
+  gender?: string;
+  contractType?: string;
+  phoneNumber?: string;
+  nationality?: string;
+  passportNumber?: string;
+  passportIssueDate?: string;
+  passportIssuePlace?: string;
+  cohabitants?: string;
+  otherInfo?: string;
 }
 
 export interface UserFilters {

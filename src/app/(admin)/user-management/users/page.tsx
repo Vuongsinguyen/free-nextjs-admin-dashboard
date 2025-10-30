@@ -78,10 +78,14 @@ export default function UsersPage() {
       const aValue = a[sortConfig.key as keyof User];
       const bValue = b[sortConfig.key as keyof User];
 
-      if (aValue < bValue) {
+      // Handle undefined/null values
+      const aVal = aValue ?? '';
+      const bVal = bValue ?? '';
+
+      if (aVal < bVal) {
         return sortConfig.direction === "asc" ? -1 : 1;
       }
-      if (aValue > bValue) {
+      if (aVal > bVal) {
         return sortConfig.direction === "asc" ? 1 : -1;
       }
       return 0;

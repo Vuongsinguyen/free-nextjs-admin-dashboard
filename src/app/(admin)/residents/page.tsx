@@ -44,6 +44,19 @@ export default function ResidentPage() {
           permissions: account.permissions,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          // New resident-specific fields
+          propertyName: account.propertyName,
+          roomNumber: account.roomNumber,
+          fullName: account.fullName,
+          gender: account.gender,
+          contractType: account.contractType,
+          phoneNumber: account.phoneNumber,
+          nationality: account.nationality,
+          passportNumber: account.passportNumber,
+          passportIssueDate: account.passportIssueDate,
+          passportIssuePlace: account.passportIssuePlace,
+          cohabitants: account.cohabitants,
+          otherInfo: account.otherInfo,
         }));
         setUsers(usersData);
         setIsLoading(false);
@@ -78,10 +91,14 @@ export default function ResidentPage() {
       const aValue = a[sortConfig.key as keyof User];
       const bValue = b[sortConfig.key as keyof User];
 
-      if (aValue < bValue) {
+      // Handle undefined/null values
+      const aVal = aValue ?? '';
+      const bVal = bValue ?? '';
+
+      if (aVal < bVal) {
         return sortConfig.direction === "asc" ? -1 : 1;
       }
-      if (aValue > bValue) {
+      if (aVal > bVal) {
         return sortConfig.direction === "asc" ? 1 : -1;
       }
       return 0;
