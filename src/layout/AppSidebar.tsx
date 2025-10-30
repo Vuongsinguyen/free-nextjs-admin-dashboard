@@ -36,39 +36,6 @@ const AppSidebar: React.FC = () => {
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
 
-  const getSmartHomeItems = (): NavItem[] => [
-    {
-      icon: <GridIcon />,
-      nameKey: "nav.mainMenu",
-      path: "/mainmenu",
-    },
-    {
-      icon: <TableIcon />,
-  nameKey: "nav.serviceInvoice",
-  path: "/serviceinvoices",
-    },
-    {
-      icon: <PieChartIcon />,
-      nameKey: "nav.myVouchers",
-      path: "/myvouchers",
-    },
-    {
-      icon: <CalenderIcon />,
-      nameKey: "nav.announcements",
-      path: "/announcements",
-    },
-    {
-      icon: <CalenderIcon />,
-      nameKey: "nav.events",
-      path: "/events",
-    },
-    {
-      icon: <BoxCubeIcon />,
-      nameKey: "nav.myProperties",
-      path: "/buildings/myproperty",
-    },
-  ];
-
   const getNavItems = (): NavItem[] => [
     {
       icon: <GridIcon />,
@@ -170,7 +137,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "masterData" | "systemConfig" | "smartHome"
+    menuType: "main" | "others" | "masterData" | "systemConfig"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -295,7 +262,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "masterData" | "systemConfig" | "smartHome";
+    type: "main" | "others" | "masterData" | "systemConfig";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -308,8 +275,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    const menuTypes: { type: "main" | "masterData" | "systemConfig" | "smartHome"; getItems: () => NavItem[] }[] = [
-      { type: "smartHome", getItems: getSmartHomeItems },
+    const menuTypes: { type: "main" | "masterData" | "systemConfig"; getItems: () => NavItem[] }[] = [
       { type: "main", getItems: getNavItems },
       { type: "masterData", getItems: getMasterDataItems },
       { type: "systemConfig", getItems: getSystemConfigItems }
@@ -351,7 +317,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "masterData" | "systemConfig" | "smartHome") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "masterData" | "systemConfig") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -415,26 +381,6 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            {/* MY SMART HOME - Visible to NON-ADMIN users only */}
-            {!isAdmin && (
-              <div>
-                <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                    !isExpanded && !isHovered
-                      ? "lg:justify-center"
-                      : "justify-start"
-                  }`}
-                >
-                  {isExpanded || isHovered || isMobileOpen ? (
-                    "MY SMART HOME"
-                  ) : (
-                    <HorizontaLDots />
-                  )}
-                </h2>
-                {renderMenuItems(getSmartHomeItems(), "smartHome")}
-              </div>
-            )}
-
             {/* Admin-only sections */}
             {isAdmin && (
               <>
@@ -453,23 +399,6 @@ const AppSidebar: React.FC = () => {
                     )}
                   </h2>
                   {renderMenuItems(getNavItems(), "main")}
-                </div>
-
-                <div>
-                  <h2
-                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                      !isExpanded && !isHovered
-                        ? "lg:justify-center"
-                        : "justify-start"
-                    }`}
-                  >
-                    {isExpanded || isHovered || isMobileOpen ? (
-                      "MY SMART HOME"
-                    ) : (
-                      <HorizontaLDots />
-                    )}
-                  </h2>
-                  {renderMenuItems(getSmartHomeItems(), "smartHome")}
                 </div>
 
                 <div className="">
