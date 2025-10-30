@@ -74,8 +74,8 @@ const AppSidebar: React.FC = () => {
       icon: <GridIcon />,
       nameKey: "nav.dashboard",
       subItems: [
-        { nameKey: "nav.ecommerce", path: "/dashboard", pro: false },
-        { nameKey: "nav.report", path: "/report", pro: false }
+        { nameKey: "nav.report", path: "/report", pro: false },
+        { nameKey: "nav.resident", path: "/residents", pro: false }
       ],
     },
     {

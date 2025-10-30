@@ -6,12 +6,11 @@ const AccountsInfo = () => {
   const [copiedField, setCopiedField] = useState<string>('');
 
   const roleLabels: Record<string, string> = {
-    'admin': 'Admin',
-    'building-owner': 'Building Owner',
-    'home-owner': 'Home Owner', 
-    'tenant': 'Tenant',
-    'guest': 'Guest',
-    'others': 'Others'
+    'admin': 'All Users (Admin Committee)',
+    'building-owner': 'Digital (Future Lab)',
+    'home-owner': 'Manager (Operation Dept.)', 
+    'tenant': 'Commercial Dept.',
+    'guest': 'Demo (No Data)'
   };
 
   const copyToClipboard = async (text: string, fieldId: string) => {

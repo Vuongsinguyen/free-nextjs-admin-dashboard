@@ -7,6 +7,13 @@ export default function UserFilters({ filters, onFiltersChange, users }: UserFil
   const { t } = useLocale();
   
   // Get unique roles and statuses from users
+  const roleTextMap: Record<string, string> = {
+    "All User": "All User",
+    "Digital (Future Lab)": "Digital (Future Lab)",
+    "Manager (Operation Dept.)": "Manager (Operation Dept.)",
+    "Commercial Dept": "Commercial Dept",
+    "Demo": "Demo"
+  };
   const uniqueRoles = Array.from(new Set(users.map(user => user.role)));
   const uniqueStatuses = Array.from(new Set(users.map(user => user.status)));
 
@@ -78,7 +85,7 @@ export default function UserFilters({ filters, onFiltersChange, users }: UserFil
             <option value="">{t('userManagement.allRoles')}</option>
             {uniqueRoles.map((role) => (
               <option key={role} value={role}>
-                {role}
+                {roleTextMap[role] || role}
               </option>
             ))}
           </select>
@@ -124,7 +131,7 @@ export default function UserFilters({ filters, onFiltersChange, users }: UserFil
             )}
             {filters.role && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-                {t('userManagement.role')}: {filters.role}
+                {t('userManagement.role')}: {roleTextMap[filters.role] || filters.role}
                 <button
                   onClick={() => handleFilterChange("role", "")}
                   className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-green-400 hover:bg-green-200 hover:text-green-500 focus:outline-none focus:bg-green-200 focus:text-green-500"

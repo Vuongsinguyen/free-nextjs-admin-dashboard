@@ -57,13 +57,8 @@ export default function SignInForm() {
     if (success) {
       // Đợi một chút để đảm bảo authentication state đã được update
       setTimeout(() => {
-        // Redirect based on role
-        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
-        if (nonAdminRoles.includes(selectedRole)) {
-          window.location.href = '/mainmenu';
-        } else {
-          window.location.href = '/dashboard';
-        }
+        // Redirect all roles to residents page
+        window.location.href = '/residents';
       }, 200);
     } else {
       setError('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');

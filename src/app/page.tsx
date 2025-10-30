@@ -51,13 +51,6 @@ const roleOptions: RoleOption[] = [
     description: "Khách",
     icon: "/images/icons/guest.png",
     color: "bg-gradient-to-br from-gray-500 to-gray-600"
-  },
-  {
-    id: "others",
-    nameKey: "roleOthers",
-    description: "Khác",
-    icon: "/images/icons/Clock.png",
-    color: "bg-gradient-to-br from-pink-500 to-rose-600"
   }
 ];
 

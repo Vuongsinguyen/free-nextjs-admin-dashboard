@@ -27,6 +27,9 @@ export interface UserTableProps {
   onEdit: (user: User) => void;
   onDelete: (userId: number) => void;
   currentUser: { id: number; role: string; email: string; name: string } | null;
+  showActions?: boolean;
+  onView?: (user: User) => void;
+  viewOnly?: boolean;
 }
 
 export interface UserModalProps {
