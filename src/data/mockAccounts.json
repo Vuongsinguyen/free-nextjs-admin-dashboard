@@ -81,6 +81,1506 @@
       "status": "active",
       "createdAt": "2024-04-01T00:00:00Z",
       "lastLogin": "2024-10-24T11:20:00Z"
+    },
+    {
+      "id": 6,
+      "role": "resident",
+      "email": "resident001@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 001",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-16T02:00:00Z"
+    },
+    {
+      "id": 7,
+      "role": "resident",
+      "email": "resident002@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 002",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-26T01:00:00Z"
+    },
+    {
+      "id": 8,
+      "role": "resident",
+      "email": "resident003@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 003",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-10T14:00:00Z"
+    },
+    {
+      "id": 9,
+      "role": "resident",
+      "email": "resident004@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 004",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-05T08:00:00Z"
+    },
+    {
+      "id": 10,
+      "role": "resident",
+      "email": "resident005@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 005",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-20T16:00:00Z"
+    },
+    {
+      "id": 11,
+      "role": "resident",
+      "email": "resident006@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 006",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-14T14:00:00Z"
+    },
+    {
+      "id": 12,
+      "role": "resident",
+      "email": "resident007@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 007",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-01T18:00:00Z"
+    },
+    {
+      "id": 13,
+      "role": "resident",
+      "email": "resident008@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 008",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-13T21:00:00Z"
+    },
+    {
+      "id": 14,
+      "role": "resident",
+      "email": "resident009@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 009",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-28T17:00:00Z"
+    },
+    {
+      "id": 15,
+      "role": "resident",
+      "email": "resident010@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 010",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-02T23:00:00Z"
+    },
+    {
+      "id": 16,
+      "role": "resident",
+      "email": "resident011@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 011",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-14T21:00:00Z"
+    },
+    {
+      "id": 17,
+      "role": "resident",
+      "email": "resident012@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 012",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-13T00:00:00Z"
+    },
+    {
+      "id": 18,
+      "role": "resident",
+      "email": "resident013@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 013",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-11T13:00:00Z"
+    },
+    {
+      "id": 19,
+      "role": "resident",
+      "email": "resident014@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 014",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-06T00:00:00Z"
+    },
+    {
+      "id": 20,
+      "role": "resident",
+      "email": "resident015@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 015",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-11T22:00:00Z"
+    },
+    {
+      "id": 21,
+      "role": "resident",
+      "email": "resident016@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 016",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-03T15:00:00Z"
+    },
+    {
+      "id": 22,
+      "role": "resident",
+      "email": "resident017@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 017",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-10T01:00:00Z"
+    },
+    {
+      "id": 23,
+      "role": "resident",
+      "email": "resident018@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 018",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-09T15:00:00Z"
+    },
+    {
+      "id": 24,
+      "role": "resident",
+      "email": "resident019@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 019",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-23T04:00:00Z"
+    },
+    {
+      "id": 25,
+      "role": "resident",
+      "email": "resident020@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 020",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-02T06:00:00Z"
+    },
+    {
+      "id": 26,
+      "role": "resident",
+      "email": "resident021@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 021",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-15T20:00:00Z"
+    },
+    {
+      "id": 27,
+      "role": "resident",
+      "email": "resident022@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 022",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-07-15T00:00:00Z",
+      "lastLogin": "2024-10-21T20:00:00Z"
+    },
+    {
+      "id": 28,
+      "role": "resident",
+      "email": "resident023@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 023",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-20T04:00:00Z"
+    },
+    {
+      "id": 29,
+      "role": "resident",
+      "email": "resident024@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 024",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-14T22:00:00Z"
+    },
+    {
+      "id": 30,
+      "role": "resident",
+      "email": "resident025@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 025",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-05T02:00:00Z"
+    },
+    {
+      "id": 31,
+      "role": "resident",
+      "email": "resident026@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 026",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-18T10:00:00Z"
+    },
+    {
+      "id": 32,
+      "role": "resident",
+      "email": "resident027@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 027",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-13T00:00:00Z"
+    },
+    {
+      "id": 33,
+      "role": "resident",
+      "email": "resident028@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 028",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-10T12:00:00Z"
+    },
+    {
+      "id": 34,
+      "role": "resident",
+      "email": "resident029@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 029",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-10T04:00:00Z"
+    },
+    {
+      "id": 35,
+      "role": "resident",
+      "email": "resident030@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 030",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-16T14:00:00Z"
+    },
+    {
+      "id": 36,
+      "role": "resident",
+      "email": "resident031@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 031",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-28T03:00:00Z"
+    },
+    {
+      "id": 37,
+      "role": "resident",
+      "email": "resident032@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 032",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-16T23:00:00Z"
+    },
+    {
+      "id": 38,
+      "role": "resident",
+      "email": "resident033@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 033",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-26T15:00:00Z"
+    },
+    {
+      "id": 39,
+      "role": "resident",
+      "email": "resident034@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 034",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-20T08:00:00Z"
+    },
+    {
+      "id": 40,
+      "role": "resident",
+      "email": "resident035@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 035",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-22T21:00:00Z"
+    },
+    {
+      "id": 41,
+      "role": "resident",
+      "email": "resident036@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 036",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-05T16:00:00Z"
+    },
+    {
+      "id": 42,
+      "role": "resident",
+      "email": "resident037@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 037",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-21T12:00:00Z"
+    },
+    {
+      "id": 43,
+      "role": "resident",
+      "email": "resident038@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 038",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-13T19:00:00Z"
+    },
+    {
+      "id": 44,
+      "role": "resident",
+      "email": "resident039@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 039",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-06T08:00:00Z"
+    },
+    {
+      "id": 45,
+      "role": "resident",
+      "email": "resident040@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 040",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-29T16:00:00Z"
+    },
+    {
+      "id": 46,
+      "role": "resident",
+      "email": "resident041@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 041",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-04T04:00:00Z"
+    },
+    {
+      "id": 47,
+      "role": "resident",
+      "email": "resident042@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 042",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-08T13:00:00Z"
+    },
+    {
+      "id": 48,
+      "role": "resident",
+      "email": "resident043@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 043",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-28T09:00:00Z"
+    },
+    {
+      "id": 49,
+      "role": "resident",
+      "email": "resident044@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 044",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-10T18:00:00Z"
+    },
+    {
+      "id": 50,
+      "role": "resident",
+      "email": "resident045@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 045",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-21T14:00:00Z"
+    },
+    {
+      "id": 51,
+      "role": "resident",
+      "email": "resident046@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 046",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-07-15T00:00:00Z",
+      "lastLogin": "2024-10-20T05:00:00Z"
+    },
+    {
+      "id": 52,
+      "role": "resident",
+      "email": "resident047@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 047",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-23T05:00:00Z"
+    },
+    {
+      "id": 53,
+      "role": "resident",
+      "email": "resident048@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 048",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-17T14:00:00Z"
+    },
+    {
+      "id": 54,
+      "role": "resident",
+      "email": "resident049@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 049",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-11T19:00:00Z"
+    },
+    {
+      "id": 55,
+      "role": "resident",
+      "email": "resident050@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 050",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-12T23:00:00Z"
+    },
+    {
+      "id": 56,
+      "role": "resident",
+      "email": "resident001@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 001",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-12T15:00:00Z"
+    },
+    {
+      "id": 57,
+      "role": "resident",
+      "email": "resident002@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 002",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-22T22:00:00Z"
+    },
+    {
+      "id": 58,
+      "role": "resident",
+      "email": "resident003@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 003",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-11T05:00:00Z"
+    },
+    {
+      "id": 59,
+      "role": "resident",
+      "email": "resident004@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 004",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-11T08:00:00Z"
+    },
+    {
+      "id": 60,
+      "role": "resident",
+      "email": "resident005@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 005",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-12T22:00:00Z"
+    },
+    {
+      "id": 61,
+      "role": "resident",
+      "email": "resident006@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 006",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-26T13:00:00Z"
+    },
+    {
+      "id": 62,
+      "role": "resident",
+      "email": "resident007@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 007",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-27T06:00:00Z"
+    },
+    {
+      "id": 63,
+      "role": "resident",
+      "email": "resident008@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 008",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-03T02:00:00Z"
+    },
+    {
+      "id": 64,
+      "role": "resident",
+      "email": "resident009@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 009",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-03-15T00:00:00Z",
+      "lastLogin": "2024-10-19T09:00:00Z"
+    },
+    {
+      "id": 65,
+      "role": "resident",
+      "email": "resident010@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 010",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-14T08:00:00Z"
+    },
+    {
+      "id": 66,
+      "role": "resident",
+      "email": "resident011@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 011",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-08T07:00:00Z"
+    },
+    {
+      "id": 67,
+      "role": "resident",
+      "email": "resident012@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 012",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-18T10:00:00Z"
+    },
+    {
+      "id": 68,
+      "role": "resident",
+      "email": "resident013@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 013",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-03T22:00:00Z"
+    },
+    {
+      "id": 69,
+      "role": "resident",
+      "email": "resident014@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 014",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-25T04:00:00Z"
+    },
+    {
+      "id": 70,
+      "role": "resident",
+      "email": "resident015@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 015",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-17T13:00:00Z"
+    },
+    {
+      "id": 71,
+      "role": "resident",
+      "email": "resident016@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 016",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-07T05:00:00Z"
+    },
+    {
+      "id": 72,
+      "role": "resident",
+      "email": "resident017@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 017",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-01T23:00:00Z"
+    },
+    {
+      "id": 73,
+      "role": "resident",
+      "email": "resident018@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 018",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-30T21:00:00Z"
+    },
+    {
+      "id": 74,
+      "role": "resident",
+      "email": "resident019@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 019",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-12T06:00:00Z"
+    },
+    {
+      "id": 75,
+      "role": "resident",
+      "email": "resident020@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 020",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-06T23:00:00Z"
+    },
+    {
+      "id": 76,
+      "role": "resident",
+      "email": "resident021@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 021",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-01T17:00:00Z"
+    },
+    {
+      "id": 77,
+      "role": "resident",
+      "email": "resident022@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 022",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-07T00:00:00Z"
+    },
+    {
+      "id": 78,
+      "role": "resident",
+      "email": "resident023@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 023",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-24T07:00:00Z"
+    },
+    {
+      "id": 79,
+      "role": "resident",
+      "email": "resident024@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 024",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-16T22:00:00Z"
+    },
+    {
+      "id": 80,
+      "role": "resident",
+      "email": "resident025@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 025",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-06T01:00:00Z"
+    },
+    {
+      "id": 81,
+      "role": "resident",
+      "email": "resident026@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 026",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-07-15T00:00:00Z",
+      "lastLogin": "2024-10-16T01:00:00Z"
+    },
+    {
+      "id": 82,
+      "role": "resident",
+      "email": "resident027@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 027",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-03T15:00:00Z"
+    },
+    {
+      "id": 83,
+      "role": "resident",
+      "email": "resident028@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 028",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-13T05:00:00Z"
+    },
+    {
+      "id": 84,
+      "role": "resident",
+      "email": "resident029@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 029",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-19T02:00:00Z"
+    },
+    {
+      "id": 85,
+      "role": "resident",
+      "email": "resident030@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 030",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-07-15T00:00:00Z",
+      "lastLogin": "2024-10-29T16:00:00Z"
+    },
+    {
+      "id": 86,
+      "role": "resident",
+      "email": "resident031@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 031",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-28T19:00:00Z"
+    },
+    {
+      "id": 87,
+      "role": "resident",
+      "email": "resident032@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 032",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-06-15T00:00:00Z",
+      "lastLogin": "2024-10-14T10:00:00Z"
+    },
+    {
+      "id": 88,
+      "role": "resident",
+      "email": "resident033@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 033",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-01T23:00:00Z"
+    },
+    {
+      "id": 89,
+      "role": "resident",
+      "email": "resident034@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 034",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-27T11:00:00Z"
+    },
+    {
+      "id": 90,
+      "role": "resident",
+      "email": "resident035@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 035",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-29T14:00:00Z"
+    },
+    {
+      "id": 91,
+      "role": "resident",
+      "email": "resident036@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 036",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-08-15T00:00:00Z",
+      "lastLogin": "2024-10-26T23:00:00Z"
+    },
+    {
+      "id": 92,
+      "role": "resident",
+      "email": "resident037@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 037",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-02-15T00:00:00Z",
+      "lastLogin": "2024-10-15T07:00:00Z"
+    },
+    {
+      "id": 93,
+      "role": "resident",
+      "email": "resident038@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 038",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-01T17:00:00Z"
+    },
+    {
+      "id": 94,
+      "role": "resident",
+      "email": "resident039@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 039",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-11-15T00:00:00Z",
+      "lastLogin": "2024-10-27T15:00:00Z"
+    },
+    {
+      "id": 95,
+      "role": "resident",
+      "email": "resident040@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 040",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-16T01:00:00Z"
+    },
+    {
+      "id": 96,
+      "role": "resident",
+      "email": "resident041@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 041",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-19T08:00:00Z"
+    },
+    {
+      "id": 97,
+      "role": "resident",
+      "email": "resident042@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 042",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-12T11:00:00Z"
+    },
+    {
+      "id": 98,
+      "role": "resident",
+      "email": "resident043@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 043",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-12T10:00:00Z"
+    },
+    {
+      "id": 99,
+      "role": "resident",
+      "email": "resident044@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 044",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-12-15T00:00:00Z",
+      "lastLogin": "2024-10-13T12:00:00Z"
+    },
+    {
+      "id": 100,
+      "role": "resident",
+      "email": "resident045@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 045",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-04-15T00:00:00Z",
+      "lastLogin": "2024-10-05T22:00:00Z"
+    },
+    {
+      "id": 101,
+      "role": "resident",
+      "email": "resident046@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 046",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-20T02:00:00Z"
+    },
+    {
+      "id": 102,
+      "role": "resident",
+      "email": "resident047@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 047",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00Z",
+      "lastLogin": "2024-10-02T22:00:00Z"
+    },
+    {
+      "id": 103,
+      "role": "resident",
+      "email": "resident048@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 048",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-05-15T00:00:00Z",
+      "lastLogin": "2024-10-09T03:00:00Z"
+    },
+    {
+      "id": 104,
+      "role": "resident",
+      "email": "resident049@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 049",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-09-15T00:00:00Z",
+      "lastLogin": "2024-10-25T12:00:00Z"
+    },
+    {
+      "id": 105,
+      "role": "resident",
+      "email": "resident050@gardencity.com",
+      "password": "Resident@123!",
+      "name": "Resident 050",
+      "permissions": [
+        "basic_profile",
+        "events_announcements",
+        "facilities"
+      ],
+      "status": "active",
+      "createdAt": "2024-10-15T00:00:00Z",
+      "lastLogin": "2024-10-05T05:00:00Z"
     }
   ],
   "roleHierarchy": {

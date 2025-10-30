@@ -46,7 +46,7 @@ const AccountsInfo = () => {
       
       {isExpanded && (
         <div className="mt-3 space-y-3">
-          {mockAccounts.accounts.map((account) => (
+          {mockAccounts.accounts.filter(account => account.role !== 'resident').map((account) => (
             <div
               key={account.id}
               className="p-3 bg-white/60 dark:bg-gray-800/60 rounded border border-blue-100 dark:border-blue-700"
