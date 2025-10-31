@@ -41,7 +41,6 @@ export default function FacilityBookingsPage() {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [facilityFilter, setFacilityFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -296,10 +295,6 @@ export default function FacilityBookingsPage() {
       );
     }
 
-    if (statusFilter) {
-      result = result.filter((booking) => booking.status === statusFilter);
-    }
-
     if (dateFilter) {
       result = result.filter((booking) => booking.bookingDate === dateFilter);
     }
@@ -310,7 +305,7 @@ export default function FacilityBookingsPage() {
 
     setFilteredBookings(result);
     setCurrentPage(1);
-  }, [bookings, searchTerm, statusFilter, dateFilter, facilityFilter]);
+  }, [bookings, searchTerm, dateFilter, facilityFilter]);
 
   // Set date picker when modal opens and formData is ready
   useEffect(() => {
@@ -721,7 +716,7 @@ export default function FacilityBookingsPage() {
 
       {/* Filters - Show for both table and calendar view */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Search
@@ -758,23 +753,6 @@ export default function FacilityBookingsPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            >
-              <option value="">All Status</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Date
             </label>
             <DatePicker
@@ -799,9 +777,9 @@ export default function FacilityBookingsPage() {
       {viewMode === "table" ? (
         <>
           {/* Table View Header */}
-          {(facilityFilter || statusFilter || dateFilter) && (
+          {(facilityFilter || dateFilter) && (
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-              Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {statusFilter && `Status: ${statusFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
+              Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
             </div>
           )}
           
@@ -958,9 +936,9 @@ export default function FacilityBookingsPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Booking Calendar Overview
             </h3>
-            {(facilityFilter || statusFilter || dateFilter) && (
+            {(facilityFilter || dateFilter) && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {statusFilter && `Status: ${statusFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
+                Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
               </div>
             )}
           </div>
