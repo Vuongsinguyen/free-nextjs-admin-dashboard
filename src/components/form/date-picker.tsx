@@ -30,6 +30,8 @@ export default function DatePicker({
       dateFormat: "Y-m-d",
       defaultDate,
       onChange,
+      appendTo: document.body,
+      position: "auto",
     });
 
     return () => {
@@ -38,6 +40,15 @@ export default function DatePicker({
       }
     };
   }, [mode, onChange, id, defaultDate]);
+
+  // Separate effect to handle defaultDate changes
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const element = document.getElementById(id) as any;
+    if (element && element._flatpickr) {
+      element._flatpickr.setDate(defaultDate);
+    }
+  }, [defaultDate, id]);
 
   return (
     <div>
