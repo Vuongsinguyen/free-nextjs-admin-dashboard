@@ -39,12 +39,9 @@ const AppSidebar: React.FC = () => {
 
   const getNavItems = (): NavItem[] => [
     {
-      icon: <GridIcon />,
-      nameKey: "nav.dashboard",
-      subItems: [
-        { nameKey: "nav.resident", path: "/residents", pro: false },
-        { nameKey: "nav.report", path: "/report", pro: false }
-      ],
+      icon: <UserCircleIcon />,
+      nameKey: "nav.resident",
+      path: "/residents",
     },
     {
       icon: <TableIcon />,
@@ -53,21 +50,18 @@ const AppSidebar: React.FC = () => {
     },
     {
       icon: <CalenderIcon />,
-      nameKey: "nav.eventsAnnouncements",
-      subItems: [
-        { nameKey: "nav.allEvents", path: "/events", pro: false },
-        { nameKey: "nav.announcements", path: "/allannouncements", pro: false },
-      ],
+      nameKey: "nav.allEvents",
+      path: "/events",
+    },
+    {
+      icon: <CalenderIcon />,
+      nameKey: "nav.announcements",
+      path: "/allannouncements",
     },
     {
       icon: <DollarLineIcon />,
       nameKey: "nav.allVouchers",
       path: "/vouchers",
-    },
-    {
-      icon: <PieChartIcon />,
-      nameKey: "nav.promotions",
-      path: "/promotions",
     },
     {
       icon: <GridIcon />,
@@ -76,6 +70,11 @@ const AppSidebar: React.FC = () => {
         { nameKey: "nav.allFacilities", path: "/facilities", pro: false },
         { nameKey: "nav.bookingManagement", path: "/facilities/bookings", pro: false },
       ],
+    },
+    {
+      icon: <PieChartIcon />,
+      nameKey: "nav.report",
+      path: "/report",
     },
   ];
 
