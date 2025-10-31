@@ -5,7 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { EventInput, EventContentArg } from "@fullcalendar/core";
+import { EventInput, EventContentArg, EventClickArg } from "@fullcalendar/core";
 
 interface Booking {
   id: number;
@@ -46,6 +46,11 @@ export default function FacilityBookingsPage() {
   
   // View toggle
   const [viewMode, setViewMode] = useState<"table" | "calendar">("calendar");
+  
+  // Time slot selection
+  const [selectedStartSlot, setSelectedStartSlot] = useState<string | null>(null);
+  const [selectedEndSlot, setSelectedEndSlot] = useState<string | null>(null);
+  const [isSelectingRange, setIsSelectingRange] = useState(false);
   
   // Form data for add/edit modal
   const [formData, setFormData] = useState({
@@ -294,6 +299,20 @@ export default function FacilityBookingsPage() {
     setCurrentPage(1);
   }, [bookings, searchTerm, statusFilter, dateFilter]);
 
+  // Reset time slots when date or facility changes
+  useEffect(() => {
+    if (isAddModalOpen || isEditModalOpen) {
+      setSelectedStartSlot(null);
+      setSelectedEndSlot(null);
+      setIsSelectingRange(false);
+      setFormData(prev => ({
+        ...prev,
+        startTime: '',
+        endTime: ''
+      }));
+    }
+  }, [formData.bookingDate, formData.facility, isAddModalOpen, isEditModalOpen]);
+
   // Pagination
   const paginatedBookings = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -349,6 +368,9 @@ export default function FacilityBookingsPage() {
         specialRequests: ''
       });
     }
+    setSelectedStartSlot(null);
+    setSelectedEndSlot(null);
+    setIsSelectingRange(false);
     setIsAddModalOpen(true);
   };
 
@@ -364,6 +386,9 @@ export default function FacilityBookingsPage() {
       purpose: booking.purpose,
       specialRequests: booking.specialRequests || ''
     });
+    setSelectedStartSlot(booking.startTime);
+    setSelectedEndSlot(booking.endTime);
+    setIsSelectingRange(false);
     setIsEditModalOpen(true);
   };
 
@@ -377,6 +402,9 @@ export default function FacilityBookingsPage() {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
     setEditingBooking(null);
+    setSelectedStartSlot(null);
+    setSelectedEndSlot(null);
+    setIsSelectingRange(false);
     setFormData({
       facility: '',
       userName: '',
@@ -395,6 +423,45 @@ export default function FacilityBookingsPage() {
     handleAddBooking(selectedDate);
   };
 
+  // Calendar event click handler
+  const handleEventClick = (arg: EventClickArg) => {
+    const booking = arg.event.extendedProps.booking as Booking;
+    handleEditBooking(booking);
+  };
+
+  // Generate time slots from 6:00 to 22:00 (30-minute intervals)
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 6; hour <= 22; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeString);
+      }
+    }
+    return slots;
+  };
+
+  // Check if a time slot is booked for the selected date and facility
+  const isTimeSlotBooked = (timeSlot: string, selectedDate: string, selectedFacility: string, excludeBookingId?: number) => {
+    return bookings.some(booking => {
+      if (excludeBookingId && booking.id === excludeBookingId) return false;
+      if (booking.bookingDate !== selectedDate) return false;
+      if (booking.facilityName !== selectedFacility) return false;
+
+      const slotTime = new Date(`2000-01-01T${timeSlot}`);
+      const bookingStart = new Date(`2000-01-01T${booking.startTime}`);
+      const bookingEnd = new Date(`2000-01-01T${booking.endTime}`);
+
+      return slotTime >= bookingStart && slotTime < bookingEnd;
+    });
+  };
+
+  // Get available time slots for selection
+  const getAvailableSlots = (selectedDate: string, selectedFacility: string, excludeBookingId?: number) => {
+    const allSlots = generateTimeSlots();
+    return allSlots.filter(slot => !isTimeSlotBooked(slot, selectedDate, selectedFacility, excludeBookingId));
+  };
+
   // Helper function to calculate duration
   const calculateDuration = (startTime: string, endTime: string): number => {
     const start = new Date(`2000-01-01T${startTime}`);
@@ -404,13 +471,70 @@ export default function FacilityBookingsPage() {
     return Math.round(diffHours * 2) / 2; // Round to nearest 0.5
   };
 
+  // Handle time slot selection
+  const handleTimeSlotClick = (slot: string) => {
+    if (!formData.bookingDate || !formData.facility) return;
+
+    const availableSlots = getAvailableSlots(
+      formData.bookingDate,
+      formData.facility,
+      editingBooking?.id
+    );
+
+    if (!availableSlots.includes(slot)) return; // Can't select booked slots
+
+    if (!selectedStartSlot || (selectedStartSlot && selectedEndSlot)) {
+      // Start new selection
+      setSelectedStartSlot(slot);
+      setSelectedEndSlot(null);
+      setIsSelectingRange(true);
+      setFormData(prev => ({ ...prev, startTime: slot, endTime: '' }));
+    } else {
+      // Complete the range
+      const startIndex = availableSlots.indexOf(selectedStartSlot);
+      const endIndex = availableSlots.indexOf(slot);
+
+      if (endIndex > startIndex) {
+        setSelectedEndSlot(slot);
+        setIsSelectingRange(false);
+        setFormData(prev => ({ ...prev, endTime: slot }));
+      } else if (endIndex < startIndex) {
+        // If clicked slot is before start, swap them
+        setSelectedStartSlot(slot);
+        setSelectedEndSlot(selectedStartSlot);
+        setIsSelectingRange(false);
+        setFormData(prev => ({ ...prev, startTime: slot, endTime: selectedStartSlot }));
+      }
+    }
+  };
+
+  // Check if a slot is selected or in selection range
+  const isSlotSelected = (slot: string) => {
+    if (!selectedStartSlot) return false;
+    if (slot === selectedStartSlot) return true;
+    if (selectedEndSlot && slot === selectedEndSlot) return true;
+
+    if (isSelectingRange && selectedStartSlot && !selectedEndSlot) {
+      const availableSlots = getAvailableSlots(
+        formData.bookingDate,
+        formData.facility,
+        editingBooking?.id
+      );
+      const startIndex = availableSlots.indexOf(selectedStartSlot);
+      const slotIndex = availableSlots.indexOf(slot);
+      return slotIndex > startIndex;
+    }
+
+    return false;
+  };
+
   // Form submission handler
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
     if (!formData.facility || !formData.userName || !formData.bookingDate || !formData.startTime || !formData.endTime || !formData.attendees || !formData.purpose) {
-      alert("Please fill in all required fields");
+      alert("Please fill in all required fields and select time slots");
       return;
     }
 
@@ -753,6 +877,7 @@ export default function FacilityBookingsPage() {
               dayMaxEvents={3}
               moreLinkClick="popover"
               dateClick={handleDateClick}
+              eventClick={handleEventClick}
             />
           </div>
         </div>
@@ -790,16 +915,16 @@ export default function FacilityBookingsPage() {
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     <option value="">Select Facility</option>
-                    <option value="swimming-pool-a">Swimming Pool A</option>
-                    <option value="conference-hall">Conference Hall</option>
-                    <option value="meeting-room-101">Meeting Room 101</option>
-                    <option value="tennis-court-1">Tennis Court 1</option>
-                    <option value="gym-fitness">Gym & Fitness Center</option>
-                    <option value="bbq-area">BBQ Area</option>
-                    <option value="yoga-studio">Yoga Studio</option>
-                    <option value="basketball-court">Basketball Court</option>
-                    <option value="library-study">Library & Study Room</option>
-                    <option value="kids-playground">Kids Playground</option>
+                    <option value="Swimming Pool A">Swimming Pool A</option>
+                    <option value="Conference Hall">Conference Hall</option>
+                    <option value="Meeting Room 101">Meeting Room 101</option>
+                    <option value="Tennis Court 1">Tennis Court 1</option>
+                    <option value="Gym & Fitness Center">Gym & Fitness Center</option>
+                    <option value="BBQ Area">BBQ Area</option>
+                    <option value="Yoga Studio">Yoga Studio</option>
+                    <option value="Basketball Court">Basketball Court</option>
+                    <option value="Library & Study Room">Library & Study Room</option>
+                    <option value="Kids Playground">Kids Playground</option>
                   </select>
                 </div>
 
@@ -830,30 +955,81 @@ export default function FacilityBookingsPage() {
                   />
                 </div>
 
-                {/* Time Range */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Start Time *
-                    </label>
-                    <input
-                      type="time"
-                      value={formData.startTime}
-                      onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      End Time *
-                    </label>
-                    <input
-                      type="time"
-                      value={formData.endTime}
-                      onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                    />
-                  </div>
+                {/* Time Slot Selection */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Time Selection *
+                  </label>
+                  {formData.bookingDate && formData.facility ? (
+                    <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                      <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                        Select start time and end time by clicking on available slots
+                      </div>
+                      <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                        {generateTimeSlots().map((slot) => {
+                          const isBooked = isTimeSlotBooked(
+                            slot,
+                            formData.bookingDate,
+                            formData.facility,
+                            editingBooking?.id
+                          );
+                          const isSelected = isSlotSelected(slot);
+                          const isStartSlot = slot === selectedStartSlot;
+                          const isEndSlot = slot === selectedEndSlot;
+
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => handleTimeSlotClick(slot)}
+                              disabled={isBooked}
+                              className={`px-2 py-1 text-xs rounded transition-colors ${
+                                isBooked
+                                  ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 cursor-not-allowed'
+                                  : isSelected
+                                  ? isStartSlot
+                                    ? 'bg-green-500 text-white font-medium'
+                                    : isEndSlot
+                                    ? 'bg-blue-500 text-white font-medium'
+                                    : 'bg-green-200 dark:bg-green-900/50 text-green-800 dark:text-green-200'
+                                  : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                              }`}
+                              title={isBooked ? 'Booked' : `Available - ${slot}`}
+                            >
+                              {slot}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-3 flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded"></div>
+                          <span className="text-gray-600 dark:text-gray-400">Start Time</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                          <span className="text-gray-600 dark:text-gray-400">End Time</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-200 dark:bg-green-900/50 rounded"></div>
+                          <span className="text-gray-600 dark:text-gray-400">Selected Range</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-red-100 dark:bg-red-900/30 rounded"></div>
+                          <span className="text-gray-600 dark:text-gray-400">Booked</span>
+                        </div>
+                      </div>
+                      {selectedStartSlot && selectedEndSlot && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm text-blue-800 dark:text-blue-200">
+                          Selected: {selectedStartSlot} - {selectedEndSlot} ({calculateDuration(selectedStartSlot, selectedEndSlot)} hours)
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400">
+                      Please select a date and facility first to view available time slots
+                    </div>
+                  )}
                 </div>
 
                 {/* Attendees */}
@@ -901,20 +1077,38 @@ export default function FacilityBookingsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={handleCloseModals}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors"
-                >
-                  {isAddModalOpen ? "Add Booking" : "Update Booking"}
-                </button>
+              <div className="flex justify-between gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div>
+                  {isEditModalOpen && editingBooking && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm("Are you sure you want to delete this booking?")) {
+                          handleDeleteBooking(editingBooking.id);
+                          handleCloseModals();
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                    >
+                      Delete Booking
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={handleCloseModals}
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors"
+                  >
+                    {isAddModalOpen ? "Add Booking" : "Update Booking"}
+                  </button>
+                </div>
               </div>
             </form>
             </div>
