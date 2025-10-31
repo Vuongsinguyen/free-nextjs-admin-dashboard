@@ -45,7 +45,7 @@ export default function FacilityBookingsPage() {
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   
   // View toggle
-  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("calendar");
   
   // Form data for add/edit modal
   const [formData, setFormData] = useState({
@@ -302,23 +302,6 @@ export default function FacilityBookingsPage() {
 
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return '#10B981'; // green
-      case 'pending':
-        return '#F59E0B'; // yellow
-      case 'in-progress':
-        return '#3B82F6'; // blue
-      case 'completed':
-        return '#6B7280'; // gray
-      case 'cancelled':
-        return '#EF4444'; // red
-      default:
-        return '#6B7280';
-    }
-  };
-
   // Convert bookings to calendar events
   const calendarEvents = useMemo(() => {
     return bookings.map((booking): EventInput => ({
@@ -326,12 +309,11 @@ export default function FacilityBookingsPage() {
       title: `${booking.facilityName} - ${booking.userName}`,
       start: `${booking.bookingDate}T${booking.startTime}`,
       end: `${booking.bookingDate}T${booking.endTime}`,
-      backgroundColor: getStatusColor(booking.status),
-      borderColor: getStatusColor(booking.status),
+      backgroundColor: '#3B82F6', // Single blue color for all bookings
+      borderColor: '#3B82F6',
       textColor: '#ffffff',
       extendedProps: {
         booking: booking,
-        status: booking.status,
         facility: booking.facilityName,
         user: booking.userName,
         attendees: booking.attendees,
@@ -550,51 +532,53 @@ export default function FacilityBookingsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Search
-            </label>
-            <input
-              type="text"
-              placeholder="Search by code, facility, or user..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            >
-              <option value="">All Status</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Date
-            </label>
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            />
+      {/* Filters - Only show for table view */}
+      {viewMode === "table" && (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Search
+              </label>
+              <input
+                type="text"
+                placeholder="Search by code, facility, or user..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              >
+                <option value="">All Status</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Date
+              </label>
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Content based on view mode */}
       {viewMode === "table" ? (
@@ -752,28 +736,6 @@ export default function FacilityBookingsPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Booking Calendar Overview
             </h3>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span className="text-gray-600 dark:text-gray-300">Confirmed</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span className="text-gray-600 dark:text-gray-300">Pending</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span className="text-gray-600 dark:text-gray-300">In Progress</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-500 rounded"></div>
-                <span className="text-gray-600 dark:text-gray-300">Completed</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span className="text-gray-600 dark:text-gray-300">Cancelled</span>
-              </div>
-            </div>
           </div>
           <div className="calendar-container">
             <FullCalendar
@@ -798,8 +760,9 @@ export default function FacilityBookingsPage() {
       
       {/* Add/Edit Booking Modal */}
       {(isAddModalOpen || isEditModalOpen) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-blackO flex items-center justify-center p-4 z-999999">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {isAddModalOpen ? "Add New Booking" : "Edit Booking"}
@@ -954,6 +917,7 @@ export default function FacilityBookingsPage() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
