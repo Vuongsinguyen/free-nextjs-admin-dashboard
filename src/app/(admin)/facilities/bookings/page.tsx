@@ -46,6 +46,18 @@ export default function FacilityBookingsPage() {
   
   // View toggle
   const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  
+  // Form data for add/edit modal
+  const [formData, setFormData] = useState({
+    facility: '',
+    userName: '',
+    bookingDate: '',
+    startTime: '',
+    endTime: '',
+    attendees: '',
+    purpose: '',
+    specialRequests: ''
+  });
 
   // Load bookings
   useEffect(() => {
@@ -337,12 +349,39 @@ export default function FacilityBookingsPage() {
   };
 
   // Modal handlers
-  const handleAddBooking = () => {
+  const handleAddBooking = (selectedDate?: string) => {
+    if (selectedDate) {
+      setFormData(prev => ({
+        ...prev,
+        bookingDate: selectedDate
+      }));
+    } else {
+      setFormData({
+        facility: '',
+        userName: '',
+        bookingDate: '',
+        startTime: '',
+        endTime: '',
+        attendees: '',
+        purpose: '',
+        specialRequests: ''
+      });
+    }
     setIsAddModalOpen(true);
   };
 
   const handleEditBooking = (booking: Booking) => {
     setEditingBooking(booking);
+    setFormData({
+      facility: booking.facilityName,
+      userName: booking.userName,
+      bookingDate: booking.bookingDate,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+      attendees: booking.attendees.toString(),
+      purpose: booking.purpose,
+      specialRequests: booking.specialRequests || ''
+    });
     setIsEditModalOpen(true);
   };
 
@@ -356,6 +395,87 @@ export default function FacilityBookingsPage() {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
     setEditingBooking(null);
+    setFormData({
+      facility: '',
+      userName: '',
+      bookingDate: '',
+      startTime: '',
+      endTime: '',
+      attendees: '',
+      purpose: '',
+      specialRequests: ''
+    });
+  };
+
+  // Calendar date click handler
+  const handleDateClick = (arg: { dateStr: string }) => {
+    const selectedDate = arg.dateStr; // Format: YYYY-MM-DD
+    handleAddBooking(selectedDate);
+  };
+
+  // Helper function to calculate duration
+  const calculateDuration = (startTime: string, endTime: string): number => {
+    const start = new Date(`2000-01-01T${startTime}`);
+    const end = new Date(`2000-01-01T${endTime}`);
+    const diffMs = end.getTime() - start.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return Math.round(diffHours * 2) / 2; // Round to nearest 0.5
+  };
+
+  // Form submission handler
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.facility || !formData.userName || !formData.bookingDate || !formData.startTime || !formData.endTime || !formData.attendees || !formData.purpose) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    if (isAddModalOpen) {
+      // Add new booking
+      const newBooking: Booking = {
+        id: Math.max(...bookings.map(b => b.id)) + 1,
+        bookingCode: `BK${String(Math.max(...bookings.map(b => parseInt(b.bookingCode.slice(2)))) + 1).padStart(4, '0')}`,
+        facilityName: formData.facility,
+        facilityCategory: "Facility", // You might want to map this properly
+        userName: formData.userName,
+        userEmail: "user@example.com", // Mock data
+        userPhone: "+1234567890", // Mock data
+        bookingDate: formData.bookingDate,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        duration: calculateDuration(formData.startTime, formData.endTime),
+        totalPrice: 0, // Mock data
+        status: "confirmed",
+        paymentStatus: "paid", // Mock data
+        attendees: parseInt(formData.attendees),
+        purpose: formData.purpose,
+        specialRequests: formData.specialRequests,
+        createdAt: new Date().toISOString()
+      };
+      setBookings(prev => [...prev, newBooking]);
+    } else if (editingBooking) {
+      // Update existing booking
+      setBookings(prev => prev.map(booking => 
+        booking.id === editingBooking.id 
+          ? {
+              ...booking,
+              facilityName: formData.facility,
+              userName: formData.userName,
+              bookingDate: formData.bookingDate,
+              startTime: formData.startTime,
+              endTime: formData.endTime,
+              duration: calculateDuration(formData.startTime, formData.endTime),
+              attendees: parseInt(formData.attendees),
+              purpose: formData.purpose,
+              specialRequests: formData.specialRequests
+            }
+          : booking
+      ));
+    }
+
+    handleCloseModals();
   };
 
   const renderCalendarEventContent = (eventInfo: EventContentArg) => {
@@ -419,7 +539,7 @@ export default function FacilityBookingsPage() {
             </button>
           </div>
           <button
-            onClick={handleAddBooking}
+            onClick={() => handleAddBooking()}
             className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -670,6 +790,7 @@ export default function FacilityBookingsPage() {
               eventDisplay="block"
               dayMaxEvents={3}
               moreLinkClick="popover"
+              dateClick={handleDateClick}
             />
           </div>
         </div>
@@ -693,14 +814,18 @@ export default function FacilityBookingsPage() {
               </button>
             </div>
 
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Facility Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Facility *
                   </label>
-                  <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                  <select 
+                    value={formData.facility}
+                    onChange={(e) => setFormData(prev => ({ ...prev, facility: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  >
                     <option value="">Select Facility</option>
                     <option value="swimming-pool-a">Swimming Pool A</option>
                     <option value="conference-hall">Conference Hall</option>
@@ -723,6 +848,8 @@ export default function FacilityBookingsPage() {
                   <input
                     type="text"
                     placeholder="Enter user name"
+                    value={formData.userName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, userName: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   />
                 </div>
@@ -734,6 +861,8 @@ export default function FacilityBookingsPage() {
                   </label>
                   <input
                     type="date"
+                    value={formData.bookingDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, bookingDate: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   />
                 </div>
@@ -746,6 +875,8 @@ export default function FacilityBookingsPage() {
                     </label>
                     <input
                       type="time"
+                      value={formData.startTime}
+                      onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     />
                   </div>
@@ -755,6 +886,8 @@ export default function FacilityBookingsPage() {
                     </label>
                     <input
                       type="time"
+                      value={formData.endTime}
+                      onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     />
                   </div>
@@ -769,6 +902,8 @@ export default function FacilityBookingsPage() {
                     type="number"
                     min="1"
                     placeholder="Enter number of attendees"
+                    value={formData.attendees}
+                    onChange={(e) => setFormData(prev => ({ ...prev, attendees: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   />
                 </div>
@@ -781,6 +916,8 @@ export default function FacilityBookingsPage() {
                   <input
                     type="text"
                     placeholder="Enter booking purpose"
+                    value={formData.purpose}
+                    onChange={(e) => setFormData(prev => ({ ...prev, purpose: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   />
                 </div>
@@ -794,6 +931,8 @@ export default function FacilityBookingsPage() {
                 <textarea
                   rows={3}
                   placeholder="Enter any special requests or requirements"
+                  value={formData.specialRequests}
+                  onChange={(e) => setFormData(prev => ({ ...prev, specialRequests: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 ></textarea>
               </div>
