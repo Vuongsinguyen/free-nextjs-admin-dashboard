@@ -443,7 +443,7 @@ export default function FacilityBookingsPage() {
     // Generate all dates in the range
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const datesInRange = [];
+    const datesInRange: string[] = [];
     
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       datesInRange.push(d.toISOString().split('T')[0]);
@@ -523,7 +523,8 @@ export default function FacilityBookingsPage() {
 
     if (isSelectingRange && selectedStartSlot && !selectedEndSlot) {
       const availableSlots = getAvailableSlots(
-        formData.bookingDate,
+        formData.startDate,
+        formData.endDate,
         formData.facility,
         editingBooking?.id
       );
@@ -540,34 +541,43 @@ export default function FacilityBookingsPage() {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.facility || !formData.userName || !formData.bookingDate || !formData.startTime || !formData.endTime || !formData.attendees || !formData.purpose) {
+    if (!formData.facility || !formData.userName || !formData.startDate || !formData.endDate || !formData.startTime || !formData.endTime || !formData.attendees || !formData.purpose) {
       alert("Please fill in all required fields and select time slots");
       return;
     }
 
     if (isAddModalOpen) {
-      // Add new booking
-      const newBooking: Booking = {
-        id: Math.max(...bookings.map(b => b.id)) + 1,
-        bookingCode: `BK${String(Math.max(...bookings.map(b => parseInt(b.bookingCode.slice(2)))) + 1).padStart(4, '0')}`,
-        facilityName: formData.facility,
-        facilityCategory: "Facility", // You might want to map this properly
-        userName: formData.userName,
-        userEmail: "user@example.com", // Mock data
-        userPhone: "+1234567890", // Mock data
-        bookingDate: formData.bookingDate,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        duration: calculateDuration(formData.startTime, formData.endTime),
-        totalPrice: 0, // Mock data
-        status: "confirmed",
-        paymentStatus: "paid", // Mock data
-        attendees: parseInt(formData.attendees),
-        purpose: formData.purpose,
-        specialRequests: formData.specialRequests,
-        createdAt: new Date().toISOString()
-      };
-      setBookings(prev => [...prev, newBooking]);
+      // For multi-day bookings, create separate bookings for each day
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      const newBookings: Booking[] = [];
+      
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const bookingDate = d.toISOString().split('T')[0];
+        const newBooking: Booking = {
+          id: Math.max(...bookings.map(b => b.id), 0) + newBookings.length + 1,
+          bookingCode: `BK${String(Math.max(...bookings.map(b => parseInt(b.bookingCode.slice(2))), 0) + newBookings.length + 1).padStart(4, '0')}`,
+          facilityName: formData.facility,
+          facilityCategory: "Facility", // You might want to map this properly
+          userName: formData.userName,
+          userEmail: "user@example.com", // Mock data
+          userPhone: "+1234567890", // Mock data
+          bookingDate: bookingDate,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          duration: calculateDuration(formData.startTime, formData.endTime),
+          totalPrice: 0, // Mock data
+          status: "confirmed",
+          paymentStatus: "paid", // Mock data
+          attendees: parseInt(formData.attendees),
+          purpose: formData.purpose,
+          specialRequests: formData.specialRequests,
+          createdAt: new Date().toISOString()
+        };
+        newBookings.push(newBooking);
+      }
+      
+      setBookings(prev => [...prev, ...newBookings]);
     } else if (editingBooking) {
       // Update existing booking
       setBookings(prev => prev.map(booking => 
@@ -576,7 +586,7 @@ export default function FacilityBookingsPage() {
               ...booking,
               facilityName: formData.facility,
               userName: formData.userName,
-              bookingDate: formData.bookingDate,
+              bookingDate: formData.startDate, // For editing, use start date
               startTime: formData.startTime,
               endTime: formData.endTime,
               duration: calculateDuration(formData.startTime, formData.endTime),
@@ -952,18 +962,25 @@ export default function FacilityBookingsPage() {
                 {/* Date Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Booking Date *
+                    Booking Date Range *
                   </label>
                   <DatePicker
-                    key={`date-picker-${formData.bookingDate || 'empty'}`}
-                    id="booking-date"
-                    placeholder="Select booking date"
-                    defaultDate={formData.bookingDate ? new Date(formData.bookingDate) : undefined}
+                    key={`date-picker-${formData.startDate}-${formData.endDate || 'empty'}`}
+                    id="booking-date-range"
+                    mode="range"
+                    placeholder="Select date range"
+                    defaultDate={formData.startDate && formData.endDate ? [new Date(formData.startDate), new Date(formData.endDate)] : undefined}
                     onChange={(selectedDates) => {
-                      if (selectedDates && selectedDates.length > 0) {
-                        const date = selectedDates[0];
-                        const formattedDate = date.toISOString().split('T')[0];
-                        setFormData(prev => ({ ...prev, bookingDate: formattedDate }));
+                      if (selectedDates && selectedDates.length >= 1) {
+                        const startDate = selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0];
+                        const startFormatted = startDate.toISOString().split('T')[0];
+                        const endFormatted = endDate.toISOString().split('T')[0];
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          startDate: startFormatted,
+                          endDate: endFormatted
+                        }));
                       }
                     }}
                   />
@@ -975,11 +992,11 @@ export default function FacilityBookingsPage() {
                     Time Selection *
                   </label>
                   {(() => {
-                    console.log('Debug - bookingDate:', formData.bookingDate, 'facility:', formData.facility);
-                    if (!formData.bookingDate) {
+                    console.log('Debug - startDate:', formData.startDate, 'endDate:', formData.endDate, 'facility:', formData.facility);
+                    if (!formData.startDate || !formData.endDate) {
                       return (
                         <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400">
-                          Please select a booking date first
+                          Please select a date range first
                         </div>
                       );
                     }
@@ -993,13 +1010,14 @@ export default function FacilityBookingsPage() {
                     return (
                       <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                         <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                          Select start time and end time by clicking on available slots
+                          Select start time and end time by clicking on available slots (checked across all dates in range)
                         </div>
                         <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
                           {generateTimeSlots().map((slot) => {
                             const isBooked = isTimeSlotBooked(
                               slot,
-                              formData.bookingDate,
+                              formData.startDate,
+                              formData.endDate,
                               formData.facility,
                               editingBooking?.id
                             );
@@ -1045,7 +1063,7 @@ export default function FacilityBookingsPage() {
                         </div>
                         {selectedStartSlot && selectedEndSlot && (
                           <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm text-blue-800 dark:text-blue-200">
-                            Selected: {selectedStartSlot} - {selectedEndSlot} ({calculateDuration(selectedStartSlot, selectedEndSlot)} hours)
+                            Selected: {selectedStartSlot} - {selectedEndSlot} ({calculateDuration(selectedStartSlot, selectedEndSlot)} hours) for {formData.startDate} to {formData.endDate}
                           </div>
                         )}
                       </div>
