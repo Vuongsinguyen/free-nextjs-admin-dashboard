@@ -166,11 +166,6 @@ export default function PaymentsPage() {
             />
           </div>
         </div>
-
-        {/* Results count */}
-        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-          Showing {startIndex + 1}-{Math.min(endIndex, filteredInvoices.length)} of {filteredInvoices.length} payments
-        </div>
       </div>
 
       {/* Table */}
