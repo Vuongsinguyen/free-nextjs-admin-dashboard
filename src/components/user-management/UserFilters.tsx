@@ -15,14 +15,6 @@ export default function UserFilters({ filters, onFiltersChange, users, propertyO
     });
   };
 
-  const handleClearFilters = () => {
-    onFiltersChange({
-      search: "",
-      status: "",
-      property: "",
-      province: "",
-    });
-  };
 
   const hasActiveFilters = filters.search || filters.status || filters.property || filters.province;
 
@@ -78,7 +70,7 @@ export default function UserFilters({ filters, onFiltersChange, users, propertyO
             onChange={(e) => handleFilterChange("property", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">Tất cả</option>
+            <option value="">All</option>
             {propertyOptions.map((property) => (
               <option key={property} value={property}>{property}</option>
             ))}
@@ -94,7 +86,7 @@ export default function UserFilters({ filters, onFiltersChange, users, propertyO
             onChange={(e) => handleFilterChange("province", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">Tất cả</option>
+            <option value="">All</option>
             {provinceOptions.map((province) => (
               <option key={province} value={province}>{province}</option>
             ))}

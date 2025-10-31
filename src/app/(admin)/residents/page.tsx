@@ -80,13 +80,13 @@ export default function ResidentPage() {
         if (Array.isArray(data)) {
           // If array of objects with name property
           if (data.length > 0 && typeof data[0] === 'object' && data[0].name) {
-            setPropertyOptions(data.map((p: any) => p.name));
+            setPropertyOptions(data.map((p: unknown) => (typeof p === 'object' && p && 'name' in p) ? (p as { name: string }).name : String(p)));
           } else {
             setPropertyOptions(data);
           }
         } else if (data && Array.isArray(data.properties)) {
           if (data.properties.length > 0 && typeof data.properties[0] === 'object' && data.properties[0].name) {
-            setPropertyOptions(data.properties.map((p: any) => p.name));
+            setPropertyOptions(data.properties.map((p: unknown) => (typeof p === 'object' && p && 'name' in p) ? (p as { name: string }).name : String(p)));
           } else {
             setPropertyOptions(data.properties);
           }
@@ -120,7 +120,7 @@ export default function ResidentPage() {
       const search = filters.search.toLowerCase();
       result = result.filter(user => {
         // Search all string fields of the user object
-        return Object.entries(user).some(([key, value]) => {
+  return Object.entries(user).some(([, value]) => {
           if (typeof value === 'string') {
             return value.toLowerCase().includes(search);
           }
