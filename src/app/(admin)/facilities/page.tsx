@@ -26,7 +26,6 @@ export default function FacilitiesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
@@ -221,13 +220,9 @@ export default function FacilitiesPage() {
       result = result.filter(facility => facility.category === categoryFilter);
     }
 
-    if (statusFilter) {
-      result = result.filter(facility => facility.status === statusFilter);
-    }
-
     setFilteredFacilities(result);
     setCurrentPage(1);
-  }, [facilities, searchTerm, categoryFilter, statusFilter]);
+  }, [facilities, searchTerm, categoryFilter]);
 
   // Pagination
   const paginatedFacilities = useMemo(() => {
@@ -236,28 +231,6 @@ export default function FacilitiesPage() {
   }, [filteredFacilities, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage);
-
-  const getStatusBadge = (status: Facility["status"]) => {
-    const badges = {
-      available: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-      occupied: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      maintenance: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-      closed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    };
-    return badges[status];
-  };
-
-  const formatCurrency = (amount: number) => {
-    if (amount === 0) return "Free";
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
-
-  const getOccupancyPercentage = (current: number, capacity: number) => {
-    return Math.round((current / capacity) * 100);
-  };
 
   const uniqueCategories = Array.from(new Set(facilities.map(f => f.category)));
 
@@ -291,7 +264,7 @@ export default function FacilitiesPage() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Search
@@ -319,58 +292,6 @@ export default function FacilitiesPage() {
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            >
-              <option value="">All Status</option>
-              <option value="available">Available</option>
-              <option value="occupied">Occupied</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="closed">Closed</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {facilities.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Total Facilities
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-green-600">
-            {facilities.filter(f => f.status === "available").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Available
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-yellow-600">
-            {facilities.filter(f => f.status === "occupied").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Occupied
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-orange-600">
-            {facilities.filter(f => f.status === "maintenance").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Under Maintenance
-          </div>
         </div>
       </div>
 
@@ -388,21 +309,6 @@ export default function FacilitiesPage() {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Occupancy
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Price/Hour
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Manager
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Rating
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
@@ -431,69 +337,18 @@ export default function FacilitiesPage() {
                       {facility.location}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-gray-300">
-                      {facility.currentOccupancy} / {facility.capacity}
-                    </div>
-                    <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-                      <div
-                        className={`h-1.5 rounded-full ${
-                          getOccupancyPercentage(facility.currentOccupancy, facility.capacity) >= 80
-                            ? "bg-red-500"
-                            : getOccupancyPercentage(facility.currentOccupancy, facility.capacity) >= 50
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                        }`}
-                        style={{
-                          width: `${getOccupancyPercentage(facility.currentOccupancy, facility.capacity)}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {formatCurrency(facility.pricePerHour)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-gray-300">
-                      {facility.manager}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <span className="text-yellow-400 mr-1">★</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {facility.rating}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {facility.totalBookings} bookings
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
-                        facility.status
-                      )}`}
-                    >
-                      {facility.status.charAt(0).toUpperCase() + facility.status.slice(1)}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center gap-2">
-                      <button className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                      <button className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        Edit
                       </button>
-                      <button className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                      <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        View
                       </button>
                     </div>
                   </td>
