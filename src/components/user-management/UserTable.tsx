@@ -17,6 +17,42 @@ const statusColors = {
   inactive: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
 };
 
+function getFlagEmoji(nationality?: string) {
+  if (!nationality) return '';
+  const map: Record<string, string> = {
+    vietnam: '🇻🇳',
+    vietnamese: '🇻🇳',
+    japan: '🇯🇵',
+    japanese: '🇯🇵',
+    usa: '🇺🇸',
+    us: '🇺🇸',
+    american: '🇺🇸',
+    america: '🇺🇸',
+    korea: '🇰🇷',
+    korean: '🇰🇷',
+    china: '🇨🇳',
+    chinese: '🇨🇳',
+    france: '🇫🇷',
+    french: '🇫🇷',
+    germany: '🇩🇪',
+    german: '🇩🇪',
+    thailand: '🇹🇭',
+    thai: '🇹🇭',
+    singapore: '🇸🇬',
+    singaporean: '🇸🇬',
+  britain: '🇬🇧',
+  british: '🇬🇧',
+  uk: '🇬🇧',
+  england: '🇬🇧',
+  english: '🇬🇧',
+  australia: '🇦🇺',
+  australian: '🇦🇺',
+    // Add more as needed
+  };
+  const key = nationality.trim().toLowerCase();
+  return map[key] || '';
+}
+
 export default function UserTable({
   users,
   sortConfig,
@@ -100,7 +136,7 @@ export default function UserTable({
                 </button>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Property Name
+                Property
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Room Number
@@ -201,7 +237,14 @@ export default function UserTable({
                   {user.phoneNumber || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                  {user.nationality || '-'}
+                  {user.nationality ? (
+                    <span className="flex items-center gap-2">
+                      <span>{getFlagEmoji(user.nationality)}</span>
+                      <span>{user.nationality}</span>
+                    </span>
+                  ) : (
+                    '-'
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColors[user.role as keyof typeof roleColors] || roleColors.Others}`}>

@@ -196,7 +196,7 @@ export default function ReportPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">Download Excel reports with custom date ranges</p>
+  {/* Description removed as requested */}
       </div>
 
       {/* Report Cards Grid */}

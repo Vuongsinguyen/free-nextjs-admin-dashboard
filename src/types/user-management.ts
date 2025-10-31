@@ -22,10 +22,13 @@ export interface User {
   otherInfo?: string;
 }
 
+
 export interface UserFilters {
   search: string;
-  role: string;
   status: string;
+  property?: string;
+  province?: string;
+  role?: string; // Optional for Residents page
 }
 
 export interface SortConfig {
@@ -51,8 +54,11 @@ export interface UserModalProps {
   onSave: (userData: Partial<User>) => void;
 }
 
+
 export interface UserFiltersProps {
   filters: UserFilters;
   onFiltersChange: (filters: UserFilters) => void;
   users: User[];
+  propertyOptions?: string[];
+  provinceOptions?: string[];
 }

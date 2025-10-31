@@ -186,7 +186,7 @@ export default function UsersPage() {
             {t('userManagement.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            {t('userManagement.description')}
+            {/* Description removed as requested */}
           </p>
         </div>
         <button

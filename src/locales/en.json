@@ -122,7 +122,6 @@
   
   "userManagement": {
     "title": "User Management",
-    "description": "Manage all users in the system",
     "addUser": "Add User",
     "editUser": "Edit User",
     "deleteUser": "Delete User",

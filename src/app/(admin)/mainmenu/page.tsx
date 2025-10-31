@@ -10,7 +10,7 @@ export default function MainMenuPage() {
     {
       id: "camera",
       title: "Camera",
-      description: "View and manage security cameras",
+  // description: "View and manage security cameras",
       icon: "📹",
       color: "from-blue-500 to-blue-600",
       href: "/camera",
@@ -18,7 +18,7 @@ export default function MainMenuPage() {
     {
       id: "door",
       title: "Door",
-      description: "Control smart door locks",
+  // description: "Control smart door locks",
       icon: "🚪",
       color: "from-green-500 to-green-600",
       href: "/door",
@@ -26,7 +26,7 @@ export default function MainMenuPage() {
     {
       id: "lights",
       title: "Lights",
-      description: "Manage lighting systems",
+  // description: "Manage lighting systems",
       icon: "💡",
       color: "from-yellow-500 to-yellow-600",
       href: "/lights",
@@ -34,7 +34,7 @@ export default function MainMenuPage() {
     {
       id: "invoice",
       title: "Invoice",
-      description: "View service invoices",
+  // description: "View service invoices",
       icon: "📄",
       color: "from-purple-500 to-purple-600",
       href: "/serviceinvoices",
@@ -42,7 +42,7 @@ export default function MainMenuPage() {
     {
       id: "properties",
       title: "Properties",
-      description: "Manage your properties",
+  // description: "Manage your properties",
       icon: "🏢",
       color: "from-indigo-500 to-indigo-600",
       href: "/buildings/property",
@@ -50,7 +50,7 @@ export default function MainMenuPage() {
     {
       id: "voucher",
       title: "Voucher",
-      description: "View available vouchers",
+  // description: "View available vouchers",
       icon: "🎟️",
       color: "from-pink-500 to-pink-600",
       href: "/vouchers",
@@ -58,7 +58,7 @@ export default function MainMenuPage() {
     {
       id: "announcements",
       title: "Announcements",
-      description: "View latest announcements",
+  // description: "View latest announcements",
       icon: "📢",
       color: "from-orange-500 to-orange-600",
       href: "/announcements",
@@ -66,7 +66,7 @@ export default function MainMenuPage() {
     {
       id: "profile",
       title: "My Profile",
-      description: "Manage your profile settings",
+  // description: "Manage your profile settings",
       icon: "👤",
       color: "from-teal-500 to-teal-600",
       href: "/profile",
@@ -74,7 +74,7 @@ export default function MainMenuPage() {
     {
       id: "ticketbus",
       title: "Ticket Bus",
-      description: "Book and manage bus tickets",
+  // description: "Book and manage bus tickets",
       icon: "🚌",
       color: "from-red-500 to-red-600",
       href: "/ticketbus",
@@ -88,9 +88,6 @@ export default function MainMenuPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Smart Home Main Menu
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Control and manage your smart home devices and services
-        </p>
       </div>
 
       {/* Menu Grid */}
@@ -118,10 +115,6 @@ export default function MainMenuPage() {
                 {item.title}
               </h3>
 
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                {item.description}
-              </p>
 
               {/* Arrow Icon */}
               <div className="mt-4 flex justify-center">

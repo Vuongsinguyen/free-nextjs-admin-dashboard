@@ -281,7 +281,7 @@ export default function FacilitiesPage() {
             Facilities Management
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage and monitor all property facilities and amenities
+            {/* Description removed as requested */}
           </p>
         </div>
         <button className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">

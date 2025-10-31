@@ -100,7 +100,7 @@ export default function AnnouncementsPage() {
             Announcements Management
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage and publish announcements for residents and staff
+            {/* Description removed as requested */}
           </p>
         </div>
         <button

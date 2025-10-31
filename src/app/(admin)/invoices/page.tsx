@@ -180,7 +180,7 @@ export default function InvoicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Service Fee Invoices</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Manage apartment service fee invoices</p>
+          {/* Description removed as requested */}
         </div>
         <button
           onClick={handleAdd}

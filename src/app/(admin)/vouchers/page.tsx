@@ -235,7 +235,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vouchers</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Manage vouchers: add, edit, delete</p>
+          {/* Description removed as requested */}
         </div>
         <button
           onClick={handleAdd}

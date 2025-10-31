@@ -197,14 +197,14 @@ export default function TicketsManagementPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-black dark:text-white">
-            Bus Tickets Management
+            BUS TICKETS MANAGEMENT
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage bus ticket types for mobile app
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-          + Add New Ticket Type
+        <button className="rounded-lg bg-primary px-6 py-2.5 text-white font-semibold uppercase tracking-wide shadow hover:bg-primary/90 flex items-center gap-2">
+          <span className="text-lg leading-none">+</span> CREATE TICKET
         </button>
       </div>
 
@@ -252,35 +252,35 @@ export default function TicketsManagementPage() {
           <table className="w-full table-auto">
             <thead>
               <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Ticket Code
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  TICKET CODE
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Name
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  NAME
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Description
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  DESCRIPTION
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Bus Type
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  BUS TYPE
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Price
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  PRICE
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Validity
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  VALIDITY
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Max Usage/Day
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  MAX USAGE/DAY
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Discount
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  DISCOUNT
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Status
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  STATUS
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Actions
+                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
+                  ACTIONS
                 </th>
               </tr>
             </thead>
@@ -347,7 +347,7 @@ export default function TicketsManagementPage() {
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          className="text-primary hover:text-primary/80"
+                          className="text-primary hover:text-primary/80 bg-primary/10 rounded-full p-1"
                           title="View details"
                         >
                           <svg
@@ -371,7 +371,7 @@ export default function TicketsManagementPage() {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-5 hover:text-meta-5/80"
+                          className="text-orange-500 hover:text-orange-600 bg-orange-100 rounded-full p-1"
                           title="Edit"
                         >
                           <svg
@@ -389,7 +389,7 @@ export default function TicketsManagementPage() {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-1 hover:text-meta-1/80"
+                          className="text-red-500 hover:text-red-600 bg-red-100 rounded-full p-1"
                           title="Delete"
                         >
                           <svg

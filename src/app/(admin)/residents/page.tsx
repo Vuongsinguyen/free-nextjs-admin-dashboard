@@ -7,7 +7,9 @@ import UserTable from "@/components/user-management/UserTable";
 import UserFilters from "@/components/user-management/UserFilters";
 import ResidentDetailModal from "@/components/residents/ResidentDetailModal";
 import { User, UserFilters as IUserFilters, SortConfig } from "@/types/user-management";
+
 import mockAccounts from "@/data/mockAccounts.json";
+
 
 export default function ResidentPage() {
   const { user: currentUser } = useAuth();
@@ -17,8 +19,9 @@ export default function ResidentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<IUserFilters>({
     search: "",
-    role: "",
     status: "",
+    property: "",
+    province: "",
   });
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "id",
@@ -57,6 +60,7 @@ export default function ResidentPage() {
           passportIssuePlace: account.passportIssuePlace,
           cohabitants: account.cohabitants,
           otherInfo: account.otherInfo,
+          // province: not in mockAccounts, so leave blank for now
         }));
         setUsers(usersData);
         setIsLoading(false);
@@ -66,24 +70,79 @@ export default function ResidentPage() {
     loadUsers();
   }, []);
 
+  // Property options from API
+  const [propertyOptions, setPropertyOptions] = useState<string[]>([]);
+  useEffect(() => {
+    fetch('http://localhost:3000/buildings/property')
+      .then(res => res.json())
+      .then(data => {
+        // Expecting array of property objects or names
+        if (Array.isArray(data)) {
+          // If array of objects with name property
+          if (data.length > 0 && typeof data[0] === 'object' && data[0].name) {
+            setPropertyOptions(data.map((p: any) => p.name));
+          } else {
+            setPropertyOptions(data);
+          }
+        } else if (data && Array.isArray(data.properties)) {
+          if (data.properties.length > 0 && typeof data.properties[0] === 'object' && data.properties[0].name) {
+            setPropertyOptions(data.properties.map((p: any) => p.name));
+          } else {
+            setPropertyOptions(data.properties);
+          }
+        }
+      })
+      .catch(() => setPropertyOptions([]));
+  }, []);
+
+  // Province options from API
+  const [provinceOptions, setProvinceOptions] = useState<string[]>([]);
+  useEffect(() => {
+    fetch('http://localhost:3000/locations/province')
+      .then(res => res.json())
+      .then(data => {
+        // Expecting array of province names
+        if (Array.isArray(data)) {
+          setProvinceOptions(data);
+        } else if (data && Array.isArray(data.provinces)) {
+          setProvinceOptions(data.provinces);
+        }
+      })
+      .catch(() => setProvinceOptions([]));
+  }, []);
+
   // Apply filters and sorting
   useEffect(() => {
     let result = [...users];
 
     // Apply filters
     if (filters.search) {
-      result = result.filter(user =>
-        user.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        user.email.toLowerCase().includes(filters.search.toLowerCase())
-      );
+      const search = filters.search.toLowerCase();
+      result = result.filter(user => {
+        // Search all string fields of the user object
+        return Object.entries(user).some(([key, value]) => {
+          if (typeof value === 'string') {
+            return value.toLowerCase().includes(search);
+          }
+          return false;
+        });
+      });
     }
 
-    if (filters.role) {
-      result = result.filter(user => user.role === filters.role);
-    }
+
+    // Always filter to only show residents
+    result = result.filter(user => user.role === 'resident');
 
     if (filters.status) {
       result = result.filter(user => user.status === filters.status);
+    }
+
+    if (filters.property) {
+      result = result.filter(user => user.propertyName === filters.property);
+    }
+
+    if (filters.province) {
+      // No province field in user, so skip for now (future: add province to user data)
     }
 
     // Apply sorting
@@ -153,7 +212,7 @@ export default function ResidentPage() {
             {t('nav.resident')}
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            {t('userManagement.description')}
+            {/* Description removed as requested */}
           </p>
         </div>
       </div>
@@ -162,44 +221,12 @@ export default function ResidentPage() {
       <UserFilters
         filters={filters}
         onFiltersChange={setFilters}
-        users={users}
+        users={users.filter(u => u.role === 'resident')}
+        propertyOptions={propertyOptions}
+        provinceOptions={provinceOptions}
       />
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {users.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.totalUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-green-600">
-            {users.filter(u => u.status === "active").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.activeUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-red-600">
-            {users.filter(u => u.status === "inactive").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.inactiveUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-blue-600">
-            {filteredUsers.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.filteredResults')}
-          </div>
-        </div>
-      </div>
+
 
       {/* User Table */}
       <UserTable
