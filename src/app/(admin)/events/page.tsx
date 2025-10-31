@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import EventModal from "@/components/events/EventModal";
 
 interface Event {
   id: number;
@@ -145,10 +146,12 @@ const mockEvents: Event[] = [
 ];
 
 export default function EventsPage() {
-  const [events] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>(mockEvents);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterAudience, setFilterAudience] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   // Filter events
   const filteredEvents = events.filter((event) => {
@@ -193,15 +196,57 @@ export default function EventsPage() {
     }
   };
 
+  const handleAddEvent = () => {
+    setEditingEvent(null);
+    setShowModal(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setShowModal(true);
+  };
+
+  const handleSaveEvent = (eventData: Partial<Event>) => {
+    if (editingEvent) {
+      // Update existing event
+      setEvents(prev =>
+        prev.map(event =>
+          event.id === editingEvent.id
+            ? { ...event, ...eventData, updatedAt: new Date().toISOString() }
+            : event
+        )
+      );
+    } else {
+      // Add new event
+      const newEvent: Event = {
+        id: Math.max(...events.map(e => e.id)) + 1,
+        title: eventData.title || "",
+        description: eventData.description || "",
+        targetAudience: eventData.targetAudience || "all",
+        startDate: eventData.startDate || "",
+        endDate: eventData.endDate || "",
+        textContent: eventData.textContent || "",
+        status: eventData.status || "draft",
+        createdBy: "Current User", // In real app, get from auth context
+        createdAt: new Date().toISOString(),
+      };
+      setEvents(prev => [...prev, newEvent]);
+    }
+    setShowModal(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-black dark:text-white">
           Events Management
         </h1>
-        <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-          + Add New Event
+        <button
+          onClick={handleAddEvent}
+          className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+        >
+          + Create Event
         </button>
       </div>
 
@@ -334,7 +379,7 @@ export default function EventsPage() {
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          className="text-primary hover:text-primary/80"
+                          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                           title="View details"
                         >
                           <svg
@@ -358,7 +403,8 @@ export default function EventsPage() {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-5 hover:text-meta-5/80"
+                          onClick={() => handleEditEvent(event)}
+                          className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
                           title="Edit"
                         >
                           <svg
@@ -376,7 +422,7 @@ export default function EventsPage() {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-1 hover:text-meta-1/80"
+                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                           title="Delete"
                         >
                           <svg
@@ -428,6 +474,15 @@ export default function EventsPage() {
           </div>
         </div>
       </div>
+
+      {/* Event Modal */}
+      {showModal && (
+        <EventModal
+          event={editingEvent}
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveEvent}
+        />
+      )}
     </div>
   );
 }

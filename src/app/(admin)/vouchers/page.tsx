@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getProvincesFromCSV } from "@/lib/provinces";
 
 interface Voucher {
   id: number;
@@ -71,24 +72,29 @@ export default function VouchersPage() {
   const [showModal, setShowModal] = useState(false);
   const [showResidentsModal, setShowResidentsModal] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
-  const [editing, setEditing] = useState<Voucher | null>(null);
+interface Province {
+  id: number;
+  code: string;
+  name: string;
+  nameEn: string;
+  type: string;
+}
+
+const [editing, setEditing] = useState<Voucher | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCompany, setFilterCompany] = useState("");
   const [filterProvince, setFilterProvince] = useState("");
-  const [filterDistrict, setFilterDistrict] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [provinces, setProvinces] = useState<Province[]>([]);
   const itemsPerPage = 10;
 
-  // Province and District mapping
-  const provinceDistrictMap: Record<string, string[]> = {
-    "Hồ Chí Minh": ["Quận 1", "Quận 2", "Quận 3", "Quận 7"],
-    "Hà Nội": ["Hoàn Kiếm", "Ba Đình", "Đống Đa", "Cầu Giấy"],
-    "Bình Dương": ["Thủ Dầu Một", "Dĩ An", "Thuận An"],
-  };
-
-  const availableDistricts = filterProvince ? provinceDistrictMap[filterProvince] || [] : [];
+  // Load provinces data on component mount
+  useEffect(() => {
+    const loadedProvinces = getProvincesFromCSV();
+    setProvinces(loadedProvinces);
+  }, []);
 
   const handleAdd = () => {
     setEditing({
@@ -182,19 +188,9 @@ export default function VouchersPage() {
       result = result.filter(v => v.province === filterProvince);
     }
 
-    // District filter
-    if (filterDistrict) {
-      result = result.filter(v => v.district === filterDistrict);
-    }
-
     setFilteredVouchers(result);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [vouchers, searchTerm, filterCategory, filterStatus, filterCompany, filterProvince, filterDistrict]);
-
-  // Reset district filter when province changes
-  useEffect(() => {
-    setFilterDistrict("");
-  }, [filterProvince]);
+  }, [vouchers, searchTerm, filterCategory, filterStatus, filterCompany, filterProvince]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage);
@@ -251,7 +247,7 @@ export default function VouchersPage() {
 
       {/* Search & Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -334,27 +330,9 @@ export default function VouchersPage() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Provinces</option>
-              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="Bình Dương">Bình Dương</option>
-            </select>
-          </div>
-
-          {/* District Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              District
-            </label>
-            <select
-              value={filterDistrict}
-              onChange={(e) => setFilterDistrict(e.target.value)}
-              disabled={!filterProvince}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:disabled:bg-gray-800"
-            >
-              <option value="">All Districts</option>
-              {availableDistricts.map((district) => (
-                <option key={district} value={district}>
-                  {district}
+              {provinces.map((province) => (
+                <option key={province.id} value={province.name}>
+                  {province.name}
                 </option>
               ))}
             </select>

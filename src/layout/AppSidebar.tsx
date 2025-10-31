@@ -79,7 +79,9 @@ const AppSidebar: React.FC = () => {
     {
       icon: <PieChartIcon />,
       nameKey: "nav.report",
-      path: "/report",
+      subItems: [
+        { nameKey: "nav.payments", path: "/report/payments", pro: false },
+      ],
     },
   ];
 

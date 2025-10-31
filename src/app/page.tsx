@@ -246,51 +246,112 @@ export default function HomePage() {
         </div>
 
         {/* Role Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-          {roleOptions.map((role) => (
-            <div
-              key={role.id}
-              onClick={() => handleRoleSelect(role.id)}
-              className={`
-                relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm
-                ${selectedRole === role.id 
-                  ? 'border-brand-500 bg-white/95 dark:bg-brand-500/20 shadow-lg shadow-brand-500/50' 
-                  : 'border-white/30 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 hover:border-brand-300 hover:bg-white/95'
-                }
-              `}
-            >
-              {/* Selection Indicator */}
-              {selectedRole === role.id && (
-                <div className="absolute top-4 right-4 w-6 h-6 bg-brand-500 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
-
-              {/* Role Icon */}
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-                {role.icon.startsWith('/images/') ? (
-                  <Image
-                    src={role.icon}
-                    alt={t(role.nameKey)}
-                    width={64}
-                    height={64}
-                    className="object-contain"
-                  />
-                ) : (
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl ${role.color}`}>
-                    <span className="text-2xl">{role.icon}</span>
+        <div className="flex flex-col items-center gap-4 md:gap-6 mb-8">
+          {/* First Row - 3 Cards */}
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            {roleOptions.slice(0, 3).map((role) => (
+              <div
+                key={role.id}
+                onClick={() => handleRoleSelect(role.id)}
+                className={`
+                  relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm
+                  w-full sm:w-80 md:w-72 lg:w-80 xl:w-96
+                  min-h-[200px] flex flex-col items-center justify-center text-center
+                  ${selectedRole === role.id 
+                    ? 'border-brand-500 bg-white/95 dark:bg-brand-500/20 shadow-lg shadow-brand-500/50' 
+                    : 'border-white/30 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 hover:border-brand-300 hover:bg-white/95'
+                  }
+                `}
+              >
+                {/* Selection Indicator */}
+                {selectedRole === role.id && (
+                  <div className="absolute top-4 right-4 w-6 h-6 bg-brand-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
                   </div>
                 )}
-              </div>
 
-              {/* Role Info */}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t(role.nameKey)}
-              </h3>
-            </div>
-          ))}
+                {/* Role Icon */}
+                <div className="flex items-center justify-center w-16 h-16 mb-4">
+                  {role.icon.startsWith('/images/') ? (
+                    <Image
+                      src={role.icon}
+                      alt={t(role.nameKey)}
+                      width={64}
+                      height={64}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <div className={`flex items-center justify-center w-16 h-16 rounded-xl ${role.color}`}>
+                      <span className="text-2xl">{role.icon}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Role Info */}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {t(role.nameKey)}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {role.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Second Row - 2 Cards */}
+          <div className="flex justify-center gap-4 md:gap-6">
+            {roleOptions.slice(3, 5).map((role) => (
+              <div
+                key={role.id}
+                onClick={() => handleRoleSelect(role.id)}
+                className={`
+                  relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm
+                  w-full sm:w-80 md:w-72 lg:w-80 xl:w-96
+                  min-h-[200px] flex flex-col items-center justify-center text-center
+                  ${selectedRole === role.id 
+                    ? 'border-brand-500 bg-white/95 dark:bg-brand-500/20 shadow-lg shadow-brand-500/50' 
+                    : 'border-white/30 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 hover:border-brand-300 hover:bg-white/95'
+                  }
+                `}
+              >
+                {/* Selection Indicator */}
+                {selectedRole === role.id && (
+                  <div className="absolute top-4 right-4 w-6 h-6 bg-brand-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Role Icon */}
+                <div className="flex items-center justify-center w-16 h-16 mb-4">
+                  {role.icon.startsWith('/images/') ? (
+                    <Image
+                      src={role.icon}
+                      alt={t(role.nameKey)}
+                      width={64}
+                      height={64}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <div className={`flex items-center justify-center w-16 h-16 rounded-xl ${role.color}`}>
+                      <span className="text-2xl">{role.icon}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Role Info */}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {t(role.nameKey)}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {role.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
