@@ -218,9 +218,9 @@ export default function HomePage() {
       </div>
 
       {/* Main Content Container */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[1330px] mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 max-w-[900px] mx-auto">
           <div className="flex justify-center mb-6">
             <Image
               className="dark:hidden drop-shadow-lg"
@@ -246,7 +246,7 @@ export default function HomePage() {
         </div>
 
         {/* Role Selection Grid */}
-        <div className="flex flex-col items-center gap-4 md:gap-6 mb-8">
+        <div className="flex flex-col items-center gap-4 md:gap-6 mb-8 max-w-[1330px] mx-auto">
           {/* First Row - 3 Cards */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {roleOptions.slice(0, 3).map((role) => (
@@ -293,9 +293,6 @@ export default function HomePage() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   {t(role.nameKey)}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {role.description}
-                </p>
               </div>
             ))}
           </div>
@@ -346,9 +343,6 @@ export default function HomePage() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   {t(role.nameKey)}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {role.description}
-                </p>
               </div>
             ))}
           </div>
