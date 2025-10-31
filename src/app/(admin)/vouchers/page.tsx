@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { getProvincesFromCSV } from "@/lib/provinces";
+
+interface Province {
+  id: number;
+  code: string;
+  name: string;
+  nameEn: string;
+  type: string;
+}
 
 interface Voucher {
   id: number;
@@ -21,14 +30,15 @@ interface Voucher {
   };
   startDate: string; // ISO date
   endDate: string;   // ISO date
+  image?: string; // URL to voucher image
 }
 
 const initialVouchers: Voucher[] = [
-  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31" },
-  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30" },
-  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31" },
-  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15" },
-  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30" },
+  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop" },
+  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" },
+  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop" },
+  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" },
+  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30", image: "https://images.unsplash.com/photo-1489599735734-79b4d8c3b0bb?w=400&h=300&fit=crop" },
   { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 100 }, startDate: "2025-01-10", endDate: "2025-12-20" },
   { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "inactive", quantity: { used: 50, total: 50 }, startDate: "2025-03-05", endDate: "2025-08-05" },
   { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Hà Nội", district: "Hoàn Kiếm", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 234, total: 1000 }, startDate: "2025-01-01", endDate: "2025-12-31" },
@@ -72,13 +82,9 @@ export default function VouchersPage() {
   const [showModal, setShowModal] = useState(false);
   const [showResidentsModal, setShowResidentsModal] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
-interface Province {
-  id: number;
-  code: string;
-  name: string;
-  nameEn: string;
-  type: string;
-}
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [provinces, setProvinces] = useState<Province[]>([]);
 
 const [editing, setEditing] = useState<Voucher | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,9 +92,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCompany, setFilterCompany] = useState("");
   const [filterProvince, setFilterProvince] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const itemsPerPage = 10;
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Load provinces data on component mount
   useEffect(() => {
@@ -112,7 +116,9 @@ const [editing, setEditing] = useState<Voucher | null>(null);
       quantity: { used: 0, total: 100 },
       startDate: new Date().toISOString().slice(0, 10),
       endDate: new Date().toISOString().slice(0, 10),
+      image: "",
     });
+    setSelectedFile(null);
     setShowModal(true);
   };
 
@@ -147,6 +153,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
 
   const handleEdit = (v: Voucher) => {
     setEditing(JSON.parse(JSON.stringify(v)) as Voucher);
+    setSelectedFile(null); // Reset file selection when editing
     setShowModal(true);
   };
 
@@ -215,18 +222,43 @@ const [editing, setEditing] = useState<Voucher | null>(null);
       return;
     }
 
-    if (editing.id === 0) {
-      const newVoucher: Voucher = {
-        ...editing,
-        id: Math.max(0, ...vouchers.map(v => v.id)) + 1,
-      };
-      setVouchers(prev => [...prev, newVoucher]);
-    } else {
-      setVouchers(prev => prev.map(v => (v.id === editing.id ? editing : v)));
-    }
+    // Handle file upload if a file is selected
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        const voucherWithImage = { ...editing, image: imageUrl };
 
-    setShowModal(false);
-    setEditing(null);
+        if (editing.id === 0) {
+          const newVoucher: Voucher = {
+            ...voucherWithImage,
+            id: Math.max(0, ...vouchers.map(v => v.id)) + 1,
+          };
+          setVouchers(prev => [...prev, newVoucher]);
+        } else {
+          setVouchers(prev => prev.map(v => (v.id === editing.id ? voucherWithImage : v)));
+        }
+
+        setShowModal(false);
+        setEditing(null);
+        setSelectedFile(null);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      // No file selected, proceed with existing logic
+      if (editing.id === 0) {
+        const newVoucher: Voucher = {
+          ...editing,
+          id: Math.max(0, ...vouchers.map(v => v.id)) + 1,
+        };
+        setVouchers(prev => [...prev, newVoucher]);
+      } else {
+        setVouchers(prev => prev.map(v => (v.id === editing.id ? editing : v)));
+      }
+
+      setShowModal(false);
+      setEditing(null);
+    }
   };
 
   return (
@@ -338,11 +370,6 @@ const [editing, setEditing] = useState<Voucher | null>(null);
             </select>
           </div>
         </div>
-
-        {/* Results count */}
-        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-          Showing {startIndex + 1}-{Math.min(endIndex, filteredVouchers.length)} of {filteredVouchers.length} vouchers
-        </div>
       </div>
 
       {/* Table */}
@@ -352,6 +379,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">IMAGE</th>
                 <th className="px-6 py-4">CODE</th>
                 <th className="px-6 py-4">NAME</th>
                 <th className="px-6 py-4">CATEGORY</th>
@@ -370,6 +398,23 @@ const [editing, setEditing] = useState<Voucher | null>(null);
               {currentVouchers.map((v) => (
                 <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">#{v.id}</td>
+                  <td className="px-6 py-4">
+                    {v.image ? (
+                      <Image
+                        src={v.image}
+                        alt={v.name}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-white">{v.code}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{v.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{v.category}</td>
@@ -564,6 +609,30 @@ const [editing, setEditing] = useState<Voucher | null>(null);
                     onChange={(e) => setEditing({ ...editing!, code: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Image
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSelectedFile(file);
+                        // For now, we'll store the file name as a placeholder
+                        // In a real app, you'd upload the file and get back a URL
+                        setEditing({ ...editing!, image: file.name });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  {selectedFile && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
