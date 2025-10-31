@@ -29,6 +29,12 @@ interface Booking {
   createdAt: string;
 }
 
+interface FlatpickrElement extends HTMLInputElement {
+  _flatpickr?: {
+    setDate: (date: Date | Date[], triggerChange?: boolean) => void;
+  };
+}
+
 export default function FacilityBookingsPage() {
   // const { t } = useLocale();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -311,7 +317,7 @@ export default function FacilityBookingsPage() {
     if ((isAddModalOpen || isEditModalOpen) && formData.startDate && formData.endDate) {
       // Small delay to ensure DOM is ready
       const timeoutId = setTimeout(() => {
-        const element = document.getElementById('booking-date-range') as any;
+        const element = document.getElementById('booking-date-range') as FlatpickrElement;
         if (element && element._flatpickr) {
           element._flatpickr.setDate([new Date(formData.startDate), new Date(formData.endDate)], false);
         }
@@ -415,7 +421,7 @@ export default function FacilityBookingsPage() {
 
     // Set date picker after modal opens
     setTimeout(() => {
-      const element = document.getElementById('booking-date-range') as any;
+      const element = document.getElementById('booking-date-range') as FlatpickrElement;
       if (element && element._flatpickr) {
         element._flatpickr.setDate([new Date(booking.bookingDate), nextDay], false);
       }
