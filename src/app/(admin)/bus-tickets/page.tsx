@@ -15,76 +15,64 @@ interface BusTicket {
   status: "active" | "used" | "cancelled";
 }
 
+// Generate 100 mock records
+const generateMockBusTickets = (): BusTicket[] => {
+  const busTypes = ["Express", "Standard", "VIP"];
+  const routes = [
+    "District 1 - District 7",
+    "District 2 - District 9",
+    "District 3 - Binh Thanh",
+    "District 5 - Tan Binh",
+    "District 10 - Go Vap",
+    "Thu Duc - District 1",
+    "Phu Nhuan - District 3",
+    "District 4 - District 8",
+  ];
+  const drivers = [
+    "John Smith",
+    "David Johnson",
+    "Michael Brown",
+    "James Wilson",
+    "Robert Taylor",
+    "William Anderson",
+    "Richard Thomas",
+    "Joseph Martinez",
+  ];
+  const statuses: Array<"active" | "used" | "cancelled"> = ["active", "used", "cancelled"];
+  const firstNames = ["John", "Jane", "Michael", "Sarah", "David", "Emily", "Robert", "Lisa", "James", "Mary"];
+  const lastNames = ["Smith", "Johnson", "Brown", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin"];
+
+  const tickets: BusTicket[] = [];
+  
+  for (let i = 1; i <= 100; i++) {
+    const date = new Date(2025, 10, Math.floor(Math.random() * 30) + 1);
+    const hour = String(Math.floor(Math.random() * 12) + 7).padStart(2, '0');
+    const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+    
+    tickets.push({
+      id: String(i),
+      residentName: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
+      residentId: `R${String(i).padStart(4, '0')}`,
+      date: date.toISOString().split('T')[0],
+      time: `${hour}:${minute}`,
+      busType: busTypes[Math.floor(Math.random() * busTypes.length)],
+      route: routes[Math.floor(Math.random() * routes.length)],
+      driver: drivers[Math.floor(Math.random() * drivers.length)],
+      ticketNumber: `BT${String(i).padStart(4, '0')}`,
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+    });
+  }
+  
+  return tickets.sort((a, b) => b.date.localeCompare(a.date));
+};
+
 const BusTicketsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBusType, setFilterBusType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
   // Mock data
-  const mockBusTickets: BusTicket[] = [
-    {
-      id: "1",
-      residentName: "Nguyễn Văn A",
-      residentId: "R001",
-      date: "2025-11-01",
-      time: "07:30",
-      busType: "Express",
-      route: "Quận 1 - Quận 7",
-      driver: "Trần Văn B",
-      ticketNumber: "BT001",
-      status: "active",
-    },
-    {
-      id: "2",
-      residentName: "Lê Thị C",
-      residentId: "R002",
-      date: "2025-11-01",
-      time: "08:00",
-      busType: "Standard",
-      route: "Quận 2 - Quận 9",
-      driver: "Phạm Văn D",
-      ticketNumber: "BT002",
-      status: "used",
-    },
-    {
-      id: "3",
-      residentName: "Hoàng Văn E",
-      residentId: "R003",
-      date: "2025-11-02",
-      time: "07:45",
-      busType: "VIP",
-      route: "Quận 3 - Bình Thạnh",
-      driver: "Võ Thị F",
-      ticketNumber: "BT003",
-      status: "active",
-    },
-    {
-      id: "4",
-      residentName: "Trương Thị G",
-      residentId: "R004",
-      date: "2025-11-02",
-      time: "09:00",
-      busType: "Express",
-      route: "Quận 5 - Tân Bình",
-      driver: "Trần Văn B",
-      ticketNumber: "BT004",
-      status: "cancelled",
-    },
-    {
-      id: "5",
-      residentName: "Phan Văn H",
-      residentId: "R005",
-      date: "2025-11-03",
-      time: "07:15",
-      busType: "Standard",
-      route: "Quận 10 - Gò Vấp",
-      driver: "Nguyễn Văn I",
-      ticketNumber: "BT005",
-      status: "active",
-    },
-  ];
-
-  const [data] = useState<BusTicket[]>(mockBusTickets);
+  const [data] = useState<BusTicket[]>(generateMockBusTickets());
 
   // Filter data
   const filteredData = data.filter((ticket) => {
@@ -100,24 +88,24 @@ const BusTicketsPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400";
       case "used":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case "active":
-        return "Hoạt động";
+        return "Active";
       case "used":
-        return "Đã sử dụng";
+        return "Used";
       case "cancelled":
-        return "Đã hủy";
+        return "Cancelled";
       default:
         return status;
     }
@@ -128,10 +116,10 @@ const BusTicketsPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Quản lý vé xe buýt
+          Bus Tickets Management
         </h1>
         <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-          + Thêm vé mới
+          + Add New Ticket
         </button>
       </div>
 
@@ -143,7 +131,7 @@ const BusTicketsPage = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm theo tên, mã vé, hoặc tuyến..."
+              placeholder="Search by name, ticket number, or route..."
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             />
           </div>
@@ -154,7 +142,7 @@ const BusTicketsPage = () => {
               onChange={(e) => setFilterBusType(e.target.value)}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             >
-              <option value="">Tất cả loại xe</option>
+              <option value="">All Bus Types</option>
               <option value="Express">Express</option>
               <option value="Standard">Standard</option>
               <option value="VIP">VIP</option>
@@ -167,10 +155,10 @@ const BusTicketsPage = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             >
-              <option value="">Tất cả trạng thái</option>
-              <option value="active">Hoạt động</option>
-              <option value="used">Đã sử dụng</option>
-              <option value="cancelled">Đã hủy</option>
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="used">Used</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
@@ -181,31 +169,31 @@ const BusTicketsPage = () => {
             <thead>
               <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Mã vé
+                  Ticket #
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Cư dân
+                  Resident
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Ngày
+                  Date
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Giờ
+                  Time
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Loại Bus
+                  Bus Type
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Tuyến
+                  Route
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Tài xế
+                  Driver
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Trạng thái
+                  Status
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Hành động
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -233,7 +221,7 @@ const BusTicketsPage = () => {
                     </td>
                     <td className="px-4 py-4">
                       <p className="text-sm text-black dark:text-white">
-                        {new Date(ticket.date).toLocaleDateString("vi-VN")}
+                        {new Date(ticket.date).toLocaleDateString("en-US")}
                       </p>
                     </td>
                     <td className="px-4 py-4">
@@ -242,7 +230,7 @@ const BusTicketsPage = () => {
                       </p>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">
                         {ticket.busType}
                       </span>
                     </td>
@@ -269,7 +257,7 @@ const BusTicketsPage = () => {
                       <div className="flex items-center gap-2">
                         <button
                           className="text-primary hover:text-primary/80"
-                          title="Xem chi tiết"
+                          title="View details"
                         >
                           <svg
                             className="h-5 w-5"
@@ -293,7 +281,7 @@ const BusTicketsPage = () => {
                         </button>
                         <button
                           className="text-meta-5 hover:text-meta-5/80"
-                          title="Chỉnh sửa"
+                          title="Edit"
                         >
                           <svg
                             className="h-5 w-5"
@@ -311,7 +299,7 @@ const BusTicketsPage = () => {
                         </button>
                         <button
                           className="text-meta-1 hover:text-meta-1/80"
-                          title="Xóa"
+                          title="Delete"
                         >
                           <svg
                             className="h-5 w-5"
@@ -335,7 +323,7 @@ const BusTicketsPage = () => {
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center">
                     <p className="text-gray-500 dark:text-gray-400">
-                      Không tìm thấy vé xe buýt nào
+                      No bus tickets found
                     </p>
                   </td>
                 </tr>
@@ -347,17 +335,17 @@ const BusTicketsPage = () => {
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Hiển thị {filteredData.length} vé
+            Showing {filteredData.length} tickets
           </p>
           <div className="flex gap-2">
             <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
-              Trước
+              Previous
             </button>
             <button className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
               1
             </button>
             <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
-              Sau
+              Next
             </button>
           </div>
         </div>

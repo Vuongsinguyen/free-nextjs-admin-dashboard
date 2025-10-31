@@ -683,6 +683,111 @@ export default function VouchersPage() {
           </div>
         </div>
       )}
+
+      {/* Residents Using Voucher Modal */}
+      {showResidentsModal && selectedVoucher && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-999999">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Residents Using Voucher
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {selectedVoucher.name} ({selectedVoucher.code}) - {selectedVoucher.quantity.used} total uses
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowResidentsModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Residents Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-4 py-3">ID</th>
+                      <th className="px-4 py-3">Resident Name</th>
+                      <th className="px-4 py-3">Apartment</th>
+                      <th className="px-4 py-3">Used Date</th>
+                      <th className="px-4 py-3">Used Time</th>
+                      <th className="px-4 py-3">Amount Saved</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {getResidentUsageData(selectedVoucher).map((resident) => (
+                      <tr key={resident.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                          {resident.residentId}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                          {resident.residentName}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                          {resident.apartment}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                          {new Date(resident.usedDate).toLocaleDateString("vi-VN")}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                          {resident.usedTime}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">
+                          {selectedVoucher.type === 'percentage' 
+                            ? `${selectedVoucher.value}% (${resident.amount.toLocaleString()} VNĐ)`
+                            : `${resident.amount.toLocaleString()} VNĐ`
+                          }
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Summary */}
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Uses</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+                      {selectedVoucher.quantity.used}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Remaining</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+                      {selectedVoucher.quantity.total - selectedVoucher.quantity.used}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Usage Rate</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+                      {Math.round((selectedVoucher.quantity.used / selectedVoucher.quantity.total) * 100)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => setShowResidentsModal(false)}
+                  className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

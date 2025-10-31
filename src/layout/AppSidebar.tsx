@@ -117,6 +117,11 @@ const AppSidebar: React.FC = () => {
       ],
     },
     {
+      icon: <TableIcon />,
+      nameKey: "nav.ticketsManagement",
+      path: "/master-data/tickets-management",
+    },
+    {
       icon: <UserCircleIcon />,
       nameKey: "nav.userManagement",
       subItems: [

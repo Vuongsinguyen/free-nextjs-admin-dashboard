@@ -2,194 +2,192 @@
 
 import { useState } from "react";
 
-interface Event {
+interface BusTicketType {
   id: number;
-  title: string;
+  ticketName: string;
+  ticketCode: string;
   description: string;
-  targetAudience: "all" | "specific_buildings" | "specific_apartments";
-  targetBuildings?: string[];
-  targetApartments?: string[];
-  startDate: string;
-  endDate: string;
-  shopName?: string;
-  shopType?: "in_building" | "external";
-  textContent: string;
-  pdfFiles?: string[];
-  imageFiles?: string[];
-  status: "active" | "scheduled" | "expired" | "draft";
-  createdBy: string;
+  price: number;
+  validity: number; // days
+  routes: string[];
+  busType: "Express" | "Standard" | "VIP";
+  maxUsagePerDay: number;
+  availableTimeSlots: string[];
+  status: "active" | "inactive";
+  discount: number; // percentage
   createdAt: string;
+  updatedAt: string;
 }
 
-const mockEvents: Event[] = [
+const mockTicketTypes: BusTicketType[] = [
   {
     id: 1,
-    title: "Monthly Residents Meeting",
-    description: "Discussion about building maintenance and upcoming improvements",
-    targetAudience: "all",
-    startDate: "2025-11-05",
-    endDate: "2025-11-05",
-    textContent: "Discussion about building maintenance and upcoming improvements. Location: Community Hall - Floor 1, Time: 18:00",
-    status: "scheduled",
-    createdBy: "Building Management",
-    createdAt: "2025-10-25"
+    ticketName: "Monthly Pass - Express",
+    ticketCode: "MP-EXP-001",
+    description: "Unlimited express bus rides for 30 days",
+    price: 500000,
+    validity: 30,
+    routes: ["District 1 - District 7", "District 2 - District 9", "Thu Duc - District 1"],
+    busType: "Express",
+    maxUsagePerDay: 10,
+    availableTimeSlots: ["06:00-09:00", "16:00-19:00"],
+    status: "active",
+    discount: 0,
+    createdAt: "2025-10-01",
+    updatedAt: "2025-10-15"
   },
   {
     id: 2,
-    title: "Fire Safety Drill",
-    description: "Mandatory fire safety drill and evacuation practice",
-    targetAudience: "all",
-    startDate: "2025-11-10",
-    endDate: "2025-11-10",
-    textContent: "Mandatory fire safety drill and evacuation practice. Location: All Building Areas, Time: 10:00",
-    status: "scheduled",
-    createdBy: "Safety Department",
-    createdAt: "2025-10-26"
+    ticketName: "Weekly Pass - Standard",
+    ticketCode: "WP-STD-002",
+    description: "Unlimited standard bus rides for 7 days",
+    price: 150000,
+    validity: 7,
+    routes: ["District 3 - Binh Thanh", "District 5 - Tan Binh", "District 10 - Go Vap"],
+    busType: "Standard",
+    maxUsagePerDay: 8,
+    availableTimeSlots: ["05:00-22:00"],
+    status: "active",
+    discount: 10,
+    createdAt: "2025-09-15",
+    updatedAt: "2025-10-20"
   },
   {
     id: 3,
-    title: "Elevator Maintenance",
-    description: "Scheduled maintenance for elevators A & B",
-    targetAudience: "all",
-    startDate: "2025-11-12",
-    endDate: "2025-11-12",
-    textContent: "Scheduled maintenance for elevators A & B. Time: 08:00",
-    status: "scheduled",
-    createdBy: "Maintenance Team",
-    createdAt: "2025-10-27"
+    ticketName: "VIP Monthly Pass",
+    ticketCode: "MP-VIP-003",
+    description: "Premium VIP bus service with luxury amenities for 30 days",
+    price: 1200000,
+    validity: 30,
+    routes: ["All Routes"],
+    busType: "VIP",
+    maxUsagePerDay: 15,
+    availableTimeSlots: ["24/7"],
+    status: "active",
+    discount: 15,
+    createdAt: "2025-09-01",
+    updatedAt: "2025-10-25"
   },
   {
     id: 4,
-    title: "Lunar New Year Celebration",
-    description: "Community celebration with food and entertainment",
-    targetAudience: "all",
-    startDate: "2025-11-15",
-    endDate: "2025-11-15",
-    textContent: "Community celebration with food and entertainment. Location: Rooftop Garden, Time: 17:00",
-    status: "scheduled",
-    createdBy: "Residents Committee",
-    createdAt: "2025-10-28"
+    ticketName: "Single Trip - Express",
+    ticketCode: "ST-EXP-004",
+    description: "One-way express bus ticket",
+    price: 25000,
+    validity: 1,
+    routes: ["District 1 - District 7", "District 2 - District 9"],
+    busType: "Express",
+    maxUsagePerDay: 1,
+    availableTimeSlots: ["06:00-20:00"],
+    status: "active",
+    discount: 0,
+    createdAt: "2025-08-10",
+    updatedAt: "2025-10-10"
   },
   {
     id: 5,
-    title: "Swimming Pool Cleaning",
-    description: "Deep cleaning and chemical treatment of swimming pool",
-    targetAudience: "all",
-    startDate: "2025-10-25",
-    endDate: "2025-10-25",
-    textContent: "Deep cleaning and chemical treatment of swimming pool. Time: 06:00",
-    status: "expired",
-    createdBy: "Maintenance Team",
-    createdAt: "2025-10-20"
+    ticketName: "Student Pass - Standard",
+    ticketCode: "SP-STD-005",
+    description: "Discounted monthly pass for students",
+    price: 200000,
+    validity: 30,
+    routes: ["All Standard Routes"],
+    busType: "Standard",
+    maxUsagePerDay: 12,
+    availableTimeSlots: ["05:00-23:00"],
+    status: "active",
+    discount: 40,
+    createdAt: "2025-09-05",
+    updatedAt: "2025-10-18"
   },
   {
     id: 6,
-    title: "Building Security Update",
-    description: "Information session about new security measures",
-    targetAudience: "all",
-    startDate: "2025-10-28",
-    endDate: "2025-10-28",
-    textContent: "Information session about new security measures. Location: Meeting Room B, Time: 19:00",
-    status: "active",
-    createdBy: "Security Department",
-    createdAt: "2025-10-24"
+    ticketName: "Weekend Pass - VIP",
+    ticketCode: "WKP-VIP-006",
+    description: "VIP access for weekends only",
+    price: 400000,
+    validity: 8,
+    routes: ["Premium Routes"],
+    busType: "VIP",
+    maxUsagePerDay: 6,
+    availableTimeSlots: ["Saturday-Sunday 24/7"],
+    status: "inactive",
+    discount: 5,
+    createdAt: "2025-08-20",
+    updatedAt: "2025-10-05"
   },
   {
     id: 7,
-    title: "Yoga Class for Residents",
-    description: "Weekly yoga session for all residents",
-    targetAudience: "all",
-    startDate: "2025-11-01",
-    endDate: "2025-11-01",
-    textContent: "Weekly yoga session for all residents. Location: Gym - Floor 5, Time: 06:30",
+    ticketName: "Peak Hour Pass - Express",
+    ticketCode: "PHP-EXP-007",
+    description: "Express service during rush hours only",
+    price: 180000,
+    validity: 15,
+    routes: ["District 1 - District 7", "Thu Duc - District 1"],
+    busType: "Express",
+    maxUsagePerDay: 4,
+    availableTimeSlots: ["06:00-09:00", "16:30-19:30"],
     status: "active",
-    createdBy: "Fitness Center",
-    createdAt: "2025-10-22"
+    discount: 0,
+    createdAt: "2025-09-10",
+    updatedAt: "2025-10-22"
   },
   {
     id: 8,
-    title: "Garden Renovation Notice",
-    description: "Garden area will be closed for renovation",
-    targetAudience: "all",
-    startDate: "2025-11-20",
-    endDate: "2025-11-25",
-    textContent: "Garden area will be closed for renovation. Duration: 5 days",
-    status: "scheduled",
-    createdBy: "Landscaping Team",
-    createdAt: "2025-10-29"
-  },
-  {
-    id: 9,
-    title: "Children's Art Workshop",
-    description: "Art and craft session for children aged 5-12",
-    targetAudience: "all",
-    startDate: "2025-11-08",
-    endDate: "2025-11-08",
-    textContent: "Art and craft session for children aged 5-12. Location: Activity Room, Time: 14:00",
-    status: "scheduled",
-    createdBy: "Community Center",
-    createdAt: "2025-10-30"
-  },
-  {
-    id: 10,
-    title: "Water Tank Inspection",
-    description: "Annual water tank cleaning and inspection",
-    targetAudience: "all",
-    startDate: "2025-10-20",
-    endDate: "2025-10-20",
-    textContent: "Annual water tank cleaning and inspection. Water supply may be interrupted. Time: 09:00-15:00",
-    status: "expired",
-    createdBy: "Maintenance Team",
-    createdAt: "2025-10-15"
+    ticketName: "Off-Peak Pass - Standard",
+    ticketCode: "OPP-STD-008",
+    description: "Discounted pass for off-peak hours",
+    price: 120000,
+    validity: 30,
+    routes: ["All Standard Routes"],
+    busType: "Standard",
+    maxUsagePerDay: 6,
+    availableTimeSlots: ["10:00-16:00", "20:00-05:00"],
+    status: "active",
+    discount: 30,
+    createdAt: "2025-08-25",
+    updatedAt: "2025-10-12"
   }
 ];
 
-export default function EventsPage() {
-  const [events] = useState<Event[]>(mockEvents);
+export default function TicketsManagementPage() {
+  const [ticketTypes] = useState<BusTicketType[]>(mockTicketTypes);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("");
-  const [filterAudience, setFilterAudience] = useState<string>("");
+  const [filterBusType, setFilterBusType] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
-  // Filter events
-  const filteredEvents = events.filter((event) => {
+  // Filter ticket types
+  const filteredTickets = ticketTypes.filter((ticket) => {
     const matchesSearch =
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.createdBy.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "" || event.status === filterStatus;
-    const matchesAudience = filterAudience === "" || event.targetAudience === filterAudience;
-    return matchesSearch && matchesStatus && matchesAudience;
+      ticket.ticketName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.ticketCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesBusType = filterBusType === "" || ticket.busType === filterBusType;
+    const matchesStatus = filterStatus === "" || ticket.status === filterStatus;
+    return matchesSearch && matchesBusType && matchesStatus;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400";
-      case "scheduled":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400";
-      case "expired":
+      case "inactive":
         return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
-      case "draft":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
     }
   };
 
-  const getStatusText = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
-  const getAudienceText = (audience: string) => {
-    switch (audience) {
-      case "all":
-        return "All Residents";
-      case "specific_buildings":
-        return "Specific Buildings";
-      case "specific_apartments":
-        return "Specific Apartments";
+  const getBusTypeColor = (busType: string) => {
+    switch (busType) {
+      case "VIP":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400";
+      case "Express":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400";
+      case "Standard":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
       default:
-        return audience;
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
     }
   };
 
@@ -197,11 +195,16 @@ export default function EventsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Events Management
-        </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-black dark:text-white">
+            Bus Tickets Management
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Manage bus ticket types for mobile app
+          </p>
+        </div>
         <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-          + Add New Event
+          + Add New Ticket Type
         </button>
       </div>
 
@@ -213,9 +216,22 @@ export default function EventsPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by title, description, or creator..."
+              placeholder="Search by name, code, or description..."
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             />
+          </div>
+
+          <div>
+            <select
+              value={filterBusType}
+              onChange={(e) => setFilterBusType(e.target.value)}
+              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+            >
+              <option value="">All Bus Types</option>
+              <option value="Express">Express</option>
+              <option value="Standard">Standard</option>
+              <option value="VIP">VIP</option>
+            </select>
           </div>
 
           <div>
@@ -226,22 +242,7 @@ export default function EventsPage() {
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="expired">Expired</option>
-              <option value="draft">Draft</option>
-            </select>
-          </div>
-
-          <div>
-            <select
-              value={filterAudience}
-              onChange={(e) => setFilterAudience(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
-            >
-              <option value="">All Audience</option>
-              <option value="all">All Residents</option>
-              <option value="specific_buildings">Specific Buildings</option>
-              <option value="specific_apartments">Specific Apartments</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
         </div>
@@ -252,25 +253,28 @@ export default function EventsPage() {
             <thead>
               <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  ID
+                  Ticket Code
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Title
+                  Name
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
                   Description
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Start Date
+                  Bus Type
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  End Date
+                  Price
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Target Audience
+                  Validity
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Created By
+                  Max Usage/Day
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Discount
                 </th>
                 <th className="px-4 py-4 font-medium text-black dark:text-white">
                   Status
@@ -281,54 +285,63 @@ export default function EventsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredEvents.length > 0 ? (
-                filteredEvents.map((event) => (
+              {filteredTickets.length > 0 ? (
+                filteredTickets.map((ticket) => (
                   <tr
-                    key={event.id}
+                    key={ticket.id}
                     className="border-b border-stroke dark:border-strokedark hover:bg-gray-2 dark:hover:bg-meta-4"
                   >
                     <td className="px-4 py-4">
-                      <p className="text-sm font-medium text-black dark:text-white">
-                        #{event.id}
+                      <p className="text-sm font-mono font-medium text-black dark:text-white">
+                        {ticket.ticketCode}
                       </p>
                     </td>
                     <td className="px-4 py-4">
                       <p className="text-sm font-medium text-black dark:text-white">
-                        {event.title}
+                        {ticket.ticketName}
                       </p>
                     </td>
                     <td className="px-4 py-4 max-w-xs">
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {event.description}
+                        {ticket.description}
                       </p>
                     </td>
                     <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {new Date(event.startDate).toLocaleDateString("en-US")}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {new Date(event.endDate).toLocaleDateString("en-US")}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">
-                        {getAudienceText(event.targetAudience)}
+                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${getBusTypeColor(ticket.busType)}`}>
+                        {ticket.busType}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {event.createdBy}
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        {ticket.price.toLocaleString()} VNĐ
                       </p>
                     </td>
                     <td className="px-4 py-4">
+                      <p className="text-sm text-black dark:text-white">
+                        {ticket.validity} {ticket.validity === 1 ? 'day' : 'days'}
+                      </p>
+                    </td>
+                    <td className="px-4 py-4">
+                      <p className="text-sm text-center text-black dark:text-white">
+                        {ticket.maxUsagePerDay}
+                      </p>
+                    </td>
+                    <td className="px-4 py-4">
+                      {ticket.discount > 0 ? (
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-500/10 dark:text-orange-400">
+                          {ticket.discount}%
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                          event.status,
+                        className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${getStatusColor(
+                          ticket.status,
                         )}`}
                       >
-                        {getStatusText(event.status)}
+                        {ticket.status}
                       </span>
                     </td>
                     <td className="px-4 py-4">
@@ -399,9 +412,9 @@ export default function EventsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center">
+                  <td colSpan={10} className="px-4 py-8 text-center">
                     <p className="text-gray-500 dark:text-gray-400">
-                      No events found
+                      No ticket types found
                     </p>
                   </td>
                 </tr>
@@ -413,7 +426,7 @@ export default function EventsPage() {
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredEvents.length} events
+            Showing {filteredTickets.length} ticket types
           </p>
           <div className="flex gap-2">
             <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
