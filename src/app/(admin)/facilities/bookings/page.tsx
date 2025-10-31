@@ -7,6 +7,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventInput, EventContentArg, EventClickArg } from "@fullcalendar/core";
 import DatePicker from "@/components/form/date-picker";
+import flatpickr from "flatpickr";
 
 interface Booking {
   id: number;
@@ -969,7 +970,7 @@ export default function FacilityBookingsPage() {
                     id="booking-date-range"
                     mode="range"
                     placeholder="Select date range"
-                    defaultDate={formData.startDate && formData.endDate ? [new Date(formData.startDate), new Date(formData.endDate)] : undefined}
+                    defaultDate={(formData.startDate && formData.endDate ? [new Date(formData.startDate), new Date(formData.endDate)] : undefined) as unknown as flatpickr.Options.DateOption}
                     onChange={(selectedDates) => {
                       if (selectedDates && selectedDates.length >= 1) {
                         const startDate = selectedDates[0];
