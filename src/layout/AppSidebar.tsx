@@ -18,6 +18,7 @@ import {
   TableIcon,
   UserCircleIcon,
   DollarLineIcon,
+  ShootingStarIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 
@@ -59,9 +60,9 @@ const AppSidebar: React.FC = () => {
       path: "/allannouncements",
     },
     {
-      icon: <DollarLineIcon />,
-      nameKey: "nav.allVouchers",
-      path: "/vouchers",
+  icon: <ShootingStarIcon />, 
+  nameKey: "nav.allVouchers",
+  path: "/vouchers",
     },
     {
       icon: <TableIcon />,
