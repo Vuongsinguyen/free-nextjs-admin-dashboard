@@ -10,6 +10,8 @@ interface Voucher {
   value: number;
   category: string;
   companyName: string;
+  province: string;
+  district: string;
   googleMapLink?: string;
   status: "active" | "inactive";
   quantity: {
@@ -21,36 +23,36 @@ interface Voucher {
 }
 
 const initialVouchers: Voucher[] = [
-  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31" },
-  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30" },
-  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31" },
-  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15" },
-  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30" },
-  { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 100 }, startDate: "2025-01-10", endDate: "2025-12-20" },
-  { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "inactive", quantity: { used: 50, total: 50 }, startDate: "2025-03-05", endDate: "2025-08-05" },
-  { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 234, total: 1000 }, startDate: "2025-01-01", endDate: "2025-12-31" },
-  { id: 9, code: "FRESH40", name: "Fresh 40k", type: "fixed", value: 40000, category: "Supermarket", companyName: "Market Box", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 15, total: 100 }, startDate: "2025-04-01", endDate: "2025-07-31" },
-  { id: 10, code: "SWIM10", name: "Swim 10%", type: "percentage", value: 10, category: "Pool", companyName: "Vincom", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 78, total: 200 }, startDate: "2025-02-10", endDate: "2025-12-10" },
-  { id: 11, code: "MOVIE50", name: "Movie Night 50k", type: "fixed", value: 50000, category: "Fest", companyName: "CGV", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 450, total: 800 }, startDate: "2025-01-20", endDate: "2025-10-20" },
-  { id: 12, code: "BREW20", name: "Brew Time 20%", type: "percentage", value: 20, category: "Coffee Shop", companyName: "Coffee House", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 12, total: 75 }, startDate: "2025-01-05", endDate: "2025-12-25" },
-  { id: 13, code: "SNACK15", name: "Snack 15k", type: "fixed", value: 15000, category: "Convenience Store", companyName: "Becamex Store", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 0, total: 300 }, startDate: "2025-02-15", endDate: "2025-09-15" },
-  { id: 14, code: "DINE25", name: "Dine Out 25%", type: "percentage", value: 25, category: "Restaurant", companyName: "Maisa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "inactive", quantity: { used: 100, total: 100 }, startDate: "2025-03-10", endDate: "2025-08-10" },
-  { id: 15, code: "MART60", name: "Mart Special 60k", type: "fixed", value: 60000, category: "Supermarket", companyName: "Market Box", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 567, total: 1000 }, startDate: "2025-01-25", endDate: "2025-11-25" },
-  { id: 16, code: "AQUA30", name: "Aqua Fun 30%", type: "percentage", value: 30, category: "Pool", companyName: "Vincom", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 25, total: 50 }, startDate: "2025-04-05", endDate: "2025-09-05" },
-  { id: 17, code: "CINEMA70", name: "Cinema Pass 70k", type: "fixed", value: 70000, category: "Fest", companyName: "CGV", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 89, total: 250 }, startDate: "2025-02-20", endDate: "2025-12-20" },
-  { id: 18, code: "LATTE18", name: "Latte Lover 18%", type: "percentage", value: 18, category: "Coffee Shop", companyName: "CONG Coffee", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 150, total: 150 }, startDate: "2025-01-15", endDate: "2025-10-15" },
-  { id: 19, code: "QUICK20", name: "Quick Shop 20k", type: "fixed", value: 20000, category: "Convenience Store", companyName: "Becamex Store", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 34, total: 100 }, startDate: "2025-03-01", endDate: "2025-11-01" },
-  { id: 20, code: "FEAST30", name: "Feast Time 30%", type: "percentage", value: 30, category: "Restaurant", companyName: "Maisa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 401, total: 500 }, startDate: "2025-01-08", endDate: "2025-12-08" },
-  { id: 21, code: "GROCERY80", name: "Grocery 80k", type: "fixed", value: 80000, category: "Supermarket", companyName: "Market Box", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 75, total: 75 }, startDate: "2025-02-12", endDate: "2025-09-12" },
-  { id: 22, code: "SPLASH12", name: "Splash Day 12%", type: "percentage", value: 12, category: "Pool", companyName: "Vincom", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 56, total: 200 }, startDate: "2025-01-30", endDate: "2025-12-30" },
-  { id: 23, code: "SHOW90", name: "Show Time 90k", type: "fixed", value: 90000, category: "Fest", companyName: "CGV", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "inactive", quantity: { used: 10, total: 100 }, startDate: "2025-03-15", endDate: "2025-08-15" },
-  { id: 24, code: "ESPRESSO22", name: "Espresso Deal 22%", type: "percentage", value: 22, category: "Coffee Shop", companyName: "Coffee House", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 120 }, startDate: "2025-01-12", endDate: "2025-11-12" },
-  { id: 25, code: "GRAB25", name: "Grab & Go 25k", type: "fixed", value: 25000, category: "Convenience Store", companyName: "Becamex Store", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 80, total: 80 }, startDate: "2025-02-25", endDate: "2025-10-25" },
-  { id: 26, code: "GOURMET35", name: "Gourmet 35%", type: "percentage", value: 35, category: "Restaurant", companyName: "Maisa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 123, total: 300 }, startDate: "2025-01-18", endDate: "2025-12-18" },
-  { id: 27, code: "FRESH100", name: "Fresh Pick 100k", type: "fixed", value: 100000, category: "Supermarket", companyName: "Market Box", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 234, total: 600 }, startDate: "2025-03-20", endDate: "2025-11-20" },
-  { id: 28, code: "DIVE15", name: "Dive In 15%", type: "percentage", value: 15, category: "Pool", companyName: "Vincom", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 30, total: 30 }, startDate: "2025-02-05", endDate: "2025-09-05" },
-  { id: 29, code: "EVENT60", name: "Event Special 60k", type: "fixed", value: 60000, category: "Fest", companyName: "CGV", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 178, total: 400 }, startDate: "2025-01-22", endDate: "2025-12-22" },
-  { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 150 }, startDate: "2025-01-28", endDate: "2025-11-28" },
+  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31" },
+  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30" },
+  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31" },
+  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15" },
+  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30" },
+  { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 100 }, startDate: "2025-01-10", endDate: "2025-12-20" },
+  { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "inactive", quantity: { used: 50, total: 50 }, startDate: "2025-03-05", endDate: "2025-08-05" },
+  { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Hà Nội", district: "Hoàn Kiếm", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 234, total: 1000 }, startDate: "2025-01-01", endDate: "2025-12-31" },
+  { id: 9, code: "FRESH40", name: "Fresh 40k", type: "fixed", value: 40000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 7", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 15, total: 100 }, startDate: "2025-04-01", endDate: "2025-07-31" },
+  { id: 10, code: "SWIM10", name: "Swim 10%", type: "percentage", value: 10, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 78, total: 200 }, startDate: "2025-02-10", endDate: "2025-12-10" },
+  { id: 11, code: "MOVIE50", name: "Movie Night 50k", type: "fixed", value: 50000, category: "Fest", companyName: "CGV", province: "Hà Nội", district: "Cầu Giấy", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 450, total: 800 }, startDate: "2025-01-20", endDate: "2025-10-20" },
+  { id: 12, code: "BREW20", name: "Brew Time 20%", type: "percentage", value: 20, category: "Coffee Shop", companyName: "Coffee House", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 12, total: 75 }, startDate: "2025-01-05", endDate: "2025-12-25" },
+  { id: 13, code: "SNACK15", name: "Snack 15k", type: "fixed", value: 15000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 0, total: 300 }, startDate: "2025-02-15", endDate: "2025-09-15" },
+  { id: 14, code: "DINE25", name: "Dine Out 25%", type: "percentage", value: 25, category: "Restaurant", companyName: "Maisa", province: "Hà Nội", district: "Đống Đa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "inactive", quantity: { used: 100, total: 100 }, startDate: "2025-03-10", endDate: "2025-08-10" },
+  { id: 15, code: "MART60", name: "Mart Special 60k", type: "fixed", value: 60000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 567, total: 1000 }, startDate: "2025-01-25", endDate: "2025-11-25" },
+  { id: 16, code: "AQUA30", name: "Aqua Fun 30%", type: "percentage", value: 30, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 25, total: 50 }, startDate: "2025-04-05", endDate: "2025-09-05" },
+  { id: 17, code: "CINEMA70", name: "Cinema Pass 70k", type: "fixed", value: 70000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 89, total: 250 }, startDate: "2025-02-20", endDate: "2025-12-20" },
+  { id: 18, code: "LATTE18", name: "Latte Lover 18%", type: "percentage", value: 18, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hà Nội", district: "Ba Đình", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 150, total: 150 }, startDate: "2025-01-15", endDate: "2025-10-15" },
+  { id: 19, code: "QUICK20", name: "Quick Shop 20k", type: "fixed", value: 20000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 34, total: 100 }, startDate: "2025-03-01", endDate: "2025-11-01" },
+  { id: 20, code: "FEAST30", name: "Feast Time 30%", type: "percentage", value: 30, category: "Restaurant", companyName: "Maisa", province: "Hồ Chí Minh", district: "Quận 7", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 401, total: 500 }, startDate: "2025-01-08", endDate: "2025-12-08" },
+  { id: 21, code: "GROCERY80", name: "Grocery 80k", type: "fixed", value: 80000, category: "Supermarket", companyName: "Market Box", province: "Hà Nội", district: "Hoàn Kiếm", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 75, total: 75 }, startDate: "2025-02-12", endDate: "2025-09-12" },
+  { id: 22, code: "SPLASH12", name: "Splash Day 12%", type: "percentage", value: 12, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 56, total: 200 }, startDate: "2025-01-30", endDate: "2025-12-30" },
+  { id: 23, code: "SHOW90", name: "Show Time 90k", type: "fixed", value: 90000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "inactive", quantity: { used: 10, total: 100 }, startDate: "2025-03-15", endDate: "2025-08-15" },
+  { id: 24, code: "ESPRESSO22", name: "Espresso Deal 22%", type: "percentage", value: 22, category: "Coffee Shop", companyName: "Coffee House", province: "Hà Nội", district: "Cầu Giấy", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 120 }, startDate: "2025-01-12", endDate: "2025-11-12" },
+  { id: 25, code: "GRAB25", name: "Grab & Go 25k", type: "fixed", value: 25000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 80, total: 80 }, startDate: "2025-02-25", endDate: "2025-10-25" },
+  { id: 26, code: "GOURMET35", name: "Gourmet 35%", type: "percentage", value: 35, category: "Restaurant", companyName: "Maisa", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 123, total: 300 }, startDate: "2025-01-18", endDate: "2025-12-18" },
+  { id: 27, code: "FRESH100", name: "Fresh Pick 100k", type: "fixed", value: 100000, category: "Supermarket", companyName: "Market Box", province: "Hà Nội", district: "Đống Đa", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 234, total: 600 }, startDate: "2025-03-20", endDate: "2025-11-20" },
+  { id: 28, code: "DIVE15", name: "Dive In 15%", type: "percentage", value: 15, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 30, total: 30 }, startDate: "2025-02-05", endDate: "2025-09-05" },
+  { id: 29, code: "EVENT60", name: "Event Special 60k", type: "fixed", value: 60000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 178, total: 400 }, startDate: "2025-01-22", endDate: "2025-12-22" },
+  { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hà Nội", district: "Ba Đình", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 150 }, startDate: "2025-01-28", endDate: "2025-11-28" },
 ];
 
 interface ResidentUsage {
@@ -74,8 +76,19 @@ export default function VouchersPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCompany, setFilterCompany] = useState("");
+  const [filterProvince, setFilterProvince] = useState("");
+  const [filterDistrict, setFilterDistrict] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Province and District mapping
+  const provinceDistrictMap: Record<string, string[]> = {
+    "Hồ Chí Minh": ["Quận 1", "Quận 2", "Quận 3", "Quận 7"],
+    "Hà Nội": ["Hoàn Kiếm", "Ba Đình", "Đống Đa", "Cầu Giấy"],
+    "Bình Dương": ["Thủ Dầu Một", "Dĩ An", "Thuận An"],
+  };
+
+  const availableDistricts = filterProvince ? provinceDistrictMap[filterProvince] || [] : [];
 
   const handleAdd = () => {
     setEditing({
@@ -86,6 +99,8 @@ export default function VouchersPage() {
       value: 0,
       category: "Restaurant",
       companyName: "Coffee House",
+      province: "Bình Dương",
+      district: "Thủ Dầu Một",
       googleMapLink: "",
       status: "active",
       quantity: { used: 0, total: 100 },
@@ -162,9 +177,24 @@ export default function VouchersPage() {
       result = result.filter(v => v.companyName === filterCompany);
     }
 
+    // Province filter
+    if (filterProvince) {
+      result = result.filter(v => v.province === filterProvince);
+    }
+
+    // District filter
+    if (filterDistrict) {
+      result = result.filter(v => v.district === filterDistrict);
+    }
+
     setFilteredVouchers(result);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [vouchers, searchTerm, filterCategory, filterStatus, filterCompany]);
+  }, [vouchers, searchTerm, filterCategory, filterStatus, filterCompany, filterProvince, filterDistrict]);
+
+  // Reset district filter when province changes
+  useEffect(() => {
+    setFilterDistrict("");
+  }, [filterProvince]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage);
@@ -221,7 +251,7 @@ export default function VouchersPage() {
 
       {/* Search & Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -272,17 +302,17 @@ export default function VouchersPage() {
             </select>
           </div>
 
-          {/* Company Filter */}
+          {/* Shop Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Company
+              Shop
             </label>
             <select
               value={filterCompany}
               onChange={(e) => setFilterCompany(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">All Companies</option>
+              <option value="">All Shops</option>
               <option value="Coffee House">Coffee House</option>
               <option value="CGV">CGV</option>
               <option value="Maisa">Maisa</option>
@@ -290,6 +320,43 @@ export default function VouchersPage() {
               <option value="Market Box">Market Box</option>
               <option value="Vincom">Vincom</option>
               <option value="Becamex Store">Becamex Store</option>
+            </select>
+          </div>
+
+          {/* Province Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Province
+            </label>
+            <select
+              value={filterProvince}
+              onChange={(e) => setFilterProvince(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Provinces</option>
+              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+              <option value="Hà Nội">Hà Nội</option>
+              <option value="Bình Dương">Bình Dương</option>
+            </select>
+          </div>
+
+          {/* District Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              District
+            </label>
+            <select
+              value={filterDistrict}
+              onChange={(e) => setFilterDistrict(e.target.value)}
+              disabled={!filterProvince}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:disabled:bg-gray-800"
+            >
+              <option value="">All Districts</option>
+              {availableDistricts.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -310,7 +377,7 @@ export default function VouchersPage() {
                 <th className="px-6 py-4">CODE</th>
                 <th className="px-6 py-4">NAME</th>
                 <th className="px-6 py-4">CATEGORY</th>
-                <th className="px-6 py-4">COMPANY</th>
+                <th className="px-6 py-4">SHOP</th>
                 <th className="px-6 py-4">GOOGLE MAP</th>
                 <th className="px-6 py-4">TYPE</th>
                 <th className="px-6 py-4">VALUE</th>

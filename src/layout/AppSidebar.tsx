@@ -122,6 +122,11 @@ const AppSidebar: React.FC = () => {
       path: "/master-data/tickets-management",
     },
     {
+      icon: <GridIcon />,
+      nameKey: "nav.shopManagement",
+      path: "/master-data/shop-management",
+    },
+    {
       icon: <UserCircleIcon />,
       nameKey: "nav.userManagement",
       subItems: [

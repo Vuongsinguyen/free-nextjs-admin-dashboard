@@ -251,31 +251,31 @@ export default function EventsPage() {
           <table className="w-full table-auto">
             <thead>
               <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   ID
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Title
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Description
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Start Date
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   End Date
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Target Audience
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Created By
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Status
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Actions
                 </th>
               </tr>

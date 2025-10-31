@@ -70,6 +70,8 @@ const BusTicketsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBusType, setFilterBusType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Mock data
   const [data] = useState<BusTicket[]>(generateMockBusTickets());
@@ -84,6 +86,17 @@ const BusTicketsPage = () => {
     const matchesStatus = filterStatus === "" || ticket.status === filterStatus;
     return matchesSearch && matchesBusType && matchesStatus;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -130,7 +143,10 @@ const BusTicketsPage = () => {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                handleFilterChange();
+              }}
               placeholder="Search by name, ticket number, or route..."
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             />
@@ -139,7 +155,10 @@ const BusTicketsPage = () => {
           <div>
             <select
               value={filterBusType}
-              onChange={(e) => setFilterBusType(e.target.value)}
+              onChange={(e) => {
+                setFilterBusType(e.target.value);
+                handleFilterChange();
+              }}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             >
               <option value="">All Bus Types</option>
@@ -152,7 +171,10 @@ const BusTicketsPage = () => {
           <div>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                handleFilterChange();
+              }}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
             >
               <option value="">All Status</option>
@@ -168,38 +190,38 @@ const BusTicketsPage = () => {
           <table className="w-full table-auto">
             <thead>
               <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Ticket #
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Resident
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Date
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Time
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Bus Type
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Route
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Driver
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Status
                 </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((ticket) => (
+              {currentData.length > 0 ? (
+                currentData.map((ticket) => (
                   <tr
                     key={ticket.id}
                     className="border-b border-stroke dark:border-strokedark"
@@ -256,11 +278,11 @@ const BusTicketsPage = () => {
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          className="text-primary hover:text-primary/80"
+                          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                           title="View details"
                         >
                           <svg
-                            className="h-5 w-5"
+                            className="w-5 h-5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -280,11 +302,11 @@ const BusTicketsPage = () => {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-5 hover:text-meta-5/80"
+                          className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
                           title="Edit"
                         >
                           <svg
-                            className="h-5 w-5"
+                            className="w-5 h-5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -298,11 +320,11 @@ const BusTicketsPage = () => {
                           </svg>
                         </button>
                         <button
-                          className="text-meta-1 hover:text-meta-1/80"
+                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                           title="Delete"
                         >
                           <svg
-                            className="h-5 w-5"
+                            className="w-5 h-5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -335,16 +357,49 @@ const BusTicketsPage = () => {
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredData.length} tickets
+            Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} tickets
           </p>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 disabled:opacity-50 disabled:cursor-not-allowed dark:border-strokedark dark:hover:bg-meta-4"
+            >
               Previous
             </button>
-            <button className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              1
-            </button>
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
+            
+            {/* Page numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              // Show first page, last page, current page, and pages around current
+              if (
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`rounded-lg px-4 py-2 text-sm ${
+                      currentPage === page
+                        ? "bg-primary text-white"
+                        : "border border-stroke hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              } else if (page === currentPage - 2 || page === currentPage + 2) {
+                return <span key={page} className="px-2 py-2 text-sm">...</span>;
+              }
+              return null;
+            })}
+            
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 disabled:opacity-50 disabled:cursor-not-allowed dark:border-strokedark dark:hover:bg-meta-4"
+            >
               Next
             </button>
           </div>
