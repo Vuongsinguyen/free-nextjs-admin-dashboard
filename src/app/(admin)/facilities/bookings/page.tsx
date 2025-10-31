@@ -6,6 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventInput, EventContentArg, EventClickArg } from "@fullcalendar/core";
+import DatePicker from "@/components/form/date-picker";
 
 interface Booking {
   id: number;
@@ -947,11 +948,17 @@ export default function FacilityBookingsPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Booking Date *
                   </label>
-                  <input
-                    type="date"
-                    value={formData.bookingDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, bookingDate: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  <DatePicker
+                    id="booking-date"
+                    placeholder="Select booking date"
+                    defaultDate={formData.bookingDate ? new Date(formData.bookingDate) : undefined}
+                    onChange={(selectedDates) => {
+                      if (selectedDates && selectedDates.length > 0) {
+                        const date = selectedDates[0];
+                        const formattedDate = date.toISOString().split('T')[0];
+                        setFormData(prev => ({ ...prev, bookingDate: formattedDate }));
+                      }
+                    }}
                   />
                 </div>
 
