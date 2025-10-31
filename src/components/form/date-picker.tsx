@@ -39,14 +39,14 @@ export default function DatePicker({
         flatPickr.destroy();
       }
     };
-  }, [mode, onChange, id, defaultDate]);
+  }, [mode, onChange, id]); // Remove defaultDate from dependencies
 
   // Separate effect to handle defaultDate changes
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const element = document.getElementById(id) as any;
-    if (element && element._flatpickr) {
-      element._flatpickr.setDate(defaultDate);
+    if (element && element._flatpickr && defaultDate) {
+      element._flatpickr.setDate(defaultDate, false); // Don't trigger onChange when setting default date
     }
   }, [defaultDate, id]);
 

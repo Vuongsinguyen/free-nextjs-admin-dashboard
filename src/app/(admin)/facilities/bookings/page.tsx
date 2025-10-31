@@ -7,7 +7,6 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventInput, EventContentArg, EventClickArg } from "@fullcalendar/core";
 import DatePicker from "@/components/form/date-picker";
-import flatpickr from "flatpickr";
 
 interface Booking {
   id: number;
@@ -38,6 +37,7 @@ export default function FacilityBookingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [facilityFilter, setFacilityFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   
@@ -298,14 +298,27 @@ export default function FacilityBookingsPage() {
       result = result.filter((booking) => booking.bookingDate === dateFilter);
     }
 
+    if (facilityFilter) {
+      result = result.filter((booking) => booking.facilityName === facilityFilter);
+    }
+
     setFilteredBookings(result);
     setCurrentPage(1);
-  }, [bookings, searchTerm, statusFilter, dateFilter]);
+  }, [bookings, searchTerm, statusFilter, dateFilter, facilityFilter]);
 
-  // Debug: Log state changes
+  // Set date picker when modal opens and formData is ready
   useEffect(() => {
-    console.log('State changed - startDate:', formData.startDate, 'endDate:', formData.endDate, 'facility:', formData.facility);
-  }, [formData.startDate, formData.endDate, formData.facility]);
+    if ((isAddModalOpen || isEditModalOpen) && formData.startDate && formData.endDate) {
+      // Small delay to ensure DOM is ready
+      const timeoutId = setTimeout(() => {
+        const element = document.getElementById('booking-date-range') as any;
+        if (element && element._flatpickr) {
+          element._flatpickr.setDate([new Date(formData.startDate), new Date(formData.endDate)], false);
+        }
+      }, 50);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isAddModalOpen, isEditModalOpen, formData.startDate, formData.endDate]);
 
   // Pagination
   const paginatedBookings = useMemo(() => {
@@ -317,7 +330,14 @@ export default function FacilityBookingsPage() {
 
   // Convert bookings to calendar events
   const calendarEvents = useMemo(() => {
-    return bookings.map((booking): EventInput => ({
+    let events = [...bookings];
+
+    // Apply facility filter for calendar view
+    if (facilityFilter) {
+      events = events.filter((booking) => booking.facilityName === facilityFilter);
+    }
+
+    return events.map((booking): EventInput => ({
       id: booking.id.toString(),
       title: `${booking.facilityName} - ${booking.userName}`,
       start: `${booking.bookingDate}T${booking.startTime}`,
@@ -333,7 +353,7 @@ export default function FacilityBookingsPage() {
         purpose: booking.purpose
       }
     }));
-  }, [bookings]);
+  }, [bookings, facilityFilter]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN");
@@ -372,11 +392,16 @@ export default function FacilityBookingsPage() {
 
   const handleEditBooking = (booking: Booking) => {
     setEditingBooking(booking);
+    // For editing, set a default range starting from the booking date
+    const bookingDate = new Date(booking.bookingDate);
+    const nextDay = new Date(bookingDate);
+    nextDay.setDate(bookingDate.getDate() + 1);
+    
     setFormData({
       facility: booking.facilityName,
       userName: booking.userName,
       startDate: booking.bookingDate,
-      endDate: booking.bookingDate, // For existing bookings, start and end are the same
+      endDate: nextDay.toISOString().split('T')[0], // Default to next day for range
       startTime: booking.startTime,
       endTime: booking.endTime,
       attendees: booking.attendees.toString(),
@@ -387,6 +412,14 @@ export default function FacilityBookingsPage() {
     setSelectedEndSlot(booking.endTime);
     setIsSelectingRange(false);
     setIsEditModalOpen(true);
+
+    // Set date picker after modal opens
+    setTimeout(() => {
+      const element = document.getElementById('booking-date-range') as any;
+      if (element && element._flatpickr) {
+        element._flatpickr.setDate([new Date(booking.bookingDate), nextDay], false);
+      }
+    }, 100);
   };
 
   const handleDeleteBooking = (bookingId: number) => {
@@ -680,57 +713,92 @@ export default function FacilityBookingsPage() {
         </div>
       </div>
 
-      {/* Filters - Only show for table view */}
-      {viewMode === "table" && (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Search
-              </label>
-              <input
-                type="text"
-                placeholder="Search by code, facility, or user..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              >
-                <option value="">All Status</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Date
-              </label>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              />
-            </div>
+      {/* Filters - Show for both table and calendar view */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Search by code, facility, or user..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Facility
+            </label>
+            <select
+              value={facilityFilter}
+              onChange={(e) => setFacilityFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            >
+              <option value="">All Facilities</option>
+              <option value="Swimming Pool A">Swimming Pool A</option>
+              <option value="Conference Hall">Conference Hall</option>
+              <option value="Meeting Room 101">Meeting Room 101</option>
+              <option value="Tennis Court 1">Tennis Court 1</option>
+              <option value="Gym & Fitness Center">Gym & Fitness Center</option>
+              <option value="BBQ Area">BBQ Area</option>
+              <option value="Yoga Studio">Yoga Studio</option>
+              <option value="Basketball Court">Basketball Court</option>
+              <option value="Library & Study Room">Library & Study Room</option>
+              <option value="Kids Playground">Kids Playground</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            >
+              <option value="">All Status</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Date
+            </label>
+            <DatePicker
+              id="table-date-filter"
+              mode="single"
+              placeholder="Select date"
+              onChange={(selectedDates) => {
+                if (selectedDates && selectedDates.length > 0) {
+                  const selectedDate = selectedDates[0];
+                  const formattedDate = selectedDate.toISOString().split('T')[0];
+                  setDateFilter(formattedDate);
+                } else {
+                  setDateFilter("");
+                }
+              }}
+            />
           </div>
         </div>
-      )}
+      </div>
 
       {/* Content based on view mode */}
       {viewMode === "table" ? (
         <>
+          {/* Table View Header */}
+          {(facilityFilter || statusFilter || dateFilter) && (
+            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {statusFilter && `Status: ${statusFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
+            </div>
+          )}
+          
           {/* Bookings Table */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
@@ -884,6 +952,11 @@ export default function FacilityBookingsPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Booking Calendar Overview
             </h3>
+            {(facilityFilter || statusFilter || dateFilter) && (
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Filtered by: {facilityFilter && `Facility: ${facilityFilter}`} {statusFilter && `Status: ${statusFilter}`} {dateFilter && `Date: ${formatDate(dateFilter)}`}
+              </div>
+            )}
           </div>
           <div className="calendar-container">
             <FullCalendar
@@ -975,7 +1048,6 @@ export default function FacilityBookingsPage() {
                     id="booking-date-range"
                     mode="range"
                     placeholder="Select date range"
-                    defaultDate={(formData.startDate && formData.endDate ? [new Date(formData.startDate), new Date(formData.endDate)] : undefined) as unknown as flatpickr.Options.DateOption}
                     onChange={(selectedDates) => {
                       if (selectedDates && selectedDates.length >= 1) {
                         const startDate = selectedDates[0];
