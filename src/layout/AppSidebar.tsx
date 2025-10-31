@@ -90,10 +90,10 @@ const AppSidebar: React.FC = () => {
 
   const getMasterDataItems = (): NavItem[] => [
     {
-      icon: <GridIcon />,
+      icon: <GridIcon />, 
       nameKey: "nav.locations",
       subItems: [
-        { nameKey: "nav.country", path: "/locations/country", pro: false },
+        // { nameKey: "nav.country", path: "/locations/country", pro: false }, // HIDDEN COUNTRY MENU
         { nameKey: "nav.province", path: "/locations/province", pro: false },
         { nameKey: "nav.district", path: "/locations/district", pro: false },
         { nameKey: "nav.ward", path: "/locations/ward", pro: false },
