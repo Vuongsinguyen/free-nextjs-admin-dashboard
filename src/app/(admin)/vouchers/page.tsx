@@ -53,10 +53,22 @@ const initialVouchers: Voucher[] = [
   { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 150 }, startDate: "2025-01-28", endDate: "2025-11-28" },
 ];
 
+interface ResidentUsage {
+  id: string;
+  residentName: string;
+  residentId: string;
+  apartment: string;
+  usedDate: string;
+  usedTime: string;
+  amount: number;
+}
+
 export default function VouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>(initialVouchers);
   const [filteredVouchers, setFilteredVouchers] = useState<Voucher[]>(initialVouchers);
   const [showModal, setShowModal] = useState(false);
+  const [showResidentsModal, setShowResidentsModal] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
   const [editing, setEditing] = useState<Voucher | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -81,6 +93,35 @@ export default function VouchersPage() {
       endDate: new Date().toISOString().slice(0, 10),
     });
     setShowModal(true);
+  };
+
+  const handleViewResidents = (voucher: Voucher) => {
+    setSelectedVoucher(voucher);
+    setShowResidentsModal(true);
+  };
+
+  // Generate mock resident usage data for the selected voucher
+  const getResidentUsageData = (voucher: Voucher | null): ResidentUsage[] => {
+    if (!voucher) return [];
+    
+    const mockResidents: ResidentUsage[] = [];
+    const usedCount = voucher.quantity.used;
+    
+    for (let i = 1; i <= Math.min(usedCount, 20); i++) {
+      mockResidents.push({
+        id: `RU${i}`,
+        residentName: `Cư dân ${i}`,
+        residentId: `R${String(i).padStart(4, '0')}`,
+        apartment: `A${Math.floor(Math.random() * 20) + 1}-${String(Math.floor(Math.random() * 10) + 1).padStart(2, '0')}`,
+        usedDate: new Date(2025, Math.floor(Math.random() * 10), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+        usedTime: `${String(Math.floor(Math.random() * 12) + 8).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+        amount: voucher.type === 'percentage' 
+          ? Math.floor(Math.random() * 500000) 
+          : voucher.value,
+      });
+    }
+    
+    return mockResidents.sort((a, b) => b.usedDate.localeCompare(a.usedDate));
   };
 
   const handleEdit = (v: Voucher) => {
@@ -347,6 +388,16 @@ export default function VouchersPage() {
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{v.endDate}</td>
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleViewResidents(v)}
+                        className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        title="View residents using this voucher"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
                       <button
                         onClick={() => handleEdit(v)}
                         className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"

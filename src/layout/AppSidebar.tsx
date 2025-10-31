@@ -64,6 +64,11 @@ const AppSidebar: React.FC = () => {
       path: "/vouchers",
     },
     {
+      icon: <TableIcon />,
+      nameKey: "nav.busTickets",
+      path: "/bus-tickets",
+    },
+    {
       icon: <GridIcon />,
       nameKey: "nav.facilities",
       subItems: [

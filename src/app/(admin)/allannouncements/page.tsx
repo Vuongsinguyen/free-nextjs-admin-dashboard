@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
 interface Announcement {
   id: number;
@@ -77,7 +76,12 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="space-y-6">
-      <PageBreadcrumb pageTitle="Announcements Management" />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-black dark:text-white">
+          Announcements Management
+        </h1>
+      </div>
       
       <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
