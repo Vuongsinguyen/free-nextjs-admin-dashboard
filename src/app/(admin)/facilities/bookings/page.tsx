@@ -57,7 +57,8 @@ export default function FacilityBookingsPage() {
   const [formData, setFormData] = useState({
     facility: '',
     userName: '',
-    bookingDate: '',
+    startDate: '',
+    endDate: '',
     startTime: '',
     endTime: '',
     attendees: '',
@@ -300,19 +301,10 @@ export default function FacilityBookingsPage() {
     setCurrentPage(1);
   }, [bookings, searchTerm, statusFilter, dateFilter]);
 
-  // Reset time slots when date or facility changes
+  // Debug: Log state changes
   useEffect(() => {
-    if (isAddModalOpen || isEditModalOpen) {
-      setSelectedStartSlot(null);
-      setSelectedEndSlot(null);
-      setIsSelectingRange(false);
-      setFormData(prev => ({
-        ...prev,
-        startTime: '',
-        endTime: ''
-      }));
-    }
-  }, [formData.bookingDate, formData.facility, isAddModalOpen, isEditModalOpen]);
+    console.log('State changed - startDate:', formData.startDate, 'endDate:', formData.endDate, 'facility:', formData.facility);
+  }, [formData.startDate, formData.endDate, formData.facility]);
 
   // Pagination
   const paginatedBookings = useMemo(() => {
@@ -351,17 +343,19 @@ export default function FacilityBookingsPage() {
   };
 
   // Modal handlers
-  const handleAddBooking = (selectedDate?: string) => {
-    if (selectedDate) {
+  const handleAddBooking = (selectedDates?: string[]) => {
+    if (selectedDates && selectedDates.length >= 1) {
       setFormData(prev => ({
         ...prev,
-        bookingDate: selectedDate
+        startDate: selectedDates[0],
+        endDate: selectedDates[1] || selectedDates[0]
       }));
     } else {
       setFormData({
         facility: '',
         userName: '',
-        bookingDate: '',
+        startDate: '',
+        endDate: '',
         startTime: '',
         endTime: '',
         attendees: '',
@@ -380,7 +374,8 @@ export default function FacilityBookingsPage() {
     setFormData({
       facility: booking.facilityName,
       userName: booking.userName,
-      bookingDate: booking.bookingDate,
+      startDate: booking.bookingDate,
+      endDate: booking.bookingDate, // For existing bookings, start and end are the same
       startTime: booking.startTime,
       endTime: booking.endTime,
       attendees: booking.attendees.toString(),
@@ -409,7 +404,8 @@ export default function FacilityBookingsPage() {
     setFormData({
       facility: '',
       userName: '',
-      bookingDate: '',
+      startDate: '',
+      endDate: '',
       startTime: '',
       endTime: '',
       attendees: '',
@@ -421,7 +417,7 @@ export default function FacilityBookingsPage() {
   // Calendar date click handler
   const handleDateClick = (arg: { dateStr: string }) => {
     const selectedDate = arg.dateStr; // Format: YYYY-MM-DD
-    handleAddBooking(selectedDate);
+    handleAddBooking([selectedDate]);
   };
 
   // Calendar event click handler
@@ -442,12 +438,21 @@ export default function FacilityBookingsPage() {
     return slots;
   };
 
-  // Check if a time slot is booked for the selected date and facility
-  const isTimeSlotBooked = (timeSlot: string, selectedDate: string, selectedFacility: string, excludeBookingId?: number) => {
+  // Check if a time slot is booked for the selected date range and facility
+  const isTimeSlotBooked = (timeSlot: string, startDate: string, endDate: string, selectedFacility: string, excludeBookingId?: number) => {
+    // Generate all dates in the range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const datesInRange = [];
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      datesInRange.push(d.toISOString().split('T')[0]);
+    }
+
     return bookings.some(booking => {
       if (excludeBookingId && booking.id === excludeBookingId) return false;
-      if (booking.bookingDate !== selectedDate) return false;
       if (booking.facilityName !== selectedFacility) return false;
+      if (!datesInRange.includes(booking.bookingDate)) return false;
 
       const slotTime = new Date(`2000-01-01T${timeSlot}`);
       const bookingStart = new Date(`2000-01-01T${booking.startTime}`);
@@ -457,10 +462,10 @@ export default function FacilityBookingsPage() {
     });
   };
 
-  // Get available time slots for selection
-  const getAvailableSlots = (selectedDate: string, selectedFacility: string, excludeBookingId?: number) => {
+  // Get available time slots for selection across date range
+  const getAvailableSlots = (startDate: string, endDate: string, selectedFacility: string, excludeBookingId?: number) => {
     const allSlots = generateTimeSlots();
-    return allSlots.filter(slot => !isTimeSlotBooked(slot, selectedDate, selectedFacility, excludeBookingId));
+    return allSlots.filter(slot => !isTimeSlotBooked(slot, startDate, endDate, selectedFacility, excludeBookingId));
   };
 
   // Helper function to calculate duration
@@ -474,10 +479,11 @@ export default function FacilityBookingsPage() {
 
   // Handle time slot selection
   const handleTimeSlotClick = (slot: string) => {
-    if (!formData.bookingDate || !formData.facility) return;
+    if (!formData.startDate || !formData.endDate || !formData.facility) return;
 
     const availableSlots = getAvailableSlots(
-      formData.bookingDate,
+      formData.startDate,
+      formData.endDate,
       formData.facility,
       editingBooking?.id
     );
@@ -949,6 +955,7 @@ export default function FacilityBookingsPage() {
                     Booking Date *
                   </label>
                   <DatePicker
+                    key={`date-picker-${formData.bookingDate || 'empty'}`}
                     id="booking-date"
                     placeholder="Select booking date"
                     defaultDate={formData.bookingDate ? new Date(formData.bookingDate) : undefined}
@@ -967,76 +974,83 @@ export default function FacilityBookingsPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Time Selection *
                   </label>
-                  {formData.bookingDate && formData.facility ? (
-                    <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                      <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                        Select start time and end time by clicking on available slots
-                      </div>
-                      <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-                        {generateTimeSlots().map((slot) => {
-                          const isBooked = isTimeSlotBooked(
-                            slot,
-                            formData.bookingDate,
-                            formData.facility,
-                            editingBooking?.id
-                          );
-                          const isSelected = isSlotSelected(slot);
-                          const isStartSlot = slot === selectedStartSlot;
-                          const isEndSlot = slot === selectedEndSlot;
+                  {(() => {
+                    console.log('Debug - bookingDate:', formData.bookingDate, 'facility:', formData.facility);
+                    if (!formData.bookingDate) {
+                      return (
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400">
+                          Please select a booking date first
+                        </div>
+                      );
+                    }
+                    if (!formData.facility) {
+                      return (
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400">
+                          Please select a facility to view available time slots
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                        <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                          Select start time and end time by clicking on available slots
+                        </div>
+                        <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                          {generateTimeSlots().map((slot) => {
+                            const isBooked = isTimeSlotBooked(
+                              slot,
+                              formData.bookingDate,
+                              formData.facility,
+                              editingBooking?.id
+                            );
+                            const isSelected = isSlotSelected(slot);
+                            const isStartSlot = slot === selectedStartSlot;
+                            const isEndSlot = slot === selectedEndSlot;
 
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              onClick={() => handleTimeSlotClick(slot)}
-                              disabled={isBooked}
-                              className={`px-2 py-1 text-xs rounded transition-colors ${
-                                isBooked
-                                  ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 cursor-not-allowed'
-                                  : isSelected
-                                  ? isStartSlot
-                                    ? 'bg-green-500 text-white font-medium'
-                                    : isEndSlot
-                                    ? 'bg-blue-500 text-white font-medium'
-                                    : 'bg-green-200 dark:bg-green-900/50 text-green-800 dark:text-green-200'
-                                  : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                              }`}
-                              title={isBooked ? 'Booked' : `Available - ${slot}`}
-                            >
-                              {slot}
-                            </button>
-                          );
-                        })}
+                            return (
+                              <button
+                                key={slot}
+                                type="button"
+                                onClick={() => handleTimeSlotClick(slot)}
+                                disabled={isBooked}
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  isBooked
+                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 cursor-not-allowed'
+                                    : isSelected
+                                    ? isStartSlot || isEndSlot
+                                      ? 'bg-green-500 text-white font-medium'
+                                      : 'bg-green-300 dark:bg-green-800/60 text-green-900 dark:text-green-100'
+                                    : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                }`}
+                                title={isBooked ? 'Booked' : `Available - ${slot}`}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-3 flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-500 rounded"></div>
+                            <span className="text-gray-600 dark:text-gray-400">Start & End Time</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-300 dark:bg-green-800/60 rounded"></div>
+                            <span className="text-gray-600 dark:text-gray-400">Selected Range</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-red-100 dark:bg-red-900/30 rounded"></div>
+                            <span className="text-gray-600 dark:text-gray-400">Booked</span>
+                          </div>
+                        </div>
+                        {selectedStartSlot && selectedEndSlot && (
+                          <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm text-blue-800 dark:text-blue-200">
+                            Selected: {selectedStartSlot} - {selectedEndSlot} ({calculateDuration(selectedStartSlot, selectedEndSlot)} hours)
+                          </div>
+                        )}
                       </div>
-                      <div className="mt-3 flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-green-500 rounded"></div>
-                          <span className="text-gray-600 dark:text-gray-400">Start Time</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                          <span className="text-gray-600 dark:text-gray-400">End Time</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-green-200 dark:bg-green-900/50 rounded"></div>
-                          <span className="text-gray-600 dark:text-gray-400">Selected Range</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-red-100 dark:bg-red-900/30 rounded"></div>
-                          <span className="text-gray-600 dark:text-gray-400">Booked</span>
-                        </div>
-                      </div>
-                      {selectedStartSlot && selectedEndSlot && (
-                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm text-blue-800 dark:text-blue-200">
-                          Selected: {selectedStartSlot} - {selectedEndSlot} ({calculateDuration(selectedStartSlot, selectedEndSlot)} hours)
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400">
-                      Please select a date and facility first to view available time slots
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
 
                 {/* Attendees */}
