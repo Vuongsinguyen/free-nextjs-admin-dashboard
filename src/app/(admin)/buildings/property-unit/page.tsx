@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 interface PropertyUnit {
   id: number;
@@ -102,25 +101,6 @@ const PropertyUnitPage = () => {
     rentPrice: 0,
   });
 
-  const handleAdd = () => {
-    setEditingUnit(null);
-    setFormData({
-      unitNumber: "",
-      floorNumber: 1,
-      buildingName: "Rainbow Tower 1",
-      zoneName: "The Rainbow",
-      propertyName: "Vinhomes Grand Park",
-      area: 0,
-      bedrooms: 1,
-      bathrooms: 1,
-      unitType: "1br",
-      status: "available",
-      ownerName: "",
-      rentPrice: 0,
-    });
-    setShowModal(true);
-  };
-
   const handleEdit = (unit: PropertyUnit) => {
     setEditingUnit(unit);
     setFormData({
@@ -183,90 +163,48 @@ const PropertyUnitPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const availableCount = units.filter((u) => u.status === "available").length;
-  const occupiedCount = units.filter((u) => u.status === "occupied").length;
-  const occupancyRate = units.length > 0 ? ((occupiedCount / units.length) * 100).toFixed(1) : 0;
-
   return (
-    <div className="p-4 md:p-6">
-      <PageBreadCrumb pageTitle="Property Unit" />
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Units</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{units.length}</p>
-            </div>
-            <div className="p-3 bg-brand-50 rounded-lg dark:bg-brand-900/20">
-              <svg className="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Available</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{availableCount}</p>
-            </div>
-            <div className="p-3 bg-green-50 rounded-lg dark:bg-green-900/20">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Occupied</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{occupiedCount}</p>
-            </div>
-            <div className="p-3 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-              <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Occupancy Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{occupancyRate}%</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-lg dark:bg-purple-900/20">
-              <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Property Units</h1>
         </div>
       </div>
 
+
+
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
+            {/* Search and Filters */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <input
-              type="text"
-              placeholder="Search by unit number, building, or owner..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Search
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by unit number, building, or owner..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Status
+            </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="all">All Status</option>
               <option value="available">Available</option>
@@ -279,20 +217,10 @@ const PropertyUnitPage = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow dark:bg-gray-900">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Property Units</h2>
-          <button
-            onClick={handleAdd}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
-          >
-            + Add Unit
-          </button>
-        </div>
-
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Unit #</th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Floor</th>
@@ -306,9 +234,9 @@ const PropertyUnitPage = () => {
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredUnits.map((unit) => (
-                <tr key={unit.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <tr key={unit.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 text-xs font-semibold text-brand-700 bg-brand-100 rounded dark:bg-brand-900/20 dark:text-brand-400">
                       {unit.unitNumber}

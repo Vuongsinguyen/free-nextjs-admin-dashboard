@@ -69,7 +69,6 @@ const generateMockBusTickets = (): BusTicket[] => {
 const BusTicketsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBusType, setFilterBusType] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -83,8 +82,7 @@ const BusTicketsPage = () => {
       ticket.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.route.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBusType = filterBusType === "" || ticket.busType === filterBusType;
-    const matchesStatus = filterStatus === "" || ticket.status === filterStatus;
-    return matchesSearch && matchesBusType && matchesStatus;
+    return matchesSearch && matchesBusType;
   });
 
   // Pagination
@@ -138,7 +136,7 @@ const BusTicketsPage = () => {
 
       {/* Filters */}
       <div className="rounded-lg border border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
             <input
               type="text"
@@ -167,22 +165,6 @@ const BusTicketsPage = () => {
               <option value="VIP">VIP</option>
             </select>
           </div>
-
-          <div>
-            <select
-              value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                handleFilterChange();
-              }}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="used">Used</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
         </div>
 
         {/* Table */}
@@ -207,12 +189,6 @@ const BusTicketsPage = () => {
                 </th>
                 <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Route
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Driver
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Status
                 </th>
                 <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
                   Actions
@@ -262,20 +238,6 @@ const BusTicketsPage = () => {
                       </p>
                     </td>
                     <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {ticket.driver}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                          ticket.status,
-                        )}`}
-                      >
-                        {getStatusText(ticket.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
                           className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -301,49 +263,13 @@ const BusTicketsPage = () => {
                             />
                           </svg>
                         </button>
-                        <button
-                          className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-                          title="Edit"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                          title="Delete"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center">
+                  <td colSpan={7} className="px-4 py-8 text-center">
                     <p className="text-gray-500 dark:text-gray-400">
                       No bus tickets found
                     </p>
