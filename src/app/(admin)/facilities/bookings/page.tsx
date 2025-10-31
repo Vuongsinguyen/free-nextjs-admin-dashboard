@@ -904,7 +904,7 @@ export default function FacilityBookingsPage() {
       {/* Add/Edit Booking Modal */}
       {(isAddModalOpen || isEditModalOpen) && (
         <div className="fixed inset-0 bg-blackO flex items-center justify-center p-4 z-999999">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -1038,7 +1038,7 @@ export default function FacilityBookingsPage() {
                                     : isSelected
                                     ? isStartSlot || isEndSlot
                                       ? 'bg-green-500 text-white font-medium'
-                                      : 'bg-green-300 dark:bg-green-800/60 text-green-900 dark:text-green-100'
+                                      : 'bg-blue-300 dark:bg-blue-800/60 text-blue-900 dark:text-blue-100'
                                     : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                                 }`}
                                 title={isBooked ? 'Booked' : `Available - ${slot}`}
@@ -1054,7 +1054,7 @@ export default function FacilityBookingsPage() {
                             <span className="text-gray-600 dark:text-gray-400">Start & End Time</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-green-300 dark:bg-green-800/60 rounded"></div>
+                            <div className="w-3 h-3 bg-blue-300 dark:bg-blue-800/60 rounded"></div>
                             <span className="text-gray-600 dark:text-gray-400">Selected Range</span>
                           </div>
                           <div className="flex items-center gap-2">
