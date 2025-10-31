@@ -522,15 +522,21 @@ export default function FacilityBookingsPage() {
     if (slot === selectedStartSlot) return true;
     if (selectedEndSlot && slot === selectedEndSlot) return true;
 
+    // If we have both start and end slots, check if slot is between them
+    if (selectedStartSlot && selectedEndSlot) {
+      const allSlots = generateTimeSlots();
+      const startIndex = allSlots.indexOf(selectedStartSlot);
+      const endIndex = allSlots.indexOf(selectedEndSlot);
+      const slotIndex = allSlots.indexOf(slot);
+
+      // Check if slot is between start and end (inclusive)
+      return slotIndex >= Math.min(startIndex, endIndex) && slotIndex <= Math.max(startIndex, endIndex);
+    }
+
     if (isSelectingRange && selectedStartSlot && !selectedEndSlot) {
-      const availableSlots = getAvailableSlots(
-        formData.startDate,
-        formData.endDate,
-        formData.facility,
-        editingBooking?.id
-      );
-      const startIndex = availableSlots.indexOf(selectedStartSlot);
-      const slotIndex = availableSlots.indexOf(slot);
+      const allSlots = generateTimeSlots();
+      const startIndex = allSlots.indexOf(selectedStartSlot);
+      const slotIndex = allSlots.indexOf(slot);
       return slotIndex > startIndex;
     }
 
@@ -1009,7 +1015,7 @@ export default function FacilityBookingsPage() {
                     return (
                       <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                         <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                          Select start time and end time by clicking on available slots (all slots in range will be highlighted in green)
+                          Select start time and end time by clicking on available slots (start and end will be highlighted in green, range slots in light blue)
                         </div>
                         <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
                           {generateTimeSlots().map((slot) => {
@@ -1021,6 +1027,8 @@ export default function FacilityBookingsPage() {
                               editingBooking?.id
                             );
                             const isSelected = isSlotSelected(slot);
+                            const isStartSlot = slot === selectedStartSlot;
+                            const isEndSlot = slot === selectedEndSlot;
 
                             return (
                               <button
@@ -1032,7 +1040,9 @@ export default function FacilityBookingsPage() {
                                   isBooked
                                     ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 cursor-not-allowed'
                                     : isSelected
-                                    ? 'bg-green-500 text-white font-medium'
+                                    ? isStartSlot || isEndSlot
+                                      ? 'bg-green-500 text-white font-medium'
+                                      : 'bg-blue-300 dark:bg-blue-800/60 text-blue-900 dark:text-blue-100'
                                     : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                                 }`}
                                 title={isBooked ? 'Booked' : `Available - ${slot}`}
@@ -1045,7 +1055,11 @@ export default function FacilityBookingsPage() {
                         <div className="mt-3 flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 bg-green-500 rounded"></div>
-                            <span className="text-gray-600 dark:text-gray-400">Selected Time Range</span>
+                            <span className="text-gray-600 dark:text-gray-400">Start & End Time</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-300 dark:bg-blue-800/60 rounded"></div>
+                            <span className="text-gray-600 dark:text-gray-400">Selected Range</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 bg-red-100 dark:bg-red-900/30 rounded"></div>
