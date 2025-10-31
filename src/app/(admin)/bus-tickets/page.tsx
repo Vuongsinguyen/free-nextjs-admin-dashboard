@@ -96,32 +96,6 @@ const BusTicketsPage = () => {
     setCurrentPage(1);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400";
-      case "used":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
-      case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Active";
-      case "used":
-        return "Used";
-      case "cancelled":
-        return "Cancelled";
-      default:
-        return status;
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
