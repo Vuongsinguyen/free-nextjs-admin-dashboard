@@ -44,6 +44,19 @@ export default function UsersPage() {
           permissions: account.permissions,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          // New resident-specific fields
+          propertyName: account.propertyName,
+          roomNumber: account.roomNumber,
+          fullName: account.fullName,
+          gender: account.gender,
+          contractType: account.contractType,
+          phoneNumber: account.phoneNumber,
+          nationality: account.nationality,
+          passportNumber: account.passportNumber,
+          passportIssueDate: account.passportIssueDate,
+          passportIssuePlace: account.passportIssuePlace,
+          cohabitants: account.cohabitants,
+          otherInfo: account.otherInfo,
         }));
         setUsers(usersData);
         setIsLoading(false);

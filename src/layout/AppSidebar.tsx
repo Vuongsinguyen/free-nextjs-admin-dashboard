@@ -17,6 +17,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  DollarLineIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 
@@ -41,8 +42,8 @@ const AppSidebar: React.FC = () => {
       icon: <GridIcon />,
       nameKey: "nav.dashboard",
       subItems: [
-        { nameKey: "nav.report", path: "/report", pro: false },
-        { nameKey: "nav.resident", path: "/residents", pro: false }
+        { nameKey: "nav.resident", path: "/residents", pro: false },
+        { nameKey: "nav.report", path: "/report", pro: false }
       ],
     },
     {
@@ -62,12 +63,14 @@ const AppSidebar: React.FC = () => {
       ],
     },
     {
+      icon: <DollarLineIcon />,
+      nameKey: "nav.allVouchers",
+      path: "/vouchers",
+    },
+    {
       icon: <PieChartIcon />,
-      nameKey: "nav.vouchersPromotions",
-      subItems: [
-        { nameKey: "nav.allVouchers", path: "/vouchers", pro: false },
-        { nameKey: "nav.promotions", path: "/promotions", pro: false },
-      ],
+      nameKey: "nav.promotions",
+      path: "/promotions",
     },
     {
       icon: <GridIcon />,

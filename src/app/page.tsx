@@ -104,7 +104,7 @@ export default function HomePage() {
         if (nonAdminRoles.includes(roleId)) {
           router.push("/mainmenu");
         } else {
-          router.push("/dashboard");
+          router.push("/residents");
         }
       } else {
         router.push("/signin");

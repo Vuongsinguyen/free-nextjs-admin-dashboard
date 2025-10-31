@@ -20,6 +20,11 @@ export default function SystemSettingsPage() {
     logLevel: "info",
     maxUploadSize: "10",
     allowedFileTypes: ".jpg,.png,.pdf,.doc,.docx",
+    // Fee configuration settings
+    waterFeeUnitPrice: "15000", // VND per m³
+    waterFeeQuantityUsed: "4", // m³ per month (default)
+    managementFeeUnitPrice: "8000", // VND per m²
+    managementFeeQuantityUsed: "1", // m² (area-based)
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -282,6 +287,95 @@ export default function SystemSettingsPage() {
                 placeholder=".jpg,.png,.pdf"
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Fee Configuration */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Fee Configuration
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            Configure default unit prices and quantities for service fees (calculated in VND/m²)
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Water Fee Unit Price (VND/m³)
+              </label>
+              <input
+                type="number"
+                name="waterFeeUnitPrice"
+                value={formData.waterFeeUnitPrice}
+                onChange={handleChange}
+                min="0"
+                step="1000"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Cost per cubic meter of water
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Default Water Usage (m³/month)
+              </label>
+              <input
+                type="number"
+                name="waterFeeQuantityUsed"
+                value={formData.waterFeeQuantityUsed}
+                onChange={handleChange}
+                min="0"
+                step="0.1"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Default monthly water consumption per apartment
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Management Fee Unit Price (VND/m²)
+              </label>
+              <input
+                type="number"
+                name="managementFeeUnitPrice"
+                value={formData.managementFeeUnitPrice}
+                onChange={handleChange}
+                min="0"
+                step="1000"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Cost per square meter of apartment area
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Management Fee Quantity Used (m²)
+              </label>
+              <input
+                type="number"
+                name="managementFeeQuantityUsed"
+                value={formData.managementFeeQuantityUsed}
+                onChange={handleChange}
+                min="0"
+                step="0.1"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Multiplier for area-based calculation (usually 1.0)
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+              Fee Calculation Examples
+            </h3>
+            <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <p>• Water Fee: {Number(formData.waterFeeUnitPrice).toLocaleString()} VND/m³ × {formData.waterFeeQuantityUsed} m³ = {(Number(formData.waterFeeUnitPrice) * Number(formData.waterFeeQuantityUsed)).toLocaleString()} VND</p>
+              <p>• Management Fee: {Number(formData.managementFeeUnitPrice).toLocaleString()} VND/m² × apartment area × {formData.managementFeeQuantityUsed} = calculated per apartment</p>
             </div>
           </div>
         </div>
