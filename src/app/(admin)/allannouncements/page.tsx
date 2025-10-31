@@ -111,42 +111,6 @@ export default function AnnouncementsPage() {
         </button>
       </div>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {data.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Total Announcements
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-green-600">
-            {data.filter(a => a.status === "active").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Active Announcements
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-orange-600">
-            {data.filter(a => a.priority === "urgent").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Urgent Priority
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-blue-600">
-            {data.reduce((sum, a) => sum + a.views, 0)}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Total Views
-          </div>
-        </div>
-      </div>
-
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
