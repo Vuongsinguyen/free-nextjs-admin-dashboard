@@ -48,11 +48,8 @@ const AppSidebar: React.FC = () => {
     },
     {
       icon: <TableIcon />,
-      nameKey: "nav.serviceFeeInvoice",
-      subItems: [
-        { nameKey: "nav.allInvoices", path: "/invoices", pro: false },
-        { nameKey: "nav.invoiceReports", path: "/invoices/reports", pro: false },
-      ],
+      nameKey: "nav.allInvoices",
+      path: "/invoices",
     },
     {
       icon: <CalenderIcon />,
