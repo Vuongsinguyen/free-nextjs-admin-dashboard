@@ -39,7 +39,7 @@ export default function DatePicker({
         flatPickr.destroy();
       }
     };
-  }, [mode, onChange, id]); // Remove defaultDate from dependencies
+  }, [mode, onChange, id, defaultDate]); // Include defaultDate in dependencies
 
   // Separate effect to handle defaultDate changes
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function DatePicker({
     if (element && element._flatpickr && defaultDate) {
       element._flatpickr.setDate(defaultDate, false); // Don't trigger onChange when setting default date
     }
-  }, [defaultDate, id]);
+  }, [defaultDate, id]); // defaultDate is intentionally included to update picker when prop changes
 
   return (
     <div>

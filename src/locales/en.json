@@ -106,7 +106,8 @@
     "info": "Information",
     "minutes": "minutes",
     "hours": "hours",
-    "days": "days"
+    "days": "days",
+    "back": "Back"
   },
   
   "dashboard": {
@@ -187,14 +188,54 @@
     "deleteConfirm": "Are you sure you want to delete this item?"
   },
   
-  "roleAdmin": "All Users (Admin Committee)",
-  "roleBuildingOwner": "Digital (Future Lab)",
-  "roleHomeOwner": "Manager (Operation Dept.)",
-  "roleTenant": "Commercial Dept.",
-  "roleGuest": "Demo (No Data)",
+  "roleAdmin": "Administrator",
+  "roleResident": "Resident",
+  "roleUser": "User",
+  "roleBuildingOwner": "Building Owner",
+  "roleHomeOwner": "Home Owner",
+  "roleTenant": "Tenant",
+  "roleGuest": "Guest",
   "roleOthers": "Others",
   "selectYourRole": "Select Your Role",
   "pleaseSelectAppropriateRole": "Please select the appropriate role to continue",
   "processing": "Processing...",
-  "continue": "Continue"
+  "continue": "Continue",
+  "roles": {
+    "all_users": "All Users",
+    "digital": "Digital",
+    "manager": "Manager",
+    "commercial": "Commercial"
+  },
+  
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "subtitle": "Enter your email and password to sign in!",
+      "email": "Email",
+      "password": "Password",
+      "emailPlaceholder": "Enter your email",
+      "passwordPlaceholder": "Enter your password",
+      "keepMeLoggedIn": "Keep me logged in",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign in",
+      "loggingIn": "Logging in...",
+      "dontHaveAccount": "Don't have an account?"
+    }
+  },
+  "dev": {
+    "testAccounts": {
+      "title": "Test Accounts Information",
+      "loading": "Loading test accounts...",
+      "passwordHint": "Password hint:",
+      "copyEmail": "Copy email",
+      "copyPasswordHint": "Copy password hint",
+      "email": "Email:",
+      "name": "Name:",
+      "none": "No test accounts found.",
+      "note": "Note: These are test accounts for development purposes only."
+    }
+  },
+  "marketing": {
+    "facilitiesTagline": "Facilities designed for premium apartment chains and ecosystem communities"
+  }
 }

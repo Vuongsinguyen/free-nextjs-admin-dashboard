@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Shop {
-  id: number;
+  id: string; // Changed to string for UUID
   name: string;
   category: string;
   province: string;
@@ -14,49 +15,111 @@ interface Shop {
   createdAt: string;
 }
 
-// Mock data for shops
-const generateMockShops = (): Shop[] => {
-  return [
-    { id: 1, name: "Coffee House - Thủ Dầu Một", category: "Coffee Shop", province: "Bình Dương", district: "Thủ Dầu Một", address: "123 Yersin, P. Phú Cường", googleMapLink: "https://maps.google.com/?q=Coffee+House+Thu+Dau+Mot", status: "active", createdAt: "2025-01-10" },
-    { id: 2, name: "Market Box - Quận 1", category: "Supermarket", province: "Hồ Chí Minh", district: "Quận 1", address: "456 Nguyễn Huệ, P. Bến Nghé", googleMapLink: "https://maps.google.com/?q=Market+Box+Q1", status: "active", createdAt: "2025-01-15" },
-    { id: 3, name: "Maisa Restaurant - Dĩ An", category: "Restaurant", province: "Bình Dương", district: "Dĩ An", address: "789 Đại lộ Bình Dương, P. Dĩ An", googleMapLink: "https://maps.google.com/?q=Maisa+Di+An", status: "active", createdAt: "2025-01-20" },
-    { id: 4, name: "Vincom Pool - Quận 2", category: "Pool", province: "Hồ Chí Minh", district: "Quận 2", address: "Vincom Mega Mall Thảo Điền", googleMapLink: "https://maps.google.com/?q=Vincom+Q2", status: "active", createdAt: "2025-02-01" },
-    { id: 5, name: "CGV Cinema - Thủ Dầu Một", category: "Fest", province: "Bình Dương", district: "Thủ Dầu Một", address: "AEON Mall Bình Dương Canary", googleMapLink: "https://maps.google.com/?q=CGV+TDM", status: "active", createdAt: "2025-02-05" },
-    { id: 6, name: "CONG Coffee - Quận 3", category: "Coffee Shop", province: "Hồ Chí Minh", district: "Quận 3", address: "34 Võ Văn Tần, P.6", googleMapLink: "https://maps.google.com/?q=CONG+Coffee+Q3", status: "active", createdAt: "2025-02-10" },
-    { id: 7, name: "Becamex Store - Thuận An", category: "Convenience Store", province: "Bình Dương", district: "Thuận An", address: "KCN VSIP I, P. Bình Hòa", googleMapLink: "https://maps.google.com/?q=Becamex+Thuan+An", status: "active", createdAt: "2025-02-15" },
-    { id: 8, name: "Maisa Restaurant - Hoàn Kiếm", category: "Restaurant", province: "Hà Nội", district: "Hoàn Kiếm", address: "15 Hàng Bài, P. Tràng Tiền", googleMapLink: "https://maps.google.com/?q=Maisa+HN", status: "active", createdAt: "2025-02-20" },
-    { id: 9, name: "Market Box - Quận 7", category: "Supermarket", province: "Hồ Chí Minh", district: "Quận 7", address: "Crescent Mall, Phú Mỹ Hưng", googleMapLink: "https://maps.google.com/?q=Market+Box+Q7", status: "inactive", createdAt: "2025-03-01" },
-    { id: 10, name: "Vincom Pool - Dĩ An", category: "Pool", province: "Bình Dương", district: "Dĩ An", address: "Vincom Plaza Dĩ An", googleMapLink: "https://maps.google.com/?q=Vincom+Di+An", status: "active", createdAt: "2025-03-05" },
-    { id: 11, name: "CGV Cinema - Cầu Giấy", category: "Fest", province: "Hà Nội", district: "Cầu Giấy", address: "Vincom Mega Mall Times City", googleMapLink: "https://maps.google.com/?q=CGV+Times+City", status: "active", createdAt: "2025-03-10" },
-    { id: 12, name: "Coffee House - Quận 1", category: "Coffee Shop", province: "Hồ Chí Minh", district: "Quận 1", address: "234 Lê Lợi, P. Bến Thành", googleMapLink: "https://maps.google.com/?q=Coffee+House+Q1", status: "active", createdAt: "2025-03-15" },
-    { id: 13, name: "Becamex Store - Thủ Dầu Một", category: "Convenience Store", province: "Bình Dương", district: "Thủ Dầu Một", address: "567 Đại lộ Bình Dương, P. Phú Hòa", googleMapLink: "https://maps.google.com/?q=Becamex+TDM", status: "active", createdAt: "2025-03-20" },
-    { id: 14, name: "Maisa Restaurant - Đống Đa", category: "Restaurant", province: "Hà Nội", district: "Đống Đa", address: "88 Láng Hạ, P. Thành Công", googleMapLink: "https://maps.google.com/?q=Maisa+DD", status: "inactive", createdAt: "2025-03-25" },
-    { id: 15, name: "Market Box - Quận 2", category: "Supermarket", province: "Hồ Chí Minh", district: "Quận 2", address: "The Vista Building, An Phú", googleMapLink: "https://maps.google.com/?q=Market+Box+Q2", status: "active", createdAt: "2025-04-01" },
-    { id: 16, name: "Vincom Pool - Thuận An", category: "Pool", province: "Bình Dương", district: "Thuận An", address: "Vincom Plaza Thuận An", googleMapLink: "https://maps.google.com/?q=Vincom+Thuan+An", status: "inactive", createdAt: "2025-04-05" },
-    { id: 17, name: "CGV Cinema - Quận 3", category: "Fest", province: "Hồ Chí Minh", district: "Quận 3", address: "Parkson Lê Thánh Tôn", googleMapLink: "https://maps.google.com/?q=CGV+Q3", status: "active", createdAt: "2025-04-10" },
-    { id: 18, name: "CONG Coffee - Ba Đình", category: "Coffee Shop", province: "Hà Nội", district: "Ba Đình", address: "45 Nguyễn Thái Học", googleMapLink: "https://maps.google.com/?q=CONG+Ba+Dinh", status: "active", createdAt: "2025-04-15" },
-    { id: 19, name: "Becamex Store - Dĩ An", category: "Convenience Store", province: "Bình Dương", district: "Dĩ An", address: "890 Quốc lộ 1K, P. Tân Đông Hiệp", googleMapLink: "https://maps.google.com/?q=Becamex+Di+An", status: "active", createdAt: "2025-04-20" },
-    { id: 20, name: "Maisa Restaurant - Quận 7", category: "Restaurant", province: "Hồ Chí Minh", district: "Quận 7", address: "Lotte Mart Phú Mỹ Hưng", googleMapLink: "https://maps.google.com/?q=Maisa+Q7", status: "active", createdAt: "2025-04-25" },
-  ];
-};
-
 export default function ShopManagementPage() {
-  const [shops] = useState<Shop[]>(generateMockShops());
-  const [filteredShops, setFilteredShops] = useState<Shop[]>(generateMockShops());
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterProvince, setFilterProvince] = useState("");
   const [filterDistrict, setFilterDistrict] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  // Province and District mapping
-  const provinceDistrictMap: Record<string, string[]> = {
-    "Hồ Chí Minh": ["Quận 1", "Quận 2", "Quận 3", "Quận 7"],
-    "Hà Nội": ["Hoàn Kiếm", "Ba Đình", "Đống Đa", "Cầu Giấy"],
-    "Bình Dương": ["Thủ Dầu Một", "Dĩ An", "Thuận An"],
+  // Dynamic filter options from DB
+  const [categories, setCategories] = useState<string[]>([]);
+  const [provinces, setProvinces] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
+
+  // Fetch shops from Supabase
+  const fetchShops = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching shops:", error);
+        return;
+      }
+
+      // Map snake_case DB fields to camelCase TypeScript
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedShops: Shop[] = (data || []).map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        category: s.category,
+        province: s.province,
+        district: s.district,
+        address: s.address,
+        googleMapLink: s.google_map_link,
+        status: s.status,
+        createdAt: s.created_at,
+      }));
+
+      setShops(mappedShops);
+
+      // Extract unique values for filters
+      const uniqueCategories = [...new Set(mappedShops.map(s => s.category))].sort();
+      const uniqueProvinces = [...new Set(mappedShops.map(s => s.province))].sort();
+      
+      setCategories(uniqueCategories);
+      setProvinces(uniqueProvinces);
+    } catch (err) {
+      console.error("Error fetching shops:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const availableDistricts = filterProvince ? provinceDistrictMap[filterProvince] || [] : [];
+  useEffect(() => {
+    fetchShops();
+  }, []);
+
+  // Update districts when province filter changes
+  useEffect(() => {
+    if (filterProvince) {
+      const uniqueDistricts = [...new Set(
+        shops
+          .filter(s => s.province === filterProvince)
+          .map(s => s.district)
+      )].sort();
+      setDistricts(uniqueDistricts);
+    } else {
+      setDistricts([]);
+    }
+    setFilterDistrict(""); // Reset district when province changes
+  }, [filterProvince, shops]);
+
+  // Handle seed shops
+  const handleSeedShops = async () => {
+    if (!confirm("Seed 20 shops vào database?")) {
+      return;
+    }
+
+    try {
+      setSeeding(true);
+      const response = await fetch('/api/shops/seed', {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`✅ Successfully seeded ${result.count} shops!`);
+        await fetchShops();
+      } else {
+        alert(`❌ Error: ${result.error || 'Failed to seed shops'}`);
+      }
+    } catch (error) {
+      console.error("Error seeding shops:", error);
+      alert("❌ Error seeding shops. Check console for details.");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   // Filter effect
   useEffect(() => {
@@ -124,14 +187,32 @@ export default function ShopManagementPage() {
             Manage shops for voucher system
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-          + Create Shop
-        </button>
+        <div className="flex gap-3">
+          {shops.length === 0 && !loading && (
+            <button
+              onClick={handleSeedShops}
+              disabled={seeding}
+              className="rounded-lg bg-green-600 px-6 py-2.5 text-white hover:bg-green-700 disabled:bg-gray-400"
+            >
+              {seeding ? "Seeding..." : "🌱 Seed 20 Shops"}
+            </button>
+          )}
+          <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
+            + Create Shop
+          </button>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="text-gray-600 dark:text-gray-400">Loading shops...</div>
+        </div>
+      ) : (
+        <>
+          {/* Filters */}
+          <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
           {/* Search */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -157,12 +238,11 @@ export default function ShopManagementPage() {
               className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
             >
               <option value="">All Categories</option>
-              <option value="Coffee Shop">Coffee Shop</option>
-              <option value="Restaurant">Restaurant</option>
-              <option value="Supermarket">Supermarket</option>
-              <option value="Pool">Pool</option>
-              <option value="Fest">Fest</option>
-              <option value="Convenience Store">Convenience Store</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -177,9 +257,11 @@ export default function ShopManagementPage() {
               className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
             >
               <option value="">All Provinces</option>
-              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="Bình Dương">Bình Dương</option>
+              {provinces.map((province) => (
+                <option key={province} value={province}>
+                  {province}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -195,7 +277,7 @@ export default function ShopManagementPage() {
               className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-strokedark dark:bg-meta-4"
             >
               <option value="">All Districts</option>
-              {availableDistricts.map((district) => (
+              {districts.map((district) => (
                 <option key={district} value={district}>
                   {district}
                 </option>
@@ -434,6 +516,8 @@ export default function ShopManagementPage() {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

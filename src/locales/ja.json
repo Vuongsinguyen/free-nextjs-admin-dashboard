@@ -77,8 +77,45 @@
     "systemConfig": "システム設定",
     "notifications": "通知"
   },
+    "common": {
+      "back": "戻る",
+      "welcome": "ようこそ"
+    },
+    "auth": {
+      "signin": {
+        "title": "サインイン",
+        "subtitle": "メールアドレスとパスワードを入力してください",
+        "email": "メール",
+        "password": "パスワード",
+        "emailPlaceholder": "メールアドレスを入力",
+        "passwordPlaceholder": "パスワードを入力",
+        "keepMeLoggedIn": "ログイン状態を保持",
+        "forgotPassword": "パスワードをお忘れですか？",
+        "signIn": "サインイン",
+        "loggingIn": "サインイン中...",
+        "dontHaveAccount": "アカウントをお持ちでないですか？"
+      }
+    },
+    "dev": {
+      "testAccounts": {
+        "title": "テストアカウント情報",
+        "loading": "テストアカウントを読み込み中...",
+        "passwordHint": "パスワードのヒント:",
+        "copyEmail": "メールをコピー",
+        "copyPasswordHint": "ヒントをコピー",
+        "email": "メール:",
+        "name": "名前:",
+        "none": "テストアカウントがありません。",
+        "note": "注意: これらは開発環境専用のテストアカウントです。"
+      }
+    },
+    "marketing": {
+      "facilitiesTagline": "プレミアムマンションチェーンとエコシステムコミュニティのために設計された施設"
+    },
   
   "roleAdmin": "管理者",
+  "roleResident": "住民",
+  "roleUser": "ユーザー",
   "roleBuildingOwner": "ビルオーナー",
   "roleHomeOwner": "住宅所有者",
   "roleTenant": "テナント",
@@ -88,6 +125,12 @@
   "pleaseSelectAppropriateRole": "続行するために適切な役割を選択してください",
   "processing": "処理中...",
   "continue": "続行",
+  "roles": {
+    "all_users": "全ユーザー",
+    "digital": "デジタル",
+    "manager": "マネージャー",
+    "commercial": "コマーシャル"
+  },
   
   "userManagement": {
     "title": "ユーザー管理",

@@ -10,48 +10,36 @@ import { locales, localeNames, localeFlags } from "@/lib/i18n";
 
 interface RoleOption {
   id: string;
-  nameKey: string;
-  description: string;
+  nameKey: string; // i18n key
   icon: string;
   color: string;
 }
 
 const roleOptions: RoleOption[] = [
   {
-    id: "admin",
-    nameKey: "roleAdmin",
-    description: "System Administrator",
+    id: "all_users",
+    nameKey: "roles.all_users",
     icon: "/images/icons/Setting.png",
     color: "bg-gradient-to-br from-yellow-400 to-orange-500"
   },
   {
-    id: "building-owner",
-    nameKey: "roleBuildingOwner", 
-    description: "Chủ sở hữu tòa nhà",
-    icon: "/images/icons/Info.png",
-    color: "bg-gradient-to-br from-blue-500 to-purple-600"
-  },
-  {
-    id: "home-owner",
-    nameKey: "roleHomeOwner",
-    description: "Chủ sở hữu nhà",
-    icon: "/images/icons/home-owner.png",
-    color: "bg-gradient-to-br from-green-500 to-teal-600"
-  },
-  {
-    id: "tenant",
-    nameKey: "roleTenant",
-    description: "Người thuê nhà",
+    id: "digital",
+    nameKey: "roles.digital",
     icon: "/images/icons/Calendar.png",
     color: "bg-gradient-to-br from-indigo-500 to-blue-600"
   },
   {
-    id: "guest",
-    nameKey: "roleGuest",
-    description: "Khách",
-    icon: "/images/icons/guest.png",
-    color: "bg-gradient-to-br from-gray-500 to-gray-600"
-  }
+    id: "manager",
+    nameKey: "roles.manager",
+    icon: "/images/icons/Setting.png",
+    color: "bg-gradient-to-br from-rose-500 to-pink-600"
+  },
+  {
+    id: "commercial",
+    nameKey: "roles.commercial",
+    icon: "/images/icons/Setting.png",
+    color: "bg-gradient-to-br from-emerald-500 to-teal-600"
+  },
 ];
 
 export default function HomePage() {
@@ -59,7 +47,7 @@ export default function HomePage() {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const { loading, selectRole } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
 
@@ -79,37 +67,24 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
-  // Comment out auto redirect - luôn hiển thị trang chọn role
-  // useEffect(() => {
-  //   if (!loading && isAuthenticated) {
-  //     router.replace('/dashboard');
-  //   }
-  // }, [isAuthenticated, loading, router]);
+  // Không kiểm tra isAuthenticated - luôn cho vào trang select role
+  // User có thể logout và chọn role khác
 
-  const handleRoleSelect = (roleId: string) => {
+  const handleRoleSelect = async (roleId: string) => {
     setSelectedRole(roleId);
     
     // Lưu role vào localStorage
     localStorage.setItem("selectedRole", roleId);
+    // Lưu role vào cookie để middleware đọc được cho redirect server-side
+    try {
+      document.cookie = `selectedRole=${roleId}; path=/; max-age=86400; samesite=lax`;
+    } catch {}
     
-    // Verify role được lưu thành công
-    const savedRole = localStorage.getItem("selectedRole");
-    console.log("Role saved:", savedRole); // Debug log
+    // Đánh dấu đã chọn role và chuyển đến trang signin
+    selectRole();
     
-    // Nếu đã đăng nhập, chuyển đến trang tương ứng với role
-    // Nếu chưa đăng nhập, chuyển đến trang login
-    setTimeout(() => {
-      if (isAuthenticated) {
-        const nonAdminRoles = ['home-owner', 'tenant', 'guest', 'others'];
-        if (nonAdminRoles.includes(roleId)) {
-          router.push("/mainmenu");
-        } else {
-          router.push("/residents");
-        }
-      } else {
-        router.push("/signin");
-      }
-    }, 500);
+    // Redirect đến signin page thay vì authenticate ngay
+    router.push("/signin");
   };
 
   // Hiển thị loading khi đang kiểm tra authentication
@@ -123,18 +98,6 @@ export default function HomePage() {
       </div>
     );
   }
-
-  // Luôn hiển thị trang chọn role, không redirect tự động
-  // if (isAuthenticated) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-  //       <div className="text-center">
-  //         <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-  //         <p className="text-gray-600 dark:text-gray-300">Đang chuyển đến dashboard...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="relative min-h-screen pt-[100px] pb-8 px-4 overflow-hidden">
@@ -248,14 +211,14 @@ export default function HomePage() {
         {/* Role Selection Grid */}
         <div className="flex flex-col items-center gap-4 md:gap-6 mb-8 max-w-[1330px] mx-auto">
           {/* All Cards */}
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 w-[1330px] mx-auto">
             {roleOptions.map((role) => (
               <div
                 key={role.id}
                 onClick={() => handleRoleSelect(role.id)}
                 className={`
                   relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm
-                  w-full sm:w-80 md:w-72 lg:w-80 xl:w-96
+                  w-full max-w-[220px]
                   min-h-[200px] flex flex-col items-center justify-center text-center
                   ${selectedRole === role.id 
                     ? 'border-brand-500 bg-white/95 dark:bg-brand-500/20 shadow-lg shadow-brand-500/50' 

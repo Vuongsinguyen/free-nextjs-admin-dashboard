@@ -1,0 +1,685 @@
+
+> free-nextjs-admin-dashboard@2.0.2 dev
+> next dev
+
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.2.11:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1594ms
+ ○ Compiling / ...
+ ✓ Compiled / in 797ms (969 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 1041ms
+ GET / 200 in 35ms
+ ○ Compiling /signin ...
+ ✓ Compiled /signin in 977ms (1122 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 1142ms
+ ✓ Compiled /residents in 362ms (1147 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 495ms
+ GET / 200 in 149ms
+ ✓ Compiled /favicon.ico in 192ms (669 modules)
+ GET /favicon.ico 200 in 503ms
+ GET /signin 200 in 73ms
+ GET / 200 in 38ms
+ GET /signin 200 in 35ms
+ GET / 200 in 24ms
+ GET /signin 200 in 32ms
+ GET / 200 in 31ms
+ GET /signin 200 in 27ms
+ GET / 200 in 58ms
+ ✓ Compiled in 364ms (508 modules)
+ GET / 200 in 184ms
+ ✓ Compiled in 179ms (508 modules)
+ GET / 200 in 17ms
+ GET / 200 in 20ms
+ ✓ Compiled in 380ms (1139 modules)
+ GET / 200 in 92ms
+ ✓ Compiled in 389ms (1139 modules)
+ GET / 200 in 48ms
+ ✓ Compiled in 560ms (1139 modules)
+ GET / 200 in 56ms
+ ✓ Compiled in 259ms (1139 modules)
+ GET / 200 in 49ms
+ ✓ Compiled /api/migrate-roles in 192ms (694 modules)
+Supabase URL: Present
+Supabase Key: Present
+ POST /api/migrate-roles 200 in 4096ms
+ ✓ Compiled in 1048ms (1425 modules)
+ GET / 200 in 294ms
+ GET / 200 in 13ms
+ GET / 200 in 14ms
+ ✓ Compiled in 196ms (749 modules)
+ GET / 200 in 25ms
+ ✓ Compiled /api/migrate-roles in 107ms (694 modules)
+Supabase URL: Present
+Supabase Key: Present
+ POST /api/migrate-roles 200 in 2883ms
+ ✓ Compiled /api/roles in 96ms (696 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/roles 200 in 4709ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 192ms
+ ✓ Compiled /favicon.ico in 269ms (692 modules)
+ GET /favicon.ico 200 in 542ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 145ms
+ GET /favicon.ico 200 in 219ms
+ ✓ Compiled in 470ms (1441 modules)
+ GET / 200 in 50ms
+ GET /favicon.ico 200 in 217ms
+ ✓ Compiled in 300ms (1441 modules)
+ GET / 200 in 49ms
+ GET /favicon.ico 200 in 213ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 115ms
+ GET /favicon.ico 200 in 217ms
+ ✓ Compiled in 395ms (1441 modules)
+ GET / 200 in 35ms
+ GET /favicon.ico 200 in 216ms
+ ✓ Compiled /_not-found in 238ms (1428 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 391ms
+ ✓ Compiled in 525ms (1425 modules)
+ GET / 200 in 91ms
+ ✓ Compiled /favicon.ico in 63ms (692 modules)
+ GET /favicon.ico 200 in 343ms
+ ✓ Compiled in 306ms (1441 modules)
+ GET / 200 in 69ms
+ GET /signin 200 in 64ms
+ GET / 200 in 14ms
+ GET /signin 200 in 17ms
+ GET / 200 in 17ms
+ GET /signin 200 in 20ms
+ GET / 200 in 15ms
+ GET /signin 200 in 17ms
+ GET / 200 in 15ms
+ GET /signin 200 in 21ms
+ GET / 200 in 13ms
+ ✓ Compiled in 384ms (749 modules)
+ GET / 200 in 165ms
+ ✓ Compiled in 171ms (749 modules)
+ GET / 200 in 25ms
+ GET / 200 in 11ms
+ ⨯ ./src/components/auth/AccountsInfo.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4m/Users/Nguyen.vs/Documents/free-nextjs-admin-dashboard/src/components/auth/AccountsInfo.tsx[0m:44:1]
+ [2m41[0m |     try {
+ [2m42[0m |       await navigator.clipboard.writeText(text);
+ [2m43[0m |       {isExpanded && (
+ [2m44[0m |       setTimeout(() => setCopiedField(''), 2000);
+    : [35;1m                                                ^[0m
+ [2m45[0m |           {loading && (
+ [2m46[0m |             <div className="text-xs text-blue-700 dark:text-blue-300">Loading test accounts...</div>
+ [2m47[0m |           )}
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/auth/AccountsInfo.tsx
+./src/components/auth/SignInForm.tsx
+ ⨯ ./src/components/auth/AccountsInfo.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4m/Users/Nguyen.vs/Documents/free-nextjs-admin-dashboard/src/components/auth/AccountsInfo.tsx[0m:44:1]
+ [2m41[0m |     try {
+ [2m42[0m |       await navigator.clipboard.writeText(text);
+ [2m43[0m |       {isExpanded && (
+ [2m44[0m |       setTimeout(() => setCopiedField(''), 2000);
+    : [35;1m                                                ^[0m
+ [2m45[0m |           {loading && (
+ [2m46[0m |             <div className="text-xs text-blue-700 dark:text-blue-300">Loading test accounts...</div>
+ [2m47[0m |           )}
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/auth/AccountsInfo.tsx
+./src/components/auth/SignInForm.tsx
+ ✓ Compiled in 420ms (1424 modules)
+ GET / 200 in 113ms
+ ✓ Compiled in 272ms (1424 modules)
+ GET / 200 in 54ms
+ ✓ Compiled in 501ms (1424 modules)
+ GET / 200 in 38ms
+ ✓ Compiled in 224ms (1424 modules)
+ GET / 200 in 33ms
+ ✓ Compiled in 434ms (1424 modules)
+ GET / 200 in 38ms
+ GET /signin 200 in 28ms
+ GET / 200 in 18ms
+ ✓ Compiled in 626ms (1424 modules)
+ GET / 200 in 61ms
+ ✓ Compiled in 347ms (1424 modules)
+ GET / 200 in 49ms
+ ✓ Compiled in 478ms (1424 modules)
+ GET / 200 in 36ms
+ ✓ Compiled in 415ms (1424 modules)
+ GET / 200 in 60ms
+ ✓ Compiled in 505ms (1424 modules)
+ GET / 200 in 37ms
+ ⨯ ./src/locales/en.json
+Module parse failed: Cannot parse JSON: Unexpected non-whitespace character after JSON at position 6075 (line 204 column 1) while parsing '{
+  "nav": {
+    "menu": "Menu",
+    "ot'
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+Error: Cannot parse JSON: Unexpected non-whitespace character after JSON at position 6075 (line 204 column 1) while parsing '{
+  "nav": {
+    "menu": "Menu",
+    "ot'
+Import trace for requested module:
+./src/locales/en.json
+./src/locales/ lazy ^\.\/.*\.json$ namespace object
+./src/context/LocaleContext.tsx
+ ⨯ ./src/locales/en.json
+Module parse failed: Cannot parse JSON: Unexpected non-whitespace character after JSON at position 6075 (line 204 column 1) while parsing '{
+  "nav": {
+    "menu": "Menu",
+    "ot'
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+Error: Cannot parse JSON: Unexpected non-whitespace character after JSON at position 6075 (line 204 column 1) while parsing '{
+  "nav": {
+    "menu": "Menu",
+    "ot'
+Import trace for requested module:
+./src/locales/en.json
+./src/locales/ lazy ^\.\/.*\.json$ namespace object
+./src/context/LocaleContext.tsx
+ ✓ Compiled in 408ms (1424 modules)
+ GET / 200 in 63ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 114ms
+ ✓ Compiled /_not-found in 182ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 288ms
+ ✓ Compiled /favicon.ico in 104ms (692 modules)
+ GET /favicon.ico 200 in 384ms
+ ✓ Compiled in 283ms (1441 modules)
+ GET / 200 in 56ms
+ GET /favicon.ico 200 in 218ms
+ ✓ Compiled in 360ms (1441 modules)
+ GET / 200 in 57ms
+ GET /favicon.ico 200 in 217ms
+ ✓ Compiled in 650ms (1441 modules)
+ GET / 200 in 38ms
+ ✓ Compiled in 606ms (1424 modules)
+ GET / 200 in 141ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 81ms
+ ✓ Compiled /_not-found in 216ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 334ms
+ ✓ Compiled /favicon.ico in 88ms (692 modules)
+ GET /favicon.ico 200 in 367ms
+ ✓ Compiled in 365ms (1441 modules)
+ GET / 200 in 71ms
+ GET /favicon.ico 200 in 219ms
+ ✓ Compiled in 667ms (1441 modules)
+ GET / 200 in 58ms
+ GET /favicon.ico 200 in 225ms
+ ✓ Compiled in 252ms (1441 modules)
+ GET / 200 in 47ms
+ GET /signin 200 in 37ms
+ ✓ Compiled /api/test-accounts in 217ms (693 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1704ms
+ GET / 200 in 97ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 96ms
+ ✓ Compiled /_not-found in 226ms (694 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 343ms
+ ✓ Compiled /favicon.ico in 115ms (711 modules)
+ GET /favicon.ico 200 in 388ms
+ GET /signin 200 in 47ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 605ms (1424 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 221ms
+ GET /signin 200 in 465ms
+ ✓ Compiled /_not-found in 286ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 398ms
+ ✓ Compiled /favicon.ico in 151ms (692 modules)
+ GET /favicon.ico 200 in 443ms
+ ✓ Compiled in 417ms (1441 modules)
+ GET /signin 200 in 63ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 110ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 64ms
+ GET /favicon.ico 200 in 232ms
+ ✓ Compiled in 495ms (1441 modules)
+ GET /signin 200 in 57ms
+ GET /favicon.ico 200 in 220ms
+ ✓ Compiled in 368ms (1441 modules)
+ GET /signin 200 in 62ms
+ GET /favicon.ico 200 in 221ms
+ ✓ Compiled in 226ms (1441 modules)
+ GET /signin 200 in 44ms
+ ✓ Compiled in 294ms (1441 modules)
+ GET /signin 200 in 35ms
+ ✓ Compiled in 649ms (1441 modules)
+ GET /signin 200 in 42ms
+ ✓ Compiled in 560ms (1441 modules)
+ GET /signin 200 in 51ms
+ ✓ Compiled in 478ms (1441 modules)
+ GET /signin 200 in 56ms
+ ✓ Compiled in 264ms (1441 modules)
+ GET /signin 200 in 84ms
+ ✓ Compiled /api/test-accounts in 246ms (693 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1152ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 178ms
+ ✓ Compiled /_not-found in 253ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 455ms
+ GET / 200 in 34ms
+ ✓ Compiled in 783ms (1410 modules)
+ GET / 200 in 77ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 56ms
+ ✓ Compiled /_not-found in 145ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 225ms
+ ✓ Compiled /favicon.ico in 97ms (692 modules)
+ GET /favicon.ico 200 in 416ms
+ ✓ Compiled in 398ms (1441 modules)
+ GET / 200 in 58ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 71ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 106ms
+ GET /favicon.ico 200 in 220ms
+ ✓ Compiled in 323ms (1441 modules)
+ GET / 200 in 42ms
+ GET /favicon.ico 200 in 223ms
+ ✓ Compiled in 351ms (1441 modules)
+ GET / 200 in 38ms
+ GET /favicon.ico 200 in 233ms
+ ✓ Compiled in 296ms (1441 modules)
+ GET / 200 in 37ms
+ ✓ Compiled in 335ms (1441 modules)
+ GET / 200 in 40ms
+ ⨯ Error: Attempted to call useLocale() from the server but useLocale is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (.next/server/app/page.js:187:20)
+    at AuthLayout (src/app/(full-width-pages)/(auth)/layout.tsx:15:25)
+  13 |   children: React.ReactNode;
+  14 | }) {
+> 15 |   const { t } = useLocale();
+     |                         ^
+  16 |   return (
+  17 |     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+  18 |       <ThemeProvider> {
+  digest: '432804910'
+}
+ GET /signin 200 in 39ms
+ ✓ Compiled in 490ms (1424 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ Error: Attempted to call useLocale() from the server but useLocale is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (.next/server/app/(full-width-pages)/(auth)/signin/page.js:263:20)
+    at AuthLayout (src/app/(full-width-pages)/(auth)/layout.tsx:15:25)
+  13 |   children: React.ReactNode;
+  14 | }) {
+> 15 |   const { t } = useLocale();
+     |                         ^
+  16 |   return (
+  17 |     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+  18 |       <ThemeProvider> {
+  digest: '1413805825'
+}
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 500 in 213ms
+ ✓ Compiled /_not-found in 89ms (676 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 190ms
+ ✓ Compiled /favicon.ico in 93ms (692 modules)
+ GET /favicon.ico 200 in 383ms
+ ✓ Compiled in 497ms (1441 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ Error: Attempted to call useLocale() from the server but useLocale is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (.next/server/app/(full-width-pages)/(auth)/signin/page.js:263:20)
+    at AuthLayout (src/app/(full-width-pages)/(auth)/layout.tsx:15:25)
+  13 |   children: React.ReactNode;
+  14 | }) {
+> 15 |   const { t } = useLocale();
+     |                         ^
+  16 |   return (
+  17 |     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+  18 |       <ThemeProvider> {
+  digest: '1413805825'
+}
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 500 in 112ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 72ms
+ GET /favicon.ico 200 in 222ms
+ ⨯ Error: Attempted to call useLocale() from the server but useLocale is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (.next/server/app/(full-width-pages)/(auth)/signin/page.js:263:20)
+    at AuthLayout (src/app/(full-width-pages)/(auth)/layout.tsx:15:25)
+  13 |   children: React.ReactNode;
+  14 | }) {
+> 15 |   const { t } = useLocale();
+     |                         ^
+  16 |   return (
+  17 |     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+  18 |       <ThemeProvider> {
+  digest: '1413805825'
+}
+ GET /signin 500 in 82ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 45ms
+ ✓ Compiled in 427ms (749 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 228ms (749 modules)
+ ⨯ Error: Attempted to call useLocale() from the server but useLocale is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (.next/server/app/(full-width-pages)/(auth)/signin/page.js:263:20)
+    at AuthLayout (src/app/(full-width-pages)/(auth)/layout.tsx:15:25)
+  13 |   children: React.ReactNode;
+  14 | }) {
+> 15 |   const { t } = useLocale();
+     |                         ^
+  16 |   return (
+  17 |     <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+  18 |       <ThemeProvider> {
+  digest: '1413805825'
+}
+ GET /signin 500 in 252ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 47ms
+ GET /favicon.ico 200 in 218ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 918ms (1430 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 737ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 55ms
+ GET /favicon.ico 200 in 225ms
+ ✓ Compiled in 530ms (1444 modules)
+ GET /signin 200 in 45ms
+ GET /favicon.ico 200 in 221ms
+ GET / 200 in 20ms
+ GET /signin 200 in 16ms
+ GET / 200 in 19ms
+ GET /signin 200 in 24ms
+ ✓ Compiled /api/test-accounts in 355ms (695 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1405ms
+ ✓ Compiled in 385ms (750 modules)
+ GET /signin 200 in 256ms
+ ✓ Compiled in 328ms (750 modules)
+ GET /signin 200 in 361ms
+ GET /signin 200 in 19ms
+ ✓ Compiled in 148ms (750 modules)
+ GET /signin 200 in 24ms
+ ✓ Compiled in 473ms (750 modules)
+ GET /signin 200 in 66ms
+ ✓ Compiled in 146ms (750 modules)
+ GET /signin 200 in 19ms
+ ✓ Compiled in 485ms (750 modules)
+ GET /signin 200 in 70ms
+ ✓ Compiled in 217ms (750 modules)
+ GET /signin 200 in 18ms
+ GET / 200 in 53ms
+ GET /signin 200 in 24ms
+ ✓ Compiled /api/admin/reset-password in 310ms (695 modules)
+Supabase URL: Present
+Supabase Key: Present
+ POST /api/admin/reset-password 200 in 1699ms
+ ✓ Compiled /residents in 500ms (718 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 673ms
+ ✓ Compiled /_not-found in 169ms (719 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 277ms
+ GET /signin 200 in 34ms
+ ✓ Compiled /api/test-accounts in 329ms (695 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1170ms
+ ✓ Compiled in 1187ms (1445 modules)
+ GET /signin 200 in 489ms
+ ✓ Compiled in 526ms (1445 modules)
+ GET /signin 200 in 60ms
+ ✓ Compiled in 259ms (750 modules)
+ GET /signin 200 in 57ms
+ ✓ Compiled in 163ms (750 modules)
+ GET /signin 200 in 18ms
+ GET / 200 in 38ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 97ms
+ ✓ Compiled /_not-found in 410ms (678 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 605ms
+ ✓ Compiled /favicon.ico in 138ms (694 modules)
+ GET /favicon.ico 200 in 423ms
+ GET /signin 200 in 60ms
+ ✓ Compiled /residents in 230ms (717 modules)
+ GET /residents 200 in 323ms
+ GET /residents 200 in 324ms
+ ✓ Compiled /locations/province in 411ms (1467 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /locations/province 200 in 546ms
+ GET /locations/province 200 in 543ms
+ GET /buildings/property 200 in 547ms
+ GET /buildings/property 200 in 549ms
+ GET /signin 200 in 27ms
+ GET /signin 200 in 14ms
+ GET / 200 in 19ms
+ GET / 200 in 56ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 41ms
+ GET /favicon.ico 200 in 226ms
+ GET /signin 200 in 29ms
+ ✓ Compiled /api/test-accounts in 355ms (746 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1304ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 170ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 55ms
+ GET /signin 200 in 36ms
+ ✓ Compiled in 521ms (754 modules)
+ GET /signin 200 in 60ms
+ ✓ Compiled in 361ms (754 modules)
+ GET /signin 200 in 29ms
+ ✓ Compiled in 643ms (1454 modules)
+ GET /signin 200 in 131ms
+ ✓ Compiled in 338ms (1454 modules)
+ GET /signin 200 in 56ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 188ms
+ ✓ Compiled /_not-found in 213ms (701 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 300ms
+ ✓ Compiled /favicon.ico in 124ms (717 modules)
+ GET /favicon.ico 200 in 420ms
+ GET / 200 in 42ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 63ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 75ms
+ GET / 200 in 27ms
+ GET /favicon.ico 200 in 48ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 33ms
+ GET /favicon.ico 200 in 216ms
+ GET /signin 200 in 48ms
+ GET /residents 200 in 46ms
+ GET /residents 200 in 47ms
+ ✓ Compiled /locations/province in 445ms (722 modules)
+ ✓ Compiled (727 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /buildings/property 200 in 826ms
+ GET /buildings/property 200 in 825ms
+ GET /locations/province 200 in 826ms
+ GET /locations/province 200 in 826ms
+ GET /signin 200 in 20ms
+ GET /signin 200 in 22ms
+ GET /signin 200 in 57ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 25ms
+ GET /favicon.ico 200 in 80ms
+ GET /signin 200 in 35ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 25ms
+ GET /signin 200 in 40ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 23ms
+ GET /signin 200 in 33ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 24ms
+ GET /favicon.ico 200 in 215ms
+ GET / 200 in 13ms
+ GET / 200 in 37ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 22ms
+ GET / 200 in 24ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 33ms
+ GET / 200 in 52ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 69ms
+ GET /favicon.ico 200 in 211ms
+ GET /signin 200 in 15ms
+ ✓ Compiled /api/test-accounts in 344ms (746 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 808ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 176ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 63ms
+ GET /signin 200 in 32ms
+ ✓ Compiled in 921ms (1454 modules)
+ GET /signin 200 in 183ms
+ ✓ Compiled in 549ms (1454 modules)
+ GET /signin 200 in 68ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /signin 200 in 173ms
+ ✓ Compiled /_not-found in 264ms (701 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 348ms
+ ✓ Compiled /favicon.ico in 117ms (717 modules)
+ GET /favicon.ico 200 in 417ms
+ GET / 200 in 37ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 66ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 38ms
+ GET /favicon.ico 200 in 222ms
+ GET /signin 200 in 44ms
+ GET /residents 200 in 40ms
+ GET /residents 200 in 41ms
+ ✓ Compiled /locations/province in 438ms (722 modules)
+ ✓ Compiled (727 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /buildings/property 200 in 757ms
+ GET /buildings/property 200 in 757ms
+ GET /locations/province 200 in 758ms
+ GET /locations/province 200 in 758ms
+ GET /signin 200 in 27ms
+ GET /signin 200 in 23ms
+ GET /signin 200 in 45ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 38ms
+ GET /signin 200 in 32ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 26ms
+ GET /signin 200 in 142ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 39ms
+ GET /favicon.ico 200 in 216ms
+ GET / 200 in 18ms
+ GET /signin 200 in 17ms
+ ✓ Compiled /api/test-accounts in 357ms (746 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 697ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 130ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 146ms
+ GET /signin 200 in 28ms
+ ✓ Compiled in 824ms (1454 modules)
+ GET /signin 200 in 153ms
+ ✓ Compiled in 243ms (1454 modules)
+ GET /signin 200 in 45ms
+Supabase URL: Present
+Supabase Key: Present
+ GET / 200 in 178ms
+ GET / 200 in 37ms
+ ✓ Compiled /favicon.ico in 141ms (716 modules)
+ GET /favicon.ico 200 in 465ms
+ GET /signin 200 in 51ms
+ GET /residents 200 in 80ms
+ GET /residents 200 in 25ms
+ ✓ Compiled /locations/province in 104ms (721 modules)
+ ✓ Compiled (726 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /locations/province 200 in 653ms
+ GET /buildings/property 200 in 654ms
+ GET /locations/province 200 in 39ms
+ GET /buildings/property 200 in 40ms
+ GET /signin 200 in 32ms
+ GET /signin 200 in 17ms
+ GET / 200 in 19ms
+ GET / 200 in 38ms
+ GET /favicon.ico 200 in 216ms
+ GET /signin 200 in 22ms
+ ✓ Compiled /_not-found in 334ms (727 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 448ms
+ GET /signin 200 in 53ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 74ms
+ GET /favicon.ico 200 in 229ms
+ ✓ Compiled /api/test-accounts in 475ms (746 modules)
+Supabase URL: Present
+Supabase Key: Present
+ GET /api/test-accounts 200 in 1110ms
+Supabase URL: Present
+Supabase Key: Present
+ GET /residents 200 in 172ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 74ms
+ GET /signin 200 in 34ms

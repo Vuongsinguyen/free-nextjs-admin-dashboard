@@ -5,7 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { useLocale } from "../context/LocaleContext";
-import { useAuth } from "../context/AuthContext";
+import { useMenu } from "../hooks/useMenu";
+import { MenuItem } from "../types/menu";
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -29,138 +30,59 @@ type NavItem = {
   subItems?: { nameKey: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
+// Icon mapping function
+const getIconComponent = (iconName?: string): React.ReactNode => {
+  const iconMap: Record<string, React.ReactNode> = {
+    'UserCircleIcon': <UserCircleIcon />,
+    'TableIcon': <TableIcon />,
+    'CalenderIcon': <CalenderIcon />,
+    'ShootingStarIcon': <ShootingStarIcon />,
+    'GridIcon': <GridIcon />,
+    'PieChartIcon': <PieChartIcon />,
+    'DollarLineIcon': <DollarLineIcon />,
+    'BoxCubeIcon': <BoxCubeIcon />,
+    'ListIcon': <ListIcon />,
+    'PlugInIcon': <PlugInIcon />,
+  };
+  return iconName ? (iconMap[iconName] || <GridIcon />) : <GridIcon />;
+};
+
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const { t } = useLocale();
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { menuGroups, loading: menuLoading } = useMenu();
 
-  // Check if user is admin
-  const isAdmin = user?.role === 'admin';
-
-  const getNavItems = (): NavItem[] => [
-    {
-      icon: <UserCircleIcon />,
-      nameKey: "nav.resident",
-      path: "/residents",
-    },
-    {
-      icon: <TableIcon />,
-      nameKey: "nav.allInvoices",
-      path: "/invoices",
-    },
-    {
-      icon: <CalenderIcon />,
-      nameKey: "nav.allEvents",
-      path: "/events",
-    },
-    {
-      icon: <CalenderIcon />,
-      nameKey: "nav.announcements",
-      path: "/allannouncements",
-    },
-    {
-  icon: <ShootingStarIcon />, 
-  nameKey: "nav.allVouchers",
-  path: "/vouchers",
-    },
-    {
-      icon: <TableIcon />,
-      nameKey: "nav.busTickets",
-      path: "/bus-tickets",
-    },
-    {
-      icon: <GridIcon />,
-      nameKey: "nav.facilities",
-      subItems: [
-        { nameKey: "nav.allFacilities", path: "/facilities", pro: false },
-        { nameKey: "nav.bookingManagement", path: "/facilities/bookings", pro: false },
-      ],
-    },
-    {
-      icon: <PieChartIcon />,
-      nameKey: "nav.report",
-      path: "/report",
-    },
-    {
-      icon: <DollarLineIcon />,
-      nameKey: "nav.payments",
-      path: "/report/payments",
-    },
-  ];
-
-  const getMasterDataItems = (): NavItem[] => [
-    {
-      icon: <GridIcon />, 
-      nameKey: "nav.locations",
-      subItems: [
-        // { nameKey: "nav.country", path: "/locations/country", pro: false }, // HIDDEN COUNTRY MENU
-        { nameKey: "nav.province", path: "/locations/province", pro: false },
-        { nameKey: "nav.ward", path: "/locations/ward", pro: false },
-      ],
-    },
-    {
-      icon: <BoxCubeIcon />,
-      nameKey: "nav.building", 
-      subItems: [
-        { nameKey: "nav.buildingCategory", path: "/buildings/category", pro: false },
-        { nameKey: "nav.property", path: "/buildings/property", pro: false },
-        { nameKey: "nav.zoneAreaSection", path: "/buildings/zone-area-section", pro: false },
-        { nameKey: "nav.buildingBlock", path: "/buildings/building-block", pro: false },
-        { nameKey: "nav.floor", path: "/buildings/floor", pro: false },
-        { nameKey: "nav.propertyUnit", path: "/buildings/property-unit", pro: false },
-      ],
-    },
-    {
-      icon: <ListIcon />,
-      nameKey: "nav.assetMaintenance",
-      subItems: [
-        { nameKey: "nav.allAssets", path: "/assets", pro: false },
-        { nameKey: "nav.maintenance", path: "/maintenance", pro: false },
-        { nameKey: "nav.maintenanceSchedule", path: "/maintenance/schedule", pro: false },
-      ],
-    },
-    {
-      icon: <TableIcon />,
-      nameKey: "nav.ticketsManagement",
-      path: "/master-data/tickets-management",
-    },
-    {
-      icon: <GridIcon />,
-      nameKey: "nav.shopManagement",
-      path: "/master-data/shop-management",
-    },
-    {
-      icon: <UserCircleIcon />,
-      nameKey: "nav.userManagement",
-      subItems: [
-        { nameKey: "nav.allUsers", path: "/user-management/users", pro: false },
-        { nameKey: "nav.userRoles", path: "/user-management/roles", pro: false },
-        { nameKey: "nav.rolePermissions", path: "/user-management/permissions", pro: false },
-      ],
-    },
-  ];
-
-  const getSystemConfigItems = (): NavItem[] => [
-    {
-      icon: <PlugInIcon />,
-      nameKey: "nav.settings",
-      subItems: [
-        { nameKey: "nav.generalSettings", path: "/settings/general", pro: false },
-        { nameKey: "nav.systemConfig", path: "/settings/system", pro: false },
-        { nameKey: "nav.notifications", path: "/settings/notifications", pro: false },
-      ],
-    },
-  ];
+  // Convert MenuItem to NavItem format
+  const convertMenuItemToNavItem = (item: MenuItem): NavItem => {
+    return {
+      nameKey: item.name_key,
+      icon: getIconComponent(item.icon),
+      path: item.path,
+      subItems: item.subItems?.map(subItem => ({
+        nameKey: subItem.name_key,
+        path: subItem.path || '',
+        pro: subItem.is_pro,
+        new: subItem.is_new
+      }))
+    };
+  };
 
   const renderMenuItems = (
     navItems: NavItem[],
     menuType: "main" | "others" | "masterData" | "systemConfig"
-  ) => (
+  ) => {
+    console.log('🎨 Rendering menu items:', menuType, navItems.map(n => ({ 
+      name: n.nameKey, 
+      hasSubItems: !!n.subItems,
+      subItemsCount: n.subItems?.length || 0 
+    })));
+    
+    return (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
         <li key={nav.nameKey}>
-          {nav.subItems ? (
+          {nav.subItems && nav.subItems.length > 0 ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
               className={`menu-item group  ${
@@ -277,7 +199,8 @@ const AppSidebar: React.FC = () => {
         </li>
       ))}
     </ul>
-  );
+    );
+  };
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others" | "masterData" | "systemConfig";
@@ -291,23 +214,20 @@ const AppSidebar: React.FC = () => {
   const isActive = useCallback((path: string) => path === pathname, [pathname]);
 
   useEffect(() => {
+    if (menuLoading || menuGroups.length === 0) return;
+
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    const menuTypes: { type: "main" | "masterData" | "systemConfig"; getItems: () => NavItem[] }[] = [
-      { type: "main", getItems: getNavItems },
-      { type: "masterData", getItems: getMasterDataItems },
-      { type: "systemConfig", getItems: getSystemConfigItems }
-    ];
     
-    menuTypes.forEach(({ type, getItems }) => {
-      const items = getItems();
-      items.forEach((nav: NavItem, index: number) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
+    menuGroups.forEach((group) => {
+      group.items.forEach((item: MenuItem, itemIdx: number) => {
+        if (item.subItems && item.subItems.length > 0) {
+          item.subItems.forEach((subItem) => {
+            if (subItem.path && isActive(subItem.path)) {
+              const menuType = group.group;
               setOpenSubmenu({
-                type,
-                index,
+                type: menuType,
+                index: itemIdx,
               });
               submenuMatched = true;
             }
@@ -320,7 +240,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [pathname, isActive]);
+  }, [pathname, isActive, menuGroups, menuLoading]);
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened
@@ -399,61 +319,35 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            {/* Admin-only sections */}
-            {isAdmin && (
-              <>
-                <div>
-                  <h2
-                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                      !isExpanded && !isHovered
-                        ? "lg:justify-center"
-                        : "justify-start"
-                    }`}
-                  >
-                    {isExpanded || isHovered || isMobileOpen ? (
-                      "QUICK ACCESS"
-                    ) : (
-                      <HorizontaLDots />
-                    )}
-                  </h2>
-                  {renderMenuItems(getNavItems(), "main")}
-                </div>
-
-                <div className="">
-                  <h2
-                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                      !isExpanded && !isHovered
-                        ? "lg:justify-center"
-                        : "justify-start"
-                    }`}
-                  >
-                    {isExpanded || isHovered || isMobileOpen ? (
-                      "MASTER DATA"
-                    ) : (
-                      <HorizontaLDots />
-                    )}
-                  </h2>
-                  {renderMenuItems(getMasterDataItems(), "masterData")}
-                </div>
-
-                <div className="">
-                  <h2
-                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                      !isExpanded && !isHovered
-                        ? "lg:justify-center"
-                        : "justify-start"
-                    }`}
-                  >
-                    {isExpanded || isHovered || isMobileOpen ? (
-                      "SYSTEM CONFIGURATION"
-                    ) : (
-                      <HorizontaLDots />
-                    )}
-                  </h2>
-                  {renderMenuItems(getSystemConfigItems(), "systemConfig")}
-                </div>
-              </>
+            {/* Loading state */}
+            {menuLoading && (
+              <div className="text-center text-gray-400 py-4">
+                Loading menu...
+              </div>
             )}
+
+            {/* Render dynamic menu from database */}
+            {!menuLoading && menuGroups.map((group) => (
+              <div key={group.group}>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    group.titleKey
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(
+                  group.items.map(convertMenuItemToNavItem),
+                  group.group
+                )}
+              </div>
+            ))}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

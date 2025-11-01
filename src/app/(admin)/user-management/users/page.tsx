@@ -3,11 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
+import { supabase } from "@/lib/supabase";
 import UserTable from "@/components/user-management/UserTable";
 import UserModal from "@/components/user-management/UserModal";
 import UserFilters from "@/components/user-management/UserFilters";
 import { User, UserFilters as IUserFilters, SortConfig } from "@/types/user-management";
-import mockAccounts from "@/data/mockAccounts.json";
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
@@ -29,38 +29,54 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // Load users from mock data
+  // Load users from Supabase
   useEffect(() => {
-    const loadUsers = () => {
+    const loadUsers = async () => {
       setIsLoading(true);
-      // Simulate API call delay
-      setTimeout(() => {
-        const usersData: User[] = mockAccounts.accounts.map(account => ({
-          id: account.id,
-          name: account.name,
-          email: account.email,
-          role: account.role,
-          status: account.status as "active" | "inactive",
-          permissions: account.permissions,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          // New resident-specific fields
-          propertyName: account.propertyName,
-          roomNumber: account.roomNumber,
-          fullName: account.fullName,
-          gender: account.gender,
-          contractType: account.contractType,
-          phoneNumber: account.phoneNumber,
-          nationality: account.nationality,
-          passportNumber: account.passportNumber,
-          passportIssueDate: account.passportIssueDate,
-          passportIssuePlace: account.passportIssuePlace,
-          cohabitants: account.cohabitants,
-          otherInfo: account.otherInfo,
+      try {
+        // Fetch users from auth.users via RPC or custom table
+        // Note: Direct access to auth.users requires admin/service_role
+        // For now, we'll use a custom users table or profiles table
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Map Supabase users to our User type
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const usersData: User[] = (data || []).map((user: any) => ({
+          id: user.id,
+          name: user.name || user.full_name || user.email?.split('@')[0] || 'Unknown',
+          email: user.email,
+          role: user.role || 'all_users',
+          status: (user.status || 'active') as "active" | "inactive",
+          permissions: user.permissions || [],
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+          // Resident-specific fields
+          propertyName: user.property_name,
+          roomNumber: user.room_number,
+          fullName: user.full_name,
+          gender: user.gender,
+          contractType: user.contract_type,
+          phoneNumber: user.phone_number,
+          nationality: user.nationality,
+          passportNumber: user.passport_number,
+          passportIssueDate: user.passport_issue_date,
+          passportIssuePlace: user.passport_issue_place,
+          cohabitants: user.cohabitants,
+          otherInfo: user.other_info,
         }));
+
         setUsers(usersData);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        setUsers([]);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
     loadUsers();
@@ -133,12 +149,13 @@ export default function UsersPage() {
     setShowModal(true);
   };
 
-  const handleDeleteUser = (userId: number) => {
+  const handleDeleteUser = (userId: string) => {
     if (confirm(t('userManagement.deleteConfirm'))) {
       setUsers(prev => prev.filter(user => user.id !== userId));
     }
   };
 
+  // Keep local modal behavior for mock users
   const handleSaveUser = (userData: Partial<User>) => {
     if (editingUser) {
       // Update existing user
@@ -150,13 +167,13 @@ export default function UsersPage() {
         )
       );
     } else {
-      // Add new user
+      // Add new user (local only)
       const newUser: User = {
-        id: Math.max(...users.map(u => u.id)) + 1,
+        id: `user_${Date.now()}`,
         name: userData.name || "",
         email: userData.email || "",
         role: userData.role || "guest",
-        status: userData.status || "active",
+        status: (userData.status as "active" | "inactive") || "active",
         permissions: userData.permissions || [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -165,6 +182,56 @@ export default function UsersPage() {
     }
     setShowModal(false);
   };
+
+  // const handleCreateRealUser = () => {
+  //   setShowCreateRealUserModal(true);
+  // };
+
+  // const handleSaveRealUser = async (userData: {
+  //   email: string;
+  //   password: string;
+  //   name: string;
+  //   role: string;
+  //   propertyName?: string;
+  //   roomNumber?: string;
+  //   fullName?: string;
+  // }) => {
+  //   try {
+  //     const response = await fetch('/api/create-user', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(userData),
+  //     });
+
+  //     const result = await response.json();
+
+  //     if (response.ok) {
+  //       alert('User created successfully!');
+  //       // Refresh users list or add to local state
+  //       setUsers(prev => [...prev, {
+  //         id: result.user.id,
+  //         name: result.user.name,
+  //         email: result.user.email,
+  //         role: result.user.role,
+  //         status: result.user.status,
+  //         permissions: [],
+  //         createdAt: result.user.created_at,
+  //         updatedAt: result.user.created_at,
+  //         propertyName: result.user.property_name,
+  //         roomNumber: result.user.room_number,
+  //         fullName: result.user.full_name,
+  //       }]);
+  //       setShowCreateRealUserModal(false);
+  //     } else {
+  //       alert(`Error: ${result.error}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error creating user:', error);
+  //     alert('Failed to create user');
+  //   }
+  // };
 
   if (isLoading) {
     return (

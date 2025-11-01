@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import Tagline from "@/components/common/Tagline";
 
 export default function AuthLayout({
   children,
@@ -29,9 +30,7 @@ export default function AuthLayout({
                     alt="Logo"
                   />
                 </Link>
-                <p className="text-center text-gray-400 dark:text-white/60">
-                  Facilities designed for premium apartment chains and ecosystem communities
-                </p>
+                <Tagline />
               </div>
             </div>
           </div>

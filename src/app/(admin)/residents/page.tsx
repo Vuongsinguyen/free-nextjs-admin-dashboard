@@ -3,12 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
+import { supabase } from "@/lib/supabase";
 import UserTable from "@/components/user-management/UserTable";
 import UserFilters from "@/components/user-management/UserFilters";
 import ResidentDetailModal from "@/components/residents/ResidentDetailModal";
 import { User, UserFilters as IUserFilters, SortConfig } from "@/types/user-management";
-
-import mockAccounts from "@/data/mockAccounts.json";
 
 
 export default function ResidentPage() {
@@ -32,39 +31,61 @@ export default function ResidentPage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Load users from mock data
+  // Load users from Supabase database
   useEffect(() => {
-    const loadUsers = () => {
+    const loadUsers = async () => {
+      console.log('🔄 Starting to load residents from database...');
       setIsLoading(true);
-      // Simulate API call delay
-      setTimeout(() => {
-        const usersData: User[] = mockAccounts.accounts.map(account => ({
-          id: account.id,
-          name: account.name,
-          email: account.email,
-          role: account.role,
-          status: account.status as "active" | "inactive",
-          permissions: account.permissions,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          // New resident-specific fields
-          propertyName: account.propertyName,
-          roomNumber: account.roomNumber,
-          fullName: account.fullName,
-          gender: account.gender,
-          contractType: account.contractType,
-          phoneNumber: account.phoneNumber,
-          nationality: account.nationality,
-          passportNumber: account.passportNumber,
-          passportIssueDate: account.passportIssueDate,
-          passportIssuePlace: account.passportIssuePlace,
-          cohabitants: account.cohabitants,
-          otherInfo: account.otherInfo,
-          // province: not in mockAccounts, so leave blank for now
-        }));
-        setUsers(usersData);
+      try {
+        // Query users table for residents
+        const { data: usersData, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('role', 'resident')
+          .order('created_at', { ascending: false });
+
+        console.log('📊 Query result:', { data: usersData, error });
+
+        if (error) {
+          console.error('❌ Error loading residents:', error);
+          setUsers([]);
+        } else {
+          // Map Supabase data to User type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedUsers: User[] = (usersData || []).map((dbUser: any) => ({
+            id: dbUser.id,
+            name: dbUser.name || dbUser.email?.split('@')[0] || 'Unknown',
+            email: dbUser.email || '',
+            role: dbUser.role || 'resident',
+            status: dbUser.status || 'active',
+            permissions: dbUser.permissions || [],
+            createdAt: dbUser.created_at || new Date().toISOString(),
+            updatedAt: dbUser.updated_at || new Date().toISOString(),
+            // Resident-specific fields
+            propertyName: dbUser.property_name || '',
+            roomNumber: dbUser.room_number || '',
+            fullName: dbUser.full_name || dbUser.name || '',
+            gender: dbUser.gender || '',
+            contractType: dbUser.contract_type || '',
+            phoneNumber: dbUser.phone_number || '',
+            nationality: dbUser.nationality || '',
+            passportNumber: dbUser.passport_number || '',
+            passportIssueDate: dbUser.passport_issue_date || '',
+            passportIssuePlace: dbUser.passport_issue_place || '',
+            cohabitants: dbUser.cohabitants || [],
+            otherInfo: dbUser.other_info || '',
+            province: dbUser.province || '',
+          }));
+          
+          setUsers(mappedUsers);
+          console.log('✅ Loaded residents from database:', mappedUsers.length);
+        }
+      } catch (err) {
+        console.error('Exception loading residents:', err);
+        setUsers([]);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
     loadUsers();

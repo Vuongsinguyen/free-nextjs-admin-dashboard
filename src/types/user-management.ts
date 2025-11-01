@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string; // Changed from number to string for Supabase UUID
   name: string;
   email: string;
   role: string;
@@ -41,8 +41,8 @@ export interface UserTableProps {
   sortConfig: SortConfig;
   onSort: (key: keyof User) => void;
   onEdit: (user: User) => void;
-  onDelete: (userId: number) => void;
-  currentUser: { id: number; role: string; email: string; name: string } | null;
+  onDelete: (userId: string) => void;
+  currentUser: { id: string; role: string; email: string; name: string } | null;
   showActions?: boolean;
   onView?: (user: User) => void;
   viewOnly?: boolean;

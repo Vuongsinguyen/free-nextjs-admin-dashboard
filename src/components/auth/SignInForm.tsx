@@ -9,6 +9,8 @@ import { locales, localeNames, localeFlags } from "@/lib/i18n";
 import AccountsInfo from "@/components/auth/AccountsInfo";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,52 +18,97 @@ export default function SignInForm() {
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const { login, loading } = useAuth();
+  const { login, loading, logout } = useAuth();
   const { t, locale, setLocale } = useLocale();
+  const router = useRouter();
 
-  // Lấy role đã chọn từ localStorage
+  // Lấy role đã chọn từ localStorage và redirect nếu chưa chọn
   useEffect(() => {
     const savedRole = localStorage.getItem('selectedRole');
     if (savedRole) {
       setSelectedRole(savedRole);
+    } else {
+      // Nếu chưa chọn role, redirect về trang chủ
+      window.location.href = '/';
     }
   }, []);
 
   // Function để lấy tên role hiển thị
   const getRoleDisplayName = (roleId: string): string => {
-    const roleMap: Record<string, string> = {
-      'admin': t('roleAdmin'),
-      'building-owner': t('roleBuildingOwner'),
-      'home-owner': t('roleHomeOwner'),
-      'tenant': t('roleTenant'),
-      'guest': t('roleGuest'),
-      'others': t('roleOthers')
-    };
-    return roleMap[roleId] || roleId;
+    // Normalize legacy ids first
+    const normalized = roleId === 'admin' ? 'all_users' : roleId === 'user' ? 'digital' : roleId;
+    const translated = t(`roles.${normalized}`);
+    return translated || normalized;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('🔵 handleSubmit called');
     setError('');
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    console.log('🔵 Email:', email);
+
     if (!email || !password) {
       setError('Vui lòng nhập đầy đủ email và mật khẩu');
       return;
     }
 
-    const success = await login(email, password);
-    if (success) {
-      // Đợi một chút để đảm bảo authentication state đã được update
-      setTimeout(() => {
-        // Redirect all roles to residents page
-        window.location.href = '/residents';
-      }, 200);
+    console.log('🔵 Calling login...');
+    const result = await login(email, password);
+    console.log('🔵 === LOGIN RESULT ===', result);
+    
+    if (result.success) {
+      // Kiểm tra role của user có khớp với role đã chọn không
+      if (result.user && selectedRole) {
+        const userRole = result.user.role;
+        console.log('� Checking role: user role =', userRole, ', selected role =', selectedRole);
+        
+        if (userRole !== selectedRole) {
+          console.log('🔴 Role mismatch! User role:', userRole, '!== Selected role:', selectedRole);
+          setError(`Tài khoản này thuộc vai trò "${getRoleDisplayName(userRole)}" nhưng bạn đã chọn vai trò "${getRoleDisplayName(selectedRole)}". Vui lòng quay lại và chọn đúng vai trò hoặc đăng nhập với tài khoản khác.`);
+          // Logout user vì role không khớp
+          await logout();
+          return;
+        }
+      }
+      
+      console.log('✅ Login thành công, đang sync session...');
+      
+      // Chờ session sync với retry logic (tối đa 5 lần)
+      let synced = false;
+      for (let i = 0; i < 5; i++) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData.session) {
+          synced = true;
+          console.log('🟢 Session synced:', sessionData.session.user.email);
+          break;
+        }
+        console.log(`⏳ Retry ${i + 1}/5: Session chưa sẵn sàng, chờ thêm 300ms...`);
+        await new Promise((r) => setTimeout(r, 300));
+      }
+
+      if (synced) {
+        console.log('🚀 Session confirmed! Redirecting to /residents...');
+        // Use router.push for better HMR compatibility
+        setTimeout(() => {
+          console.log('🔄 NOW executing redirect with router.push...');
+          router.push('/residents');
+        }, 200);
+      } else {
+        console.warn('⚠️ Session chưa sync hoàn toàn nhưng vẫn redirect thử...');
+        setTimeout(() => {
+          console.log('🔄 NOW executing redirect with router.push (fallback)...');
+          router.push('/residents');
+        }, 200);
+      }
+      return;
     } else {
-      setError('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
+      console.log('🔴 Login thất bại:', result.error);
+      setError(result.error || 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
     }
   };
   return (
@@ -110,7 +157,7 @@ export default function SignInForm() {
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon />
-          Back
+          {t('common.back')}
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -119,15 +166,15 @@ export default function SignInForm() {
             {selectedRole && (
               <div className="mb-3">
                 <p className="text-lg font-medium text-brand-600 dark:text-brand-400">
-                  Welcome {getRoleDisplayName(selectedRole)}
+                  {t('common.welcome')} {getRoleDisplayName(selectedRole)}
                 </p>
               </div>
             )}
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Sign In
+              {t('auth.signin.title')}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              {t('auth.signin.subtitle')}
             </p>
           </div>
           <div>
@@ -141,25 +188,25 @@ export default function SignInForm() {
                 
                 <div>
                   <Label htmlFor="email">
-                    Email <span className="text-error-500">*</span>{" "}
+                    {t('auth.signin.email')} <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input 
                     id="email"
                     name="email"
-                    placeholder="Enter your email" 
+                    placeholder={t('auth.signin.emailPlaceholder')} 
                     type="email" 
                   />
                 </div>
                 <div>
                   <Label htmlFor="password">
-                    Password <span className="text-error-500">*</span>{" "}
+                    {t('auth.signin.password')} <span className="text-error-500">*</span>{" "}
                   </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder={t('auth.signin.passwordPlaceholder')}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -177,14 +224,14 @@ export default function SignInForm() {
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
+                      {t('auth.signin.keepMeLoggedIn')}
                     </span>
                   </div>
                   <Link
                     href="/reset-password"
                     className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    Forgot password?
+                    {t('auth.signin.forgotPassword')}
                   </Link>
                 </div>
                 <div>
@@ -193,7 +240,7 @@ export default function SignInForm() {
                     disabled={loading}
                     className="w-full inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {loading ? 'Logging in...' : 'Sign in'}
+                    {loading ? t('auth.signin.loggingIn') : t('auth.signin.signIn')}
                   </button>
                 </div>
               </div>
@@ -204,12 +251,12 @@ export default function SignInForm() {
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
+                {t('auth.signin.dontHaveAccount')} {""}
                 <Link
                   href="/signup"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign Up
+                  {t('nav.signUp')}
                 </Link>
               </p>
             </div>

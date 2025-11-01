@@ -106,7 +106,8 @@
     "info": "Thông tin",
     "minutes": "phút",
     "hours": "giờ",
-    "days": "ngày"
+    "days": "ngày",
+    "back": "Quay lại"
   },
   
   "dashboard": {
@@ -189,6 +190,8 @@
   },
   
   "roleAdmin": "Quản trị viên",
+  "roleResident": "Cư dân",
+  "roleUser": "Người dùng",
   "roleBuildingOwner": "Chủ tòa nhà",
   "roleHomeOwner": "Chủ nhà",
   "roleTenant": "Người thuê",
@@ -197,5 +200,42 @@
   "selectYourRole": "Chọn vai trò của bạn",
   "pleaseSelectAppropriateRole": "Vui lòng chọn vai trò phù hợp để tiếp tục",
   "processing": "Đang xử lý...",
-  "continue": "Tiếp tục"
+  "continue": "Tiếp tục",
+  "roles": {
+    "all_users": "Ban Quản Trị",
+    "digital": "Truyền Thông Số",
+    "manager": "Quản lý",
+    "commercial": "Kinh doanh"
+  },
+  "auth": {
+    "signin": {
+      "title": "Đăng nhập",
+      "subtitle": "Nhập email và mật khẩu để đăng nhập!",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "emailPlaceholder": "Nhập email của bạn",
+      "passwordPlaceholder": "Nhập mật khẩu của bạn",
+      "keepMeLoggedIn": "Giữ tôi đăng nhập",
+      "forgotPassword": "Quên mật khẩu?",
+      "signIn": "Đăng nhập",
+      "loggingIn": "Đang đăng nhập...",
+      "dontHaveAccount": "Chưa có tài khoản?"
+    }
+  },
+  "dev": {
+    "testAccounts": {
+      "title": "Thông tin tài khoản test",
+      "loading": "Đang tải danh sách tài khoản...",
+      "passwordHint": "Gợi ý mật khẩu:",
+      "copyEmail": "Sao chép email",
+      "copyPasswordHint": "Sao chép gợi ý mật khẩu",
+      "email": "Email:",
+      "name": "Tên:",
+      "none": "Không có tài khoản test nào.",
+      "note": "Lưu ý: Đây là các tài khoản chỉ dùng cho môi trường phát triển."
+    }
+  },
+  "marketing": {
+    "facilitiesTagline": "Tiện ích được thiết kế cho chuỗi căn hộ cao cấp và cộng đồng hệ sinh thái"
+  }
 }

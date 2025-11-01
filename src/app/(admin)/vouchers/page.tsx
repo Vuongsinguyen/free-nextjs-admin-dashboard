@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
 import { getProvincesFromCSV } from "@/lib/provinces";
 
 interface Province {
@@ -13,7 +14,7 @@ interface Province {
 }
 
 interface Voucher {
-  id: number;
+  id: string; // Changed to string for UUID
   code: string;
   name: string;
   type: "percentage" | "fixed";
@@ -28,43 +29,10 @@ interface Voucher {
     used: number;
     total: number;
   };
-  startDate: string; // ISO date
-  endDate: string;   // ISO date
-  image?: string; // URL to voucher image
+  startDate: string;
+  endDate: string;
+  image?: string;
 }
-
-const initialVouchers: Voucher[] = [
-  { id: 1, code: "WELCOME10", name: "Welcome 10%", type: "percentage", value: 10, category: "Coffee Shop", companyName: "Coffee House", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 100 }, startDate: "2025-01-01", endDate: "2025-12-31", image: "https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&h=300&fit=crop" },
-  { id: 2, code: "SAVE50", name: "Save 50k", type: "fixed", value: 50000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 0, total: 200 }, startDate: "2025-06-01", endDate: "2025-09-30", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" },
-  { id: 3, code: "SPRING15", name: "Spring 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 89, total: 150 }, startDate: "2025-03-01", endDate: "2025-05-31", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop" },
-  { id: 4, code: "POOL20", name: "Pool Pass 20%", type: "percentage", value: 20, category: "Pool", companyName: "Vincom", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 200, total: 200 }, startDate: "2025-01-15", endDate: "2025-12-15", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" },
-  { id: 5, code: "CGV100", name: "CGV 100k Off", type: "fixed", value: 100000, category: "Fest", companyName: "CGV", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 123, total: 500 }, startDate: "2025-02-01", endDate: "2025-11-30", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=300&fit=crop" },
-  { id: 6, code: "COFFEE25", name: "Coffee 25% Off", type: "percentage", value: 25, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 100 }, startDate: "2025-01-10", endDate: "2025-12-20", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop" },
-  { id: 7, code: "STORE30", name: "Store 30k", type: "fixed", value: 30000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "inactive", quantity: { used: 50, total: 50 }, startDate: "2025-03-05", endDate: "2025-08-05", image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=300&fit=crop" },
-  { id: 8, code: "MEAL15", name: "Meal Discount 15%", type: "percentage", value: 15, category: "Restaurant", companyName: "Maisa", province: "Hà Nội", district: "Hoàn Kiếm", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 234, total: 1000 }, startDate: "2025-01-01", endDate: "2025-12-31", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop" },
-  { id: 9, code: "FRESH40", name: "Fresh 40k", type: "fixed", value: 40000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 7", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 15, total: 100 }, startDate: "2025-04-01", endDate: "2025-07-31", image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&h=300&fit=crop" },
-  { id: 10, code: "SWIM10", name: "Swim 10%", type: "percentage", value: 10, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 78, total: 200 }, startDate: "2025-02-10", endDate: "2025-12-10", image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=300&fit=crop" },
-  { id: 11, code: "MOVIE50", name: "Movie Night 50k", type: "fixed", value: 50000, category: "Fest", companyName: "CGV", province: "Hà Nội", district: "Cầu Giấy", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 450, total: 800 }, startDate: "2025-01-20", endDate: "2025-10-20", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=300&fit=crop" },
-  { id: 12, code: "BREW20", name: "Brew Time 20%", type: "percentage", value: 20, category: "Coffee Shop", companyName: "Coffee House", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 12, total: 75 }, startDate: "2025-01-05", endDate: "2025-12-25", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop" },
-  { id: 13, code: "SNACK15", name: "Snack 15k", type: "fixed", value: 15000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 0, total: 300 }, startDate: "2025-02-15", endDate: "2025-09-15", image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400&h=300&fit=crop" },
-  { id: 14, code: "DINE25", name: "Dine Out 25%", type: "percentage", value: 25, category: "Restaurant", companyName: "Maisa", province: "Hà Nội", district: "Đống Đa", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "inactive", quantity: { used: 100, total: 100 }, startDate: "2025-03-10", endDate: "2025-08-10", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop" },
-  { id: 15, code: "MART60", name: "Mart Special 60k", type: "fixed", value: 60000, category: "Supermarket", companyName: "Market Box", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 567, total: 1000 }, startDate: "2025-01-25", endDate: "2025-11-25", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" },
-  { id: 16, code: "AQUA30", name: "Aqua Fun 30%", type: "percentage", value: 30, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 25, total: 50 }, startDate: "2025-04-05", endDate: "2025-09-05", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" },
-  { id: 17, code: "CINEMA70", name: "Cinema Pass 70k", type: "fixed", value: 70000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 89, total: 250 }, startDate: "2025-02-20", endDate: "2025-12-20", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=300&fit=crop" },
-  { id: 18, code: "LATTE18", name: "Latte Lover 18%", type: "percentage", value: 18, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hà Nội", district: "Ba Đình", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 150, total: 150 }, startDate: "2025-01-15", endDate: "2025-10-15", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop" },
-  { id: 19, code: "QUICK20", name: "Quick Shop 20k", type: "fixed", value: 20000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 34, total: 100 }, startDate: "2025-03-01", endDate: "2025-11-01", image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=300&fit=crop" },
-  { id: 20, code: "FEAST30", name: "Feast Time 30%", type: "percentage", value: 30, category: "Restaurant", companyName: "Maisa", province: "Hồ Chí Minh", district: "Quận 7", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 401, total: 500 }, startDate: "2025-01-08", endDate: "2025-12-08", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop" },
-  { id: 21, code: "GROCERY80", name: "Grocery 80k", type: "fixed", value: 80000, category: "Supermarket", companyName: "Market Box", province: "Hà Nội", district: "Hoàn Kiếm", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "inactive", quantity: { used: 75, total: 75 }, startDate: "2025-02-12", endDate: "2025-09-12", image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&h=300&fit=crop" },
-  { id: 22, code: "SPLASH12", name: "Splash Day 12%", type: "percentage", value: 12, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Thủ Dầu Một", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "active", quantity: { used: 56, total: 200 }, startDate: "2025-01-30", endDate: "2025-12-30", image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=300&fit=crop" },
-  { id: 23, code: "SHOW90", name: "Show Time 90k", type: "fixed", value: 90000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 1", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "inactive", quantity: { used: 10, total: 100 }, startDate: "2025-03-15", endDate: "2025-08-15", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=300&fit=crop" },
-  { id: 24, code: "ESPRESSO22", name: "Espresso Deal 22%", type: "percentage", value: 22, category: "Coffee Shop", companyName: "Coffee House", province: "Hà Nội", district: "Cầu Giấy", googleMapLink: "https://maps.google.com/?q=Coffee+House", status: "active", quantity: { used: 45, total: 120 }, startDate: "2025-01-12", endDate: "2025-11-12", image: "https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&h=300&fit=crop" },
-  { id: 25, code: "GRAB25", name: "Grab & Go 25k", type: "fixed", value: 25000, category: "Convenience Store", companyName: "Becamex Store", province: "Bình Dương", district: "Thuận An", googleMapLink: "https://maps.google.com/?q=Becamex+Store", status: "active", quantity: { used: 80, total: 80 }, startDate: "2025-02-25", endDate: "2025-10-25", image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400&h=300&fit=crop" },
-  { id: 26, code: "GOURMET35", name: "Gourmet 35%", type: "percentage", value: 35, category: "Restaurant", companyName: "Maisa", province: "Hồ Chí Minh", district: "Quận 2", googleMapLink: "https://maps.google.com/?q=Maisa+Restaurant", status: "active", quantity: { used: 123, total: 300 }, startDate: "2025-01-18", endDate: "2025-12-18", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop" },
-  { id: 27, code: "FRESH100", name: "Fresh Pick 100k", type: "fixed", value: 100000, category: "Supermarket", companyName: "Market Box", province: "Hà Nội", district: "Đống Đa", googleMapLink: "https://maps.google.com/?q=Market+Box", status: "active", quantity: { used: 234, total: 600 }, startDate: "2025-03-20", endDate: "2025-11-20", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" },
-  { id: 28, code: "DIVE15", name: "Dive In 15%", type: "percentage", value: 15, category: "Pool", companyName: "Vincom", province: "Bình Dương", district: "Dĩ An", googleMapLink: "https://maps.google.com/?q=Vincom+Pool", status: "inactive", quantity: { used: 30, total: 30 }, startDate: "2025-02-05", endDate: "2025-09-05", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" },
-  { id: 29, code: "EVENT60", name: "Event Special 60k", type: "fixed", value: 60000, category: "Fest", companyName: "CGV", province: "Hồ Chí Minh", district: "Quận 3", googleMapLink: "https://maps.google.com/?q=CGV+Cinema", status: "active", quantity: { used: 178, total: 400 }, startDate: "2025-01-22", endDate: "2025-12-22", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=300&fit=crop" },
-  { id: 30, code: "MOCHA28", name: "Mocha Magic 28%", type: "percentage", value: 28, category: "Coffee Shop", companyName: "CONG Coffee", province: "Hà Nội", district: "Ba Đình", googleMapLink: "https://maps.google.com/?q=CONG+Coffee", status: "active", quantity: { used: 67, total: 150 }, startDate: "2025-01-28", endDate: "2025-11-28", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop" },
-];
 
 interface ResidentUsage {
   id: string;
@@ -77,22 +45,102 @@ interface ResidentUsage {
 }
 
 export default function VouchersPage() {
-  const [vouchers, setVouchers] = useState<Voucher[]>(initialVouchers);
-  const [filteredVouchers, setFilteredVouchers] = useState<Voucher[]>(initialVouchers);
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [filteredVouchers, setFilteredVouchers] = useState<Voucher[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showResidentsModal, setShowResidentsModal] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [provinces, setProvinces] = useState<Province[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const [editing, setEditing] = useState<Voucher | null>(null);
+  const [editing, setEditing] = useState<Voucher | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCompany, setFilterCompany] = useState("");
   const [filterProvince, setFilterProvince] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [seeding, setSeeding] = useState(false);
+
+  // Fetch vouchers from Supabase
+  const fetchVouchers = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('vouchers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching vouchers:", error);
+        return;
+      }
+
+      // Map snake_case DB fields to camelCase TypeScript
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedVouchers: Voucher[] = (data || []).map((v: any) => ({
+        id: v.id,
+        code: v.code,
+        name: v.name,
+        type: v.type,
+        value: v.value,
+        category: v.category,
+        companyName: v.company_name,
+        province: v.province,
+        district: v.district,
+        googleMapLink: v.google_map_link,
+        status: v.status,
+        quantity: {
+          used: v.quantity_used || 0,
+          total: v.quantity_total || 0,
+        },
+        startDate: v.start_date,
+        endDate: v.end_date,
+        image: v.image,
+      }));
+
+      setVouchers(mappedVouchers);
+    } catch (err) {
+      console.error("Error fetching vouchers:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
+
+  // Handle seed vouchers
+  const handleSeedVouchers = async () => {
+    if (!confirm("Seed 30 vouchers vào database? (Sẽ skip nếu code đã tồn tại)")) {
+      return;
+    }
+
+    try {
+      setSeeding(true);
+      const response = await fetch('/api/vouchers/seed', {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`✅ Successfully seeded ${result.count} vouchers!`);
+        // Reload vouchers
+        await fetchVouchers();
+      } else {
+        alert(`❌ Error: ${result.error || 'Failed to seed vouchers'}`);
+      }
+    } catch (error) {
+      console.error("Error seeding vouchers:", error);
+      alert("❌ Error seeding vouchers. Check console for details.");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   // Load provinces data on component mount
   useEffect(() => {
@@ -102,7 +150,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
 
   const handleAdd = () => {
     setEditing({
-      id: 0,
+      id: "",
       code: "",
       name: "",
       type: "percentage",
@@ -157,7 +205,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
     setShowModal(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this voucher?")) {
       setVouchers(prev => prev.filter(v => v.id !== id));
     }
@@ -229,10 +277,10 @@ const [editing, setEditing] = useState<Voucher | null>(null);
         const imageUrl = e.target?.result as string;
         const voucherWithImage = { ...editing, image: imageUrl };
 
-        if (editing.id === 0) {
+        if (!editing.id) {
           const newVoucher: Voucher = {
             ...voucherWithImage,
-            id: Math.max(0, ...vouchers.map(v => v.id)) + 1,
+            id: crypto.randomUUID(),
           };
           setVouchers(prev => [...prev, newVoucher]);
         } else {
@@ -246,10 +294,10 @@ const [editing, setEditing] = useState<Voucher | null>(null);
       reader.readAsDataURL(selectedFile);
     } else {
       // No file selected, proceed with existing logic
-      if (editing.id === 0) {
+      if (!editing.id) {
         const newVoucher: Voucher = {
           ...editing,
-          id: Math.max(0, ...vouchers.map(v => v.id)) + 1,
+          id: crypto.randomUUID(),
         };
         setVouchers(prev => [...prev, newVoucher]);
       } else {
@@ -269,17 +317,35 @@ const [editing, setEditing] = useState<Voucher | null>(null);
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vouchers</h1>
           {/* Description removed as requested */}
         </div>
-        <button
-          onClick={handleAdd}
-          className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium"
-        >
-          + Add Voucher
-        </button>
+        <div className="flex gap-3">
+          {vouchers.length === 0 && !loading && (
+            <button
+              onClick={handleSeedVouchers}
+              disabled={seeding}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+            >
+              {seeding ? "Seeding..." : "🌱 Seed 30 Vouchers"}
+            </button>
+          )}
+          <button
+            onClick={handleAdd}
+            className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium"
+          >
+            + Add Voucher
+          </button>
+        </div>
       </div>
 
-      {/* Search & Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="text-gray-600 dark:text-gray-400">Loading vouchers...</div>
+        </div>
+      ) : (
+        <>
+          {/* Search & Filters */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -585,7 +651,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {editing.id === 0 ? "Add Voucher" : "Edit Voucher"}
+                  {!editing.id ? "Add Voucher" : "Edit Voucher"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
@@ -784,7 +850,7 @@ const [editing, setEditing] = useState<Voucher | null>(null);
                   onClick={handleSave}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                 >
-                  {editing.id === 0 ? "Create" : "Update"}
+                  {!editing.id ? "Create" : "Update"}
                 </button>
                 <button
                   onClick={() => setShowModal(false)}
@@ -901,6 +967,8 @@ const [editing, setEditing] = useState<Voucher | null>(null);
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

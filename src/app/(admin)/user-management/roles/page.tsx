@@ -1,64 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale } from "@/context/LocaleContext";
+import { supabase } from "@/lib/supabase";
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
-  role: string;
-  status: "active" | "inactive";
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
-
-const mockRoles: Role[] = [
-  {
-    id: 1,
-    name: "Administrator",
-    role: "admin",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Building Owner",
-    role: "building-owner",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Home Owner",
-    role: "home-owner",
-    status: "active",
-  },
-  {
-    id: 4,
-    name: "Tenant",
-    role: "tenant",
-    status: "active",
-  },
-  {
-    id: 5,
-    name: "Guest",
-    role: "guest",
-    status: "active",
-  },
-  {
-    id: 6,
-    name: "Others",
-    role: "others",
-    status: "inactive",
-  },
-];
 
 export default function UserRolesPage() {
   const { t } = useLocale();
-  const [roles] = useState<Role[]>(mockRoles);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Role;
     direction: "asc" | "desc";
   }>({
-    key: "id",
+    key: "name",
     direction: "asc",
   });
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const { data, error: fetchError } = await supabase
+          .from("roles")
+          .select("*")
+          .order("name", { ascending: true });
+
+        if (fetchError) throw fetchError;
+        setRoles(data || []);
+      } catch (err) {
+        console.error("Error fetching roles:", err);
+        setRoles([]);
+      }
+    };
+
+    fetchRoles();
+  }, []);
 
   const handleSort = (key: keyof Role) => {
     setSortConfig((prev) => ({
@@ -71,6 +53,11 @@ export default function UserRolesPage() {
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
 
+    // Handle null/undefined values
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return 1;
+    if (bValue == null) return -1;
+
     if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
     if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
@@ -81,21 +68,9 @@ export default function UserRolesPage() {
     // TODO: Implement edit functionality
   };
 
-  const handleDelete = (roleId: number) => {
+  const handleDelete = (roleId: string) => {
     console.log("Delete role:", roleId);
     // TODO: Implement delete functionality
-  };
-
-  const getRoleDisplayName = (roleKey: string): string => {
-    const roleMap: Record<string, string> = {
-      admin: t("roleAdmin"),
-      "building-owner": t("roleBuildingOwner"),
-      "home-owner": t("roleHomeOwner"),
-      tenant: t("roleTenant"),
-      guest: t("roleGuest"),
-      others: t("roleOthers"),
-    };
-    return roleMap[roleKey] || roleKey;
   };
 
   const SortIcon = ({ columnKey }: { columnKey: keyof Role }) => {
@@ -150,9 +125,9 @@ export default function UserRolesPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Roles</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">With Description</p>
               <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                {roles.filter((r) => r.status === "active").length}
+                {roles.filter((r) => r.description).length}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-500/10 rounded-lg">
@@ -166,9 +141,9 @@ export default function UserRolesPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Inactive Roles</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">System Roles</p>
               <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                {roles.filter((r) => r.status === "inactive").length}
+                {roles.filter((r) => r.name.toLowerCase().includes('admin') || r.name.toLowerCase().includes('user')).length}
               </p>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-500/10 rounded-lg">
@@ -200,26 +175,26 @@ export default function UserRolesPage() {
                   className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex items-center">
-                    NAME
+                    ROLE NAME
                     <SortIcon columnKey="name" />
                   </div>
                 </th>
                 <th
-                  onClick={() => handleSort("role")}
+                  onClick={() => handleSort("description")}
                   className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex items-center">
-                    ROLE
-                    <SortIcon columnKey="role" />
+                    DESCRIPTION
+                    <SortIcon columnKey="description" />
                   </div>
                 </th>
                 <th
-                  onClick={() => handleSort("status")}
+                  onClick={() => handleSort("created_at")}
                   className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex items-center">
-                    STATUS
-                    <SortIcon columnKey="status" />
+                    CREATED AT
+                    <SortIcon columnKey="created_at" />
                   </div>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -233,29 +208,21 @@ export default function UserRolesPage() {
                   key={role.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    #{role.id}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {role.id.substring(0, 8)}...
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {role.name}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800 dark:bg-brand-500/10 dark:text-brand-400">
-                      {getRoleDisplayName(role.role)}
-                    </span>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {role.description || '-'}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        role.status === "active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400"
-                      }`}
-                    >
-                      {role.status === "active" ? "Active" : "Inactive"}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    {role.created_at ? new Date(role.created_at).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center gap-2">

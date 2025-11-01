@@ -1,67 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Province {
-  id: number;
+  id: string;
   code: string;
   name: string;
-  nameEn: string;
-  countryId: number;
-  countryName: string;
+  name_en: string;
+  country_id: string;
   status: "active" | "inactive";
   type: "city" | "province";
+  ward_count?: number;
 }
 
-const mockProvinces: Province[] = [
-  { id: 1, code: "11", name: "Hà Nội", nameEn: "Ha Noi", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 2, code: "12", name: "Hồ Chí Minh", nameEn: "Ho Chi Minh", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 3, code: "13", name: "Đà Nẵng", nameEn: "Da Nang", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 4, code: "14", name: "Hải Phòng", nameEn: "Hai Phong", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 5, code: "15", name: "Cần Thơ", nameEn: "Can Tho", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 6, code: "16", name: "Huế", nameEn: "Hue", countryId: 1, countryName: "Việt Nam", status: "active", type: "city" },
-  { id: 7, code: "17", name: "An Giang", nameEn: "An Giang", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 8, code: "18", name: "Bắc Ninh", nameEn: "Bac Ninh", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 9, code: "19", name: "Cà Mau", nameEn: "Ca Mau", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 10, code: "20", name: "Cao Bằng", nameEn: "Cao Bang", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 11, code: "21", name: "Đắk Lắk", nameEn: "Dak Lak", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 12, code: "22", name: "Điện Biên", nameEn: "Dien Bien", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 13, code: "23", name: "Đồng Nai", nameEn: "Dong Nai", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 14, code: "24", name: "Đồng Tháp", nameEn: "Dong Thap", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 15, code: "25", name: "Gia Lai", nameEn: "Gia Lai", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 16, code: "26", name: "Hà Tĩnh", nameEn: "Ha Tinh", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 17, code: "27", name: "Hưng Yên", nameEn: "Hung Yen", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 18, code: "28", name: "Khánh Hòa", nameEn: "Khanh Hoa", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 19, code: "29", name: "Lai Châu", nameEn: "Lai Chau", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 20, code: "30", name: "Lâm Đồng", nameEn: "Lam Dong", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 21, code: "31", name: "Lạng Sơn", nameEn: "Lang Son", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 22, code: "32", name: "Lào Cai", nameEn: "Lao Cai", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 23, code: "33", name: "Nghệ An", nameEn: "Nghe An", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 24, code: "34", name: "Ninh Bình", nameEn: "Ninh Binh", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 25, code: "35", name: "Phú Thọ", nameEn: "Phu Tho", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 26, code: "36", name: "Quảng Ngãi", nameEn: "Quang Ngai", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 27, code: "37", name: "Quảng Ninh", nameEn: "Quang Ninh", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 28, code: "38", name: "Quảng Trị", nameEn: "Quang Tri", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 29, code: "39", name: "Sơn La", nameEn: "Son La", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 30, code: "40", name: "Tây Ninh", nameEn: "Tay Ninh", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 31, code: "41", name: "Thái Nguyên", nameEn: "Thai Nguyen", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 32, code: "42", name: "Thanh Hóa", nameEn: "Thanh Hoa", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 33, code: "43", name: "Tuyên Quang", nameEn: "Tuyen Quang", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-  { id: 34, code: "44", name: "Vĩnh Long", nameEn: "Vinh Long", countryId: 1, countryName: "Việt Nam", status: "active", type: "province" },
-];
-
 export default function ProvincePage() {
-  const [provinces] = useState<Province[]>(mockProvinces);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "city" | "province">("all");
 
-  const filteredProvinces = provinces.filter(province => {
-    const matchesSearch = province.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      province.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      province.code.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || province.type === filterType;
-    return matchesSearch && matchesType;
-  });
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      // Fetch provinces with ward counts
+      const { data: provincesData, error: provincesError } = await supabase
+        .from("provinces")
+        .select("id, code, name, name_en, country_id, status, type")
+        .order("name", { ascending: true });
+      
+      if (provincesError) {
+        setError(provincesError.message);
+        setProvinces([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch ward counts for each province
+      const provincesWithCounts = await Promise.all(
+        (provincesData || []).map(async (province: Province) => {
+          const { count } = await supabase
+            .from("wards")
+            .select("*", { count: "exact", head: true })
+            .eq("province_id", province.id);
+          
+          return {
+            ...province,
+            ward_count: count || 0
+          };
+        })
+      );
+
+      setProvinces(provincesWithCounts as Province[]);
+      setIsLoading(false);
+    };
+    load();
+  }, []);
+
+  const filteredProvinces = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    return provinces.filter((province) => {
+      const matchesSearch =
+        province.name.toLowerCase().includes(term) ||
+        province.name_en.toLowerCase().includes(term) ||
+        province.code.toLowerCase().includes(term);
+      const matchesType = filterType === "all" || province.type === filterType;
+      return matchesSearch && matchesType;
+    });
+  }, [provinces, searchTerm, filterType]);
 
   const stats = {
     total: provinces.length,
@@ -71,6 +80,12 @@ export default function ProvincePage() {
 
   return (
     <div className="space-y-6">
+      {isLoading && (
+        <div className="text-sm text-gray-500">Loading provinces...</div>
+      )}
+      {error && (
+        <div className="text-sm text-red-600">Error: {error}</div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Province Management</h1>
@@ -128,7 +143,7 @@ export default function ProvincePage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Province Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">English Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-                {/* Removed Districts column */}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ward Quantity</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
@@ -143,7 +158,7 @@ export default function ProvincePage() {
                     {province.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {province.nameEn}
+                    {province.name_en}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -154,7 +169,9 @@ export default function ProvincePage() {
                       {province.type}
                     </span>
                   </td>
-                  {/* Removed Districts cell */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <span className="font-medium">{province.ward_count || 0}</span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       province.status === 'active'
