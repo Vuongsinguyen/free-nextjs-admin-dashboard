@@ -1,22 +1,25 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Facility {
-  id: number;
+  id: string;
   name: string;
   category: string;
   location: string;
   capacity: number;
-  currentOccupancy: number;
+  current_occupancy: number;
   status: "available" | "occupied" | "maintenance" | "closed";
   amenities: string[];
-  pricePerHour: number;
+  price_per_hour: number;
   manager: string;
-  lastMaintenance: string;
-  nextMaintenance: string;
+  last_maintenance: string;
+  next_maintenance: string;
   rating: number;
-  totalBookings: number;
+  total_bookings: number;
+  description?: string;
+  image_url?: string;
 }
 
 export default function FacilitiesPage() {
@@ -31,174 +34,27 @@ export default function FacilitiesPage() {
 
   // Load facilities
   useEffect(() => {
-    const loadFacilities = () => {
+    const loadFacilities = async () => {
       setIsLoading(true);
-      setTimeout(() => {
-        const mockFacilities: Facility[] = [
-          {
-            id: 1,
-            name: "Swimming Pool A",
-            category: "Sports & Recreation",
-            location: "Building A - Floor 1",
-            capacity: 50,
-            currentOccupancy: 23,
-            status: "available",
-            amenities: ["Heated Pool", "Changing Rooms", "Showers", "Lockers"],
-            pricePerHour: 150000,
-            manager: "Nguyen Van A",
-            lastMaintenance: "2025-10-15",
-            nextMaintenance: "2025-11-15",
-            rating: 4.5,
-            totalBookings: 234,
-          },
-          {
-            id: 2,
-            name: "Gym & Fitness Center",
-            category: "Sports & Recreation",
-            location: "Building B - Floor 2",
-            capacity: 80,
-            currentOccupancy: 65,
-            status: "occupied",
-            amenities: ["Cardio Equipment", "Weight Training", "Personal Trainer", "Sauna"],
-            pricePerHour: 200000,
-            manager: "Tran Thi B",
-            lastMaintenance: "2025-10-20",
-            nextMaintenance: "2025-11-20",
-            rating: 4.8,
-            totalBookings: 567,
-          },
-          {
-            id: 3,
-            name: "Meeting Room 101",
-            category: "Meeting & Events",
-            location: "Building A - Floor 3",
-            capacity: 20,
-            currentOccupancy: 0,
-            status: "available",
-            amenities: ["Projector", "Whiteboard", "Video Conference", "WiFi"],
-            pricePerHour: 300000,
-            manager: "Le Van C",
-            lastMaintenance: "2025-10-25",
-            nextMaintenance: "2025-12-25",
-            rating: 4.3,
-            totalBookings: 189,
-          },
-          {
-            id: 4,
-            name: "Tennis Court 1",
-            category: "Sports & Recreation",
-            location: "Outdoor - East Wing",
-            capacity: 4,
-            currentOccupancy: 0,
-            status: "maintenance",
-            amenities: ["Night Lighting", "Equipment Rental", "Seating Area"],
-            pricePerHour: 100000,
-            manager: "Pham Thi D",
-            lastMaintenance: "2025-10-28",
-            nextMaintenance: "2025-10-30",
-            rating: 4.2,
-            totalBookings: 145,
-          },
-          {
-            id: 5,
-            name: "Conference Hall",
-            category: "Meeting & Events",
-            location: "Building C - Floor 5",
-            capacity: 200,
-            currentOccupancy: 150,
-            status: "occupied",
-            amenities: ["Stage", "Sound System", "Projector", "Catering Service", "WiFi"],
-            pricePerHour: 1000000,
-            manager: "Hoang Van E",
-            lastMaintenance: "2025-10-10",
-            nextMaintenance: "2025-11-10",
-            rating: 4.9,
-            totalBookings: 89,
-          },
-          {
-            id: 6,
-            name: "Kids Playground",
-            category: "Recreation",
-            location: "Outdoor - West Wing",
-            capacity: 30,
-            currentOccupancy: 12,
-            status: "available",
-            amenities: ["Slides", "Swings", "Climbing Frame", "Safety Padding", "Restrooms"],
-            pricePerHour: 50000,
-            manager: "Nguyen Thi F",
-            lastMaintenance: "2025-10-22",
-            nextMaintenance: "2025-11-22",
-            rating: 4.6,
-            totalBookings: 312,
-          },
-          {
-            id: 7,
-            name: "Yoga Studio",
-            category: "Wellness",
-            location: "Building B - Floor 4",
-            capacity: 25,
-            currentOccupancy: 0,
-            status: "available",
-            amenities: ["Yoga Mats", "Meditation Room", "Changing Rooms", "Air Conditioning"],
-            pricePerHour: 180000,
-            manager: "Tran Van G",
-            lastMaintenance: "2025-10-18",
-            nextMaintenance: "2025-11-18",
-            rating: 4.7,
-            totalBookings: 278,
-          },
-          {
-            id: 8,
-            name: "BBQ Area",
-            category: "Recreation",
-            location: "Outdoor - Rooftop",
-            capacity: 40,
-            currentOccupancy: 0,
-            status: "closed",
-            amenities: ["BBQ Grills", "Tables & Chairs", "Sink", "Covered Area"],
-            pricePerHour: 250000,
-            manager: "Le Thi H",
-            lastMaintenance: "2025-10-05",
-            nextMaintenance: "2025-11-05",
-            rating: 4.4,
-            totalBookings: 156,
-          },
-          {
-            id: 9,
-            name: "Library & Study Room",
-            category: "Education",
-            location: "Building A - Floor 2",
-            capacity: 60,
-            currentOccupancy: 34,
-            status: "available",
-            amenities: ["Books", "Private Study Rooms", "WiFi", "Printing Service", "Coffee Machine"],
-            pricePerHour: 0,
-            manager: "Pham Van I",
-            lastMaintenance: "2025-10-12",
-            nextMaintenance: "2025-11-12",
-            rating: 4.8,
-            totalBookings: 445,
-          },
-          {
-            id: 10,
-            name: "Basketball Court",
-            category: "Sports & Recreation",
-            location: "Outdoor - North Wing",
-            capacity: 10,
-            currentOccupancy: 8,
-            status: "occupied",
-            amenities: ["Night Lighting", "Scoreboard", "Seating", "Water Fountain"],
-            pricePerHour: 120000,
-            manager: "Hoang Thi K",
-            lastMaintenance: "2025-10-08",
-            nextMaintenance: "2025-11-08",
-            rating: 4.5,
-            totalBookings: 298,
-          },
-        ];
-        setFacilities(mockFacilities);
+      try {
+        const { data, error } = await supabase
+          .from('facilities')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching facilities:', error);
+          throw error;
+        }
+
+        setFacilities(data || []);
+      } catch (error) {
+        console.error('Failed to load facilities:', error);
+        // Fallback to empty array on error
+        setFacilities([]);
+      } finally {
         setIsLoading(false);
-      }, 800);
+      }
     };
 
     loadFacilities();

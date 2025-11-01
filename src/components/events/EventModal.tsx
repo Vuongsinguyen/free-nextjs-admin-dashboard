@@ -62,6 +62,7 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string>("");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (event) {
@@ -134,12 +135,19 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
 
+      console.log(`📤 Uploading ${file.name} to ${filePath}...`);
+
       const { error } = await supabase.storage
         .from("events")
         .upload(filePath, file);
 
       if (error) {
-        console.error(`Error uploading ${file.name}:`, error);
+        console.error(`❌ Error uploading ${file.name}:`, error);
+        console.error("Upload error details:", {
+          message: error.message,
+          name: error.name,
+          error: error
+        });
         throw error;
       }
 
@@ -147,6 +155,7 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
         .from("events")
         .getPublicUrl(filePath);
 
+      console.log(`✅ Uploaded successfully: ${publicUrl}`);
       uploadedUrls.push(publicUrl);
     }
 
@@ -196,7 +205,6 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
         pdf_files: allPdfUrls.length > 0 ? allPdfUrls : null,
         image_files: allImageUrls.length > 0 ? allImageUrls : null,
         created_by: user.email,
-        user_id: user.id, // Thêm user_id để RLS policy hoạt động
       };
 
       if (event) {
@@ -217,9 +225,17 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
       setUploadProgress("");
       onSave();
       onClose();
-    } catch (error) {
-      console.error("Error saving event:", error);
-      alert(`Error saving event: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } catch (err: unknown) {
+      const error = err as { message?: string; details?: string; hint?: string; code?: string };
+      console.error("=== ERROR SAVING EVENT ===");
+      console.error("Full error object:", error);
+      console.error("Error message:", error?.message);
+      console.error("Error details:", error?.details);
+      console.error("Error hint:", error?.hint);
+      console.error("Error code:", error?.code);
+      
+      const errorMessage = error?.message || error?.details || "Unknown error";
+      alert(`Error saving event: ${errorMessage}`);
       setUploadProgress("");
     } finally {
       setIsLoading(false);
@@ -425,9 +441,23 @@ You can include:
                     <p className="text-xs text-gray-600 dark:text-gray-400">Existing PDFs:</p>
                     {existingPdfUrls.map((url, index) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                        <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">
-                          📄 {url.split("/").pop()}
-                        </span>
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                            📄 {url.split("/").pop()}
+                          </span>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-medium flex items-center gap-1"
+                            title="Open PDF in new tab"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Open
+                          </a>
+                        </div>
                         {!viewMode && (
                           <button
                             type="button"
@@ -482,7 +512,12 @@ You can include:
                     {existingImageUrls.map((url, index) => (
                       <div key={index} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={`Event ${index + 1}`} className="w-full h-24 object-cover rounded" />
+                        <img 
+                          src={url} 
+                          alt={`Event ${index + 1}`} 
+                          className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setLightboxImage(url)}
+                        />
                         {!viewMode && (
                           <button
                             type="button"
@@ -492,6 +527,11 @@ You can include:
                             ✕
                           </button>
                         )}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/30 rounded">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                          </svg>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -499,26 +539,35 @@ You can include:
 
                 {!viewMode && imageFiles.length > 0 && (
                   <div className="mt-2 grid grid-cols-3 gap-2">
-                    {imageFiles.map((file, index) => (
-                      <div key={index} className="relative group">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt={file.name} 
-                          className="w-full h-24 object-cover rounded border-2 border-blue-300" 
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImageFile(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          ✕
-                        </button>
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
-                          {file.name}
+                    {imageFiles.map((file, index) => {
+                      const previewUrl = URL.createObjectURL(file);
+                      return (
+                        <div key={index} className="relative group">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                            src={previewUrl} 
+                            alt={file.name} 
+                            className="w-full h-24 object-cover rounded border-2 border-blue-300 cursor-pointer hover:opacity-80 transition-opacity" 
+                            onClick={() => setLightboxImage(previewUrl)}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImageFile(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          >
+                            ✕
+                          </button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
+                            {file.name}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/30 rounded">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                            </svg>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -576,6 +625,30 @@ You can include:
           </form>
         </div>
       </div>
+
+      {/* Lightbox for image preview */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[9999999]"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={lightboxImage} 
+            alt="Preview" 
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
