@@ -33,6 +33,7 @@ export default function EventsPage() {
   const [filterAudience, setFilterAudience] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [viewMode, setViewMode] = useState(false);
 
   // Fetch events from database
   useEffect(() => {
@@ -122,11 +123,19 @@ export default function EventsPage() {
 
   const handleAddEvent = () => {
     setEditingEvent(null);
+    setViewMode(false);
     setShowModal(true);
   };
 
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
+    setViewMode(false);
+    setShowModal(true);
+  };
+
+  const handleViewEvent = (event: Event) => {
+    setEditingEvent(event);
+    setViewMode(true);
     setShowModal(true);
   };
 
@@ -287,6 +296,7 @@ export default function EventsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => handleViewEvent(event)}
                             className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
                             title="View details"
                           >
@@ -381,6 +391,7 @@ export default function EventsPage() {
           event={editingEvent}
           onClose={() => setShowModal(false)}
           onSave={handleSaveEvent}
+          viewMode={viewMode}
         />
       )}
     </div>

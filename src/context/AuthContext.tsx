@@ -98,6 +98,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Error getting session:', error);
+        
+        // Handle invalid refresh token by clearing session
+        if (error.message?.includes('refresh_token_not_found') || error.message?.includes('Invalid Refresh Token')) {
+          console.warn('Invalid refresh token detected, clearing session...');
+          await supabase.auth.signOut();
+          setIsAuthenticated(false);
+          setUser(null);
+          router.push('/signin');
+          setLoading(false);
+          return;
+        }
+        
         setLoading(false);
         return;
       }
@@ -149,42 +161,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       async (event: string, session: any) => {
         console.log('Auth state changed:', event, session?.user?.email);
 
-        if (session?.user) {
-          // Try to fetch user profile, but don't fail authentication if it fails
-          const userProfile = await fetchUserProfile(session.user.id);
-          if (userProfile) {
-            setUser(userProfile);
-            console.log('Successfully loaded user profile from database:', userProfile);
-          } else {
-            // Create basic user from session if profile fetch fails
-            const basicUser: User = {
-              id: session.user.id,
-              email: session.user.email || '',
-              name: session.user.user_metadata?.name || session.user.email || 'Unknown User',
-              role: session.user.user_metadata?.role || 'user',
-              permissions: [],
-              status: 'active',
-            };
-            setUser(basicUser);
-            console.log('Using basic user data from session due to profile fetch failure:', {
-              userMetadata: session.user.user_metadata,
-              basicUser
-            });
+        try {
+          // Handle token refresh errors
+          if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
           }
-          setIsAuthenticated(true);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
+          
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out');
+            setUser(null);
+            setIsAuthenticated(false);
+            setLoading(false);
+            return;
+          }
 
-        setLoading(false);
+          if (session?.user) {
+            // Try to fetch user profile, but don't fail authentication if it fails
+            const userProfile = await fetchUserProfile(session.user.id);
+            if (userProfile) {
+              setUser(userProfile);
+              console.log('Successfully loaded user profile from database:', userProfile);
+            } else {
+              // Create basic user from session if profile fetch fails
+              const basicUser: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                name: session.user.user_metadata?.name || session.user.email || 'Unknown User',
+                role: session.user.user_metadata?.role || 'user',
+                permissions: [],
+                status: 'active',
+              };
+              setUser(basicUser);
+              console.log('Using basic user data from session due to profile fetch failure:', {
+                userMetadata: session.user.user_metadata,
+                basicUser
+              });
+            }
+            setIsAuthenticated(true);
+          } else {
+            setUser(null);
+            setIsAuthenticated(false);
+          }
+
+          setLoading(false);
+        } catch (error: any) {
+          console.error('Error in auth state change handler:', error);
+          
+          // Handle refresh token errors
+          if (error?.message?.includes('refresh_token_not_found') || error?.message?.includes('Invalid Refresh Token')) {
+            console.warn('Invalid refresh token detected, signing out...');
+            await supabase.auth.signOut();
+            setUser(null);
+            setIsAuthenticated(false);
+            router.push('/signin');
+          }
+        }
       }
     );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> => {
     try {

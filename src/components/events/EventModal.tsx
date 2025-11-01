@@ -28,6 +28,7 @@ interface EventModalProps {
   event?: Event | null;
   onClose: () => void;
   onSave: () => void;
+  viewMode?: boolean;
 }
 
 const audienceOptions = [
@@ -42,8 +43,9 @@ const statusOptions = [
   { value: "active", label: "Active" },
 ];
 
-export default function EventModal({ event, onClose, onSave }: EventModalProps) {
+export default function EventModal({ event, onClose, onSave, viewMode = false }: EventModalProps) {
   const { user } = useAuth();
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -154,6 +156,11 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Don't submit if in view mode
+    if (viewMode) {
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -249,12 +256,12 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl my-8">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[999999]">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {event ? "Edit Event" : "Create New Event"}
+              {viewMode ? "View Event Details" : event ? "Edit Event" : "Create New Event"}
             </h2>
             <button
               onClick={onClose}
@@ -267,7 +274,7 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Title <span className="text-red-500">*</span>
@@ -276,9 +283,11 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  readOnly={viewMode}
+                  disabled={viewMode}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
                     errors.title ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
-                  }`}
+                  } ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                   placeholder="Enter event title"
                 />
                 {errors.title && (
@@ -293,10 +302,12 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  readOnly={viewMode}
+                  disabled={viewMode}
                   rows={3}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
                     errors.description ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
-                  }`}
+                  } ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                   placeholder="Enter event description"
                 />
                 {errors.description && (
@@ -311,7 +322,8 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                 <select
                   value={formData.target_audience}
                   onChange={(e) => setFormData({ ...formData, target_audience: e.target.value as "all" | "specific_buildings" | "specific_apartments" })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  disabled={viewMode}
+                  className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                 >
                   {audienceOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -330,9 +342,11 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                     type="date"
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                    readOnly={viewMode}
+                    disabled={viewMode}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
                       errors.start_date ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
-                    }`}
+                    } ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                   />
                   {errors.start_date && (
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.start_date}</p>
@@ -347,9 +361,11 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                     type="date"
                     value={formData.end_date}
                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                    readOnly={viewMode}
+                    disabled={viewMode}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
                       errors.end_date ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
-                    }`}
+                    } ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                   />
                   {errors.end_date && (
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.end_date}</p>
@@ -365,11 +381,13 @@ export default function EventModal({ event, onClose, onSave }: EventModalProps) 
                   <textarea
                     value={formData.text_content}
                     onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
+                    readOnly={viewMode}
+                    disabled={viewMode}
                     rows={8}
                     className={`w-full px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white border-0 ${
                       errors.text_content ? "ring-2 ring-red-300 dark:ring-red-600" : ""
-                    }`}
-                    placeholder={`Enter detailed event content here...
+                    } ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
+                    placeholder={viewMode ? "" : `Enter detailed event content here...
 
 You can include:
 • Location details
@@ -391,13 +409,15 @@ You can include:
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PDF Documents
                 </label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={handlePdfChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
-                />
+                {!viewMode && (
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={handlePdfChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+                  />
+                )}
                 
                 {existingPdfUrls.length > 0 && (
                   <div className="mt-2 space-y-2">
@@ -407,19 +427,21 @@ You can include:
                         <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">
                           📄 {url.split("/").pop()}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeExistingPdf(index)}
-                          className="ml-2 text-red-500 hover:text-red-700"
-                        >
-                          ✕
-                        </button>
+                        {!viewMode && (
+                          <button
+                            type="button"
+                            onClick={() => removeExistingPdf(index)}
+                            className="ml-2 text-red-500 hover:text-red-700"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
 
-                {pdfFiles.length > 0 && (
+                {!viewMode && pdfFiles.length > 0 && (
                   <div className="mt-2 space-y-2">
                     <p className="text-xs text-gray-600 dark:text-gray-400">New PDFs to upload:</p>
                     {pdfFiles.map((file, index) => (
@@ -444,13 +466,15 @@ You can include:
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Images
                 </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
-                />
+                {!viewMode && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+                  />
+                )}
                 
                 {existingImageUrls.length > 0 && (
                   <div className="mt-2 grid grid-cols-3 gap-2">
@@ -458,19 +482,21 @@ You can include:
                       <div key={index} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={url} alt={`Event ${index + 1}`} className="w-full h-24 object-cover rounded" />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          ✕
-                        </button>
+                        {!viewMode && (
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
 
-                {imageFiles.length > 0 && (
+                {!viewMode && imageFiles.length > 0 && (
                   <div className="mt-2 grid grid-cols-3 gap-2">
                     {imageFiles.map((file, index) => (
                       <div key={index} className="relative group">
@@ -503,7 +529,8 @@ You can include:
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value as "active" | "scheduled" | "expired" | "draft" })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  disabled={viewMode}
+                  className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${viewMode ? "bg-gray-50 dark:bg-gray-800 cursor-not-allowed" : ""}`}
                 >
                   {statusOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -523,25 +550,27 @@ You can include:
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+            <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isLoading}
                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
               >
-                Cancel
+                {viewMode ? "Close" : "Cancel"}
               </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isLoading && (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                )}
-                {event ? "Update Event" : "Create Event"}
-              </button>
+              {!viewMode && (
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isLoading && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {event ? "Update Event" : "Create Event"}
+                </button>
+              )}
             </div>
           </form>
         </div>
