@@ -1,5 +1,6 @@
 export interface User {
   id: string; // Changed from number to string for Supabase UUID
+  displayCode?: string; // Auto-generated display code (2 chars from role + 6-digit number)
   name: string;
   email: string;
   role: string;

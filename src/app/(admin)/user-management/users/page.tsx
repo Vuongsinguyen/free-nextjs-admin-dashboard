@@ -23,7 +23,7 @@ export default function UsersPage() {
     status: "",
   });
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: "id",
+    key: "displayCode",
     direction: "asc",
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +48,7 @@ export default function UsersPage() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const usersData: User[] = (data || []).map((user: any) => ({
           id: user.id,
+          displayCode: user.display_code,
           name: user.name || user.full_name || user.email?.split('@')[0] || 'Unknown',
           email: user.email,
           role: user.role || 'all_users',
@@ -311,42 +312,6 @@ export default function UsersPage() {
         onFiltersChange={setFilters}
         users={users}
       />
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {users.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.totalUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-green-600">
-            {users.filter(u => u.status === "active").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.activeUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-red-600">
-            {users.filter(u => u.status === "inactive").length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.inactiveUsers')}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-2xl font-bold text-blue-600">
-            {filteredUsers.length}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {t('userManagement.filteredResults')}
-          </div>
-        </div>
-      </div>
 
       {/* User Table */}
       <UserTable

@@ -54,6 +54,7 @@ export default function ResidentPage() {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mappedUsers: User[] = (usersData || []).map((dbUser: any) => ({
             id: dbUser.id,
+            displayCode: dbUser.display_code,
             name: dbUser.name || dbUser.email?.split('@')[0] || 'Unknown',
             email: dbUser.email || '',
             role: dbUser.role || 'resident',

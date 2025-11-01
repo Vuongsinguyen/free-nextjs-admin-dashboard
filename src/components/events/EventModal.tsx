@@ -1,24 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Event {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  targetAudience: "all" | "specific_buildings" | "specific_apartments";
-  targetBuildings?: string[];
-  targetApartments?: string[];
-  startDate: string;
-  endDate: string;
-  shopName?: string;
-  shopType?: "in_building" | "external";
-  textContent: string;
-  pdfFiles?: string[];
-  imageFiles?: string[];
+  target_audience: "all" | "specific_buildings" | "specific_apartments";
+  target_buildings?: string[];
+  target_apartments?: string[];
+  start_date: string;
+  end_date: string;
+  shop_name?: string;
+  shop_type?: "in_building" | "external";
+  text_content: string;
+  pdf_files?: string[];
+  image_files?: string[];
   status: "active" | "scheduled" | "expired" | "draft";
-  createdBy: string;
-  createdAt: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface EventModalProps {

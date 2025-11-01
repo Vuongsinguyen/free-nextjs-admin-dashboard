@@ -18,6 +18,7 @@ export default function SignInForm() {
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [isPreloading, setIsPreloading] = useState(false);
   const { login, loading, logout } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const router = useRouter();
@@ -95,12 +96,36 @@ export default function SignInForm() {
       }
 
       if (synced) {
-        console.log('🚀 Session confirmed! Redirecting to /residents...');
-        // Use router.push for better HMR compatibility
-        setTimeout(() => {
-          console.log('🔄 NOW executing redirect with router.push...');
-          router.push('/residents');
-        }, 200);
+        console.log('🚀 Session confirmed! Preloading menu before redirect...');
+        
+        // Hiển thị loading indicator
+        setIsPreloading(true);
+        
+        // Preload menu trước khi redirect để tránh loading lag
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData.session) {
+            console.log('📋 Fetching menu data...');
+            const menuResponse = await fetch('/api/menu', {
+              headers: {
+                'Authorization': `Bearer ${sessionData.session.access_token}`,
+              },
+            });
+            
+            if (menuResponse.ok) {
+              const menuResult = await menuResponse.json();
+              console.log('✅ Menu preloaded successfully:', menuResult.data?.length || 0, 'groups');
+            } else {
+              console.warn('⚠️ Menu preload failed, but continuing with redirect');
+            }
+          }
+        } catch (menuError) {
+          console.warn('⚠️ Error preloading menu:', menuError);
+          // Continue anyway - menu will load after redirect
+        }
+        
+        console.log('🔄 NOW executing redirect with router.push...');
+        router.push('/residents');
       } else {
         console.warn('⚠️ Session chưa sync hoàn toàn nhưng vẫn redirect thử...');
         setTimeout(() => {
@@ -115,7 +140,20 @@ export default function SignInForm() {
     }
   };
   return (
-    <div className="flex flex-col flex-1 lg:w-1/2 w-full relative">
+    <>
+      {/* Loading Overlay khi đang preload menu */}
+      {isPreloading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 dark:text-gray-300 font-medium">
+              {t('auth.signin.loadingMenu') || 'Loading menu...'}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      <div className="flex flex-col flex-1 lg:w-1/2 w-full relative">
       {/* Language Switcher */}
       <div className="absolute top-6 right-6 z-10">
         <div className="relative">
@@ -267,5 +305,6 @@ export default function SignInForm() {
         </div>
       </div>
     </div>
+    </>
   );
 }

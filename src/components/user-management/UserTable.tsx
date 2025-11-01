@@ -119,11 +119,11 @@ export default function UserTable({
             <tr>
               <th className="px-6 py-3 text-left">
                 <button
-                  onClick={() => onSort("id")}
+                  onClick={() => onSort("displayCode")}
                   className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-100"
                 >
-                  ID
-                  {getSortIcon("id")}
+                  CODE
+                  {getSortIcon("displayCode")}
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
@@ -200,7 +200,9 @@ export default function UserTable({
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                  #{user.id}
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                    {user.displayCode || 'N/A'}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
