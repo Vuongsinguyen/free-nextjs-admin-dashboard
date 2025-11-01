@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -49,8 +49,6 @@ interface BookingFormData {
   start_time: string;
   end_time: string;
   duration: number;
-  total_price: number;
-  payment_status: "paid" | "unpaid" | "refunded";
   attendees?: number;
   purpose: string;
   special_requests: string;
@@ -74,8 +72,6 @@ export default function FacilityBookingsPage() {
     start_time: "",
     end_time: "",
     duration: 0,
-    total_price: 0,
-    payment_status: "unpaid",
     attendees: 1,
     purpose: "",
     special_requests: "",
@@ -222,6 +218,32 @@ export default function FacilityBookingsPage() {
     return diff > 0 ? diff : 0;
   };
 
+  // Get booked time slots for a specific facility and date
+  const getBookedTimeSlots = useMemo(() => {
+    if (!formData.facility_id || !formData.booking_date) return [];
+    
+    return bookings
+      .filter(booking => 
+        booking.facility_id === formData.facility_id && 
+        booking.booking_date === formData.booking_date
+      )
+      .map(booking => ({
+        start: booking.start_time,
+        end: booking.end_time
+      }));
+  }, [bookings, formData.facility_id, formData.booking_date]);
+
+  // Check if a time slot overlaps with existing bookings
+  const isTimeSlotBooked = (time: string) => {
+    if (!time || getBookedTimeSlots.length === 0) return false;
+    
+    return getBookedTimeSlots.some((slot: { start: string; end: string }) => {
+      const slotStart = slot.start.substring(0, 5);
+      const slotEnd = slot.end.substring(0, 5);
+      return time >= slotStart && time < slotEnd;
+    });
+  };
+
   const handleCreateBooking = async () => {
     // Validation
     if (!formData.facility_id || !formData.user_name || !formData.user_email || 
@@ -244,6 +266,21 @@ export default function FacilityBookingsPage() {
       return;
     }
 
+    // Check for time slot conflicts
+    const hasConflict = getBookedTimeSlots.some((slot: { start: string; end: string }) => {
+      const slotStart = slot.start.substring(0, 5);
+      const slotEnd = slot.end.substring(0, 5);
+      const newStart = formData.start_time;
+      const newEnd = formData.end_time;
+      
+      return (newStart < slotEnd && newEnd > slotStart);
+    });
+
+    if (hasConflict) {
+      alert("This time slot overlaps with an existing booking. Please choose a different time.");
+      return;
+    }
+
     setSaving(true);
     try {
       const bookingCode = generateBookingCode();
@@ -260,8 +297,8 @@ export default function FacilityBookingsPage() {
           start_time: formData.start_time,
           end_time: formData.end_time,
           duration: duration,
-          total_price: formData.total_price,
-          payment_status: formData.payment_status,
+          total_price: 0,
+          payment_status: "unpaid",
           attendees: formData.attendees || null,
           purpose: formData.purpose || null,
           special_requests: formData.special_requests || null,
@@ -283,8 +320,6 @@ export default function FacilityBookingsPage() {
         start_time: "",
         end_time: "",
         duration: 0,
-        total_price: 0,
-        payment_status: "unpaid",
         attendees: 1,
         purpose: "",
         special_requests: "",
@@ -796,13 +831,36 @@ export default function FacilityBookingsPage() {
                 <input
                   type="date"
                   value={formData.booking_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, booking_date: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, booking_date: e.target.value, start_time: "", end_time: "" });
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
                   required
                 />
               </div>
+
+              {/* Show booked time slots if facility and date are selected */}
+              {formData.facility_id && formData.booking_date && getBookedTimeSlots.length > 0 && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <h4 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                    ⚠️ Already Booked Time Slots
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {getBookedTimeSlots.map((slot, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-md"
+                      >
+                        {slot.start.substring(0, 5)} - {slot.end.substring(0, 5)}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-2">
+                    Please avoid selecting time ranges that overlap with these slots.
+                  </p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -817,7 +875,13 @@ export default function FacilityBookingsPage() {
                     }
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
                     required
+                    disabled={!formData.facility_id || !formData.booking_date}
                   />
+                  {formData.start_time && isTimeSlotBooked(formData.start_time) && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                      ⚠️ This time is within a booked slot
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -831,50 +895,13 @@ export default function FacilityBookingsPage() {
                     }
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
                     required
+                    disabled={!formData.facility_id || !formData.booking_date}
                   />
-                </div>
-              </div>
-
-              {/* Pricing and Payment */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Total Price <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.total_price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        total_price: parseFloat(e.target.value),
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Payment Status <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.payment_status}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        payment_status: e.target.value as "paid" | "unpaid" | "refunded",
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
-                    required
-                  >
-                    <option value="unpaid">Unpaid</option>
-                    <option value="paid">Paid</option>
-                    <option value="refunded">Refunded</option>
-                  </select>
+                  {formData.end_time && formData.start_time && formData.end_time <= formData.start_time && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                      ⚠️ End time must be after start time
+                    </p>
+                  )}
                 </div>
               </div>
 
