@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import EventModal from "@/components/events/EventModal"; // TODO: Update to use snake_case
+import EventModal from "@/components/events/EventModal";
 import { supabase } from "@/lib/supabase";
 
 interface Event {
@@ -31,8 +31,8 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterAudience, setFilterAudience] = useState<string>("");
-  // const [showModal, setShowModal] = useState(false); // TODO: Re-enable when EventModal is updated
-  // const [editingEvent, setEditingEvent] = useState<Event | null>(null); // TODO: Re-enable when EventModal is updated
+  const [showModal, setShowModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   // Fetch events from database
   useEffect(() => {
@@ -120,34 +120,20 @@ export default function EventsPage() {
     }
   };
 
-  // TODO: Re-enable when EventModal component is updated to use snake_case
-  // const handleAddEvent = () => {
-  //   setEditingEvent(null);
-  //   setShowModal(true);
-  // };
+  const handleAddEvent = () => {
+    setEditingEvent(null);
+    setShowModal(true);
+  };
 
-  // const handleEditEvent = (event: Event) => {
-  //   setEditingEvent(event);
-  //   setShowModal(true);
-  // };
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setShowModal(true);
+  };
 
-  // const handleSaveEvent = (eventData: Partial<Event>) => {
-  //   if (editingEvent) {
-  //     // Update existing event
-  //     setEvents(prev =>
-  //       prev.map(event =>
-  //         event.id === editingEvent.id
-  //           ? { ...event, ...eventData, updated_at: new Date().toISOString() }
-  //           : event
-  //       )
-  //     );
-  //   } else {
-  //     // Add new event - for now just close modal
-  //     // In production, this would call an API to create the event
-  //     console.log('Create event:', eventData);
-  //   }
-  //   setShowModal(false);
-  // };
+  const handleSaveEvent = () => {
+    // Refresh events list after save
+    fetchEvents();
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -167,7 +153,7 @@ export default function EventsPage() {
             </button>
           )}
           <button
-            onClick={() => console.log('Add event - TODO: Update EventModal')}
+            onClick={handleAddEvent}
             className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             + Create Event
@@ -325,7 +311,7 @@ export default function EventsPage() {
                             </svg>
                           </button>
                           <button
-                            onClick={() => console.log('Edit event:', event.id)}
+                            onClick={() => handleEditEvent(event)}
                             className="p-1.5 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded"
                             title="Edit"
                           >
@@ -390,14 +376,13 @@ export default function EventsPage() {
       </div>
 
       {/* Event Modal */}
-      {/* TODO: Fix EventModal component to use snake_case fields */}
-      {/* {showModal && (
+      {showModal && (
         <EventModal
           event={editingEvent}
           onClose={() => setShowModal(false)}
           onSave={handleSaveEvent}
         />
-      )} */}
+      )}
     </div>
   );
 }
