@@ -27,6 +27,7 @@ interface Booking {
   start_time: string;
   end_time: string;
   duration: number;
+  status: string;
   total_price: number;
   payment_status: "paid" | "unpaid" | "refunded";
   attendees: number | null;
@@ -134,44 +135,18 @@ export default function FacilityBookingsPage() {
     }
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "unpaid":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      case "refunded":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-    }
-  };
-
   const filteredBookings = bookings.filter((booking) => {
     const facilityMatch = filterFacility === "all" || booking.facility_id === filterFacility;
     return facilityMatch;
   });
-
-  const getEventColorByPayment = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "paid":
-        return "#10b981"; // green
-      case "unpaid":
-        return "#ef4444"; // red
-      case "refunded":
-        return "#6b7280"; // gray
-      default:
-        return "#6b7280"; // gray
-    }
-  };
 
   const calendarEvents: EventInput[] = filteredBookings.map((booking) => ({
     id: booking.id,
     title: `${booking.facility?.name || "Unknown"} - ${booking.user_name}`,
     start: `${booking.booking_date}T${booking.start_time}`,
     end: `${booking.booking_date}T${booking.end_time}`,
-    backgroundColor: getEventColorByPayment(booking.payment_status),
-    borderColor: getEventColorByPayment(booking.payment_status),
+    backgroundColor: "#3b82f6", // blue
+    borderColor: "#3b82f6", // blue
     extendedProps: {
       booking,
     },
@@ -181,13 +156,6 @@ export default function FacilityBookingsPage() {
     const booking = info.event.extendedProps.booking as BookingWithFacility;
     setSelectedBooking(booking);
     setShowModal(true);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
   };
 
   const formatDate = (date: string) => {
@@ -245,6 +213,14 @@ export default function FacilityBookingsPage() {
   };
 
   const handleCreateBooking = async () => {
+    // Check authentication
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      console.error('Authentication error:', sessionError);
+      alert("You must be logged in to create a booking. Please sign in and try again.");
+      return;
+    }
+
     // Validation
     if (!formData.facility_id || !formData.user_name || !formData.user_email || 
         !formData.booking_date || !formData.start_time || !formData.end_time) {
@@ -285,27 +261,37 @@ export default function FacilityBookingsPage() {
     try {
       const bookingCode = generateBookingCode();
       
-      const { error } = await supabase
+      const bookingData = {
+        booking_code: bookingCode,
+        facility_id: formData.facility_id,
+        user_name: formData.user_name,
+        user_email: formData.user_email,
+        user_phone: formData.user_phone || null,
+        booking_date: formData.booking_date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+        duration: duration,
+        status: "confirmed",
+        total_price: 0,
+        payment_status: "unpaid",
+        attendees: formData.attendees || null,
+        purpose: formData.purpose || null,
+        special_requests: formData.special_requests || null,
+      };
+
+      console.log('Creating booking with data:', bookingData);
+
+      const { data, error } = await supabase
         .from("facility_bookings")
-        .insert([{
-          booking_code: bookingCode,
-          facility_id: formData.facility_id,
-          user_name: formData.user_name,
-          user_email: formData.user_email,
-          user_phone: formData.user_phone || null,
-          booking_date: formData.booking_date,
-          start_time: formData.start_time,
-          end_time: formData.end_time,
-          duration: duration,
-          total_price: 0,
-          payment_status: "unpaid",
-          attendees: formData.attendees || null,
-          purpose: formData.purpose || null,
-          special_requests: formData.special_requests || null,
-        }] as never)
+        .insert([bookingData] as never)
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Booking created successfully:', data);
 
       alert("Booking created successfully!");
       setShowCreateModal(false);
@@ -441,87 +427,6 @@ export default function FacilityBookingsPage() {
         />
       </div>
 
-      {/* Bookings List */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Recent Bookings ({filteredBookings.length})
-          </h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Booking Code
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Facility
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Date & Time
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Payment
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredBookings.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                  onClick={() => {
-                    setSelectedBooking(booking);
-                    setShowModal(true);
-                  }}
-                >
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                    {booking.booking_code}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                    {booking.facility?.name || "Unknown"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                    <div>{booking.user_name}</div>
-                    <div className="text-xs text-gray-500">{booking.user_email}</div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                    <div>{formatDate(booking.booking_date)}</div>
-                    <div className="text-xs text-gray-500">
-                      {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusColor(
-                        booking.payment_status
-                      )}`}
-                    >
-                      {booking.payment_status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                    {formatCurrency(booking.total_price)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredBookings.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No bookings found</p>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Booking Details Modal */}
       {showModal && selectedBooking && (
         <div className="fixed inset-0 bg-blackO flex items-center justify-center p-4 z-999999">
@@ -620,32 +525,6 @@ export default function FacilityBookingsPage() {
                     </label>
                     <p className="mt-1 text-sm text-gray-900 dark:text-white">
                       {selectedBooking.duration} hours
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Payment Status
-                    </label>
-                    <span
-                      className={`inline-flex mt-1 px-3 py-1 text-sm font-semibold rounded-full ${getPaymentStatusColor(
-                        selectedBooking.payment_status
-                      )}`}
-                    >
-                      {selectedBooking.payment_status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Total Price
-                    </label>
-                    <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
-                      {formatCurrency(selectedBooking.total_price)}
                     </p>
                   </div>
                   {selectedBooking.attendees && (
@@ -826,18 +705,54 @@ export default function FacilityBookingsPage() {
               {/* Date and Time */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Booking Date <span className="text-red-500">*</span>
+                  📅 Booking Date <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="date"
-                  value={formData.booking_date}
-                  onChange={(e) => {
-                    setFormData({ ...formData, booking_date: e.target.value, start_time: "", end_time: "" });
-                  }}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={formData.booking_date}
+                    onChange={(e) => {
+                      setFormData({ ...formData, booking_date: e.target.value, start_time: "", end_time: "" });
+                    }}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-2.5 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 hover:border-brand-400 transition-colors cursor-pointer"
+                    required
+                    onClick={(e) => {
+                      // Force show the date picker
+                      try {
+                        (e.target as HTMLInputElement).showPicker();
+                      } catch {
+                        // Fallback for browsers that don't support showPicker
+                        (e.target as HTMLInputElement).focus();
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {formData.booking_date && (
+                  <p className="mt-2 text-xs text-brand-600 dark:text-brand-400">
+                    ✓ Selected: {new Date(formData.booking_date + 'T00:00:00').toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                )}
               </div>
 
               {/* Show booked time slots if facility and date are selected */}
@@ -856,53 +771,153 @@ export default function FacilityBookingsPage() {
                       </span>
                     ))}
                   </div>
-                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-2">
-                    Please avoid selecting time ranges that overlap with these slots.
-                  </p>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Start Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.start_time}
-                    onChange={(e) =>
-                      setFormData({ ...formData, start_time: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
-                    required
-                    disabled={!formData.facility_id || !formData.booking_date}
-                  />
-                  {formData.start_time && isTimeSlotBooked(formData.start_time) && (
-                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                      ⚠️ This time is within a booked slot
+              {/* Time Slot Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  🕐 Select Time Range <span className="text-red-500">*</span>
+                </label>
+                
+                {!formData.facility_id || !formData.booking_date ? (
+                  <div className="p-8 text-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      ℹ️ Please select facility and date first to choose time slots
                     </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    End Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.end_time}
-                    onChange={(e) =>
-                      setFormData({ ...formData, end_time: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500"
-                    required
-                    disabled={!formData.facility_id || !formData.booking_date}
-                  />
-                  {formData.end_time && formData.start_time && formData.end_time <= formData.start_time && (
-                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                      ⚠️ End time must be after start time
-                    </p>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Time Slots Grid */}
+                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-96 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                      {(() => {
+                        const timeSlots = [];
+                        for (let hour = 6; hour < 22; hour++) {
+                          for (let minute = 0; minute < 60; minute += 30) {
+                            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                            const isBooked = isTimeSlotBooked(timeString);
+                            const isStartTime = formData.start_time === timeString;
+                            const isEndTime = formData.end_time === timeString;
+                            const isInRange = formData.start_time && formData.end_time && 
+                                            timeString > formData.start_time && 
+                                            timeString < formData.end_time;
+                            
+                            timeSlots.push(
+                              <button
+                                key={timeString}
+                                type="button"
+                                onClick={() => {
+                                  if (isBooked) return;
+                                  
+                                  if (!formData.start_time || (formData.start_time && formData.end_time)) {
+                                    // Set start time
+                                    setFormData({ 
+                                      ...formData, 
+                                      start_time: timeString, 
+                                      end_time: '' 
+                                    });
+                                  } else if (formData.start_time && !formData.end_time) {
+                                    // Set end time
+                                    if (timeString > formData.start_time) {
+                                      setFormData({ 
+                                        ...formData, 
+                                        end_time: timeString 
+                                      });
+                                    } else {
+                                      alert('End time must be after start time');
+                                    }
+                                  }
+                                }}
+                                disabled={isBooked}
+                                className={`
+                                  px-2 py-2 text-xs font-medium rounded-lg transition-all
+                                  ${isBooked 
+                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-400 dark:text-red-500 cursor-not-allowed line-through' 
+                                    : isStartTime 
+                                      ? 'bg-green-500 text-white ring-2 ring-green-600 shadow-md' 
+                                      : isEndTime 
+                                        ? 'bg-blue-500 text-white ring-2 ring-blue-600 shadow-md'
+                                        : isInRange
+                                          ? 'bg-brand-200 dark:bg-brand-800 text-brand-900 dark:text-brand-100'
+                                          : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 border border-gray-300 dark:border-gray-600 hover:border-brand-400'
+                                  }
+                                `}
+                              >
+                                {timeString}
+                              </button>
+                            );
+                          }
+                        }
+                        return timeSlots;
+                      })()}
+                    </div>
+
+                    {/* Selected Range Display */}
+                    {formData.start_time && (
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">From</p>
+                              <p className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                                {formData.start_time}
+                              </p>
+                            </div>
+                            {formData.end_time && (
+                              <>
+                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                                <div>
+                                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">To</p>
+                                  <p className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                                    {formData.end_time}
+                                  </p>
+                                </div>
+                                <div className="ml-4">
+                                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Duration</p>
+                                  <p className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                                    {calculateDuration(formData.start_time, formData.end_time)} hrs
+                                  </p>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, start_time: '', end_time: '' })}
+                            className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-4 text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-green-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Start Time</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">End Time</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-brand-200 dark:bg-brand-800 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">In Range</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-red-100 dark:bg-red-900/30 rounded line-through"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Booked</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
