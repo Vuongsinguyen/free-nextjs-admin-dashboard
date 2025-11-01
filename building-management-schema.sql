@@ -231,7 +231,8 @@ CREATE TRIGGER update_property_units_updated_at
 -- =====================================================
 
 -- View: Full property unit information with hierarchy
-CREATE OR REPLACE VIEW property_units_full AS
+CREATE OR REPLACE VIEW property_units_full
+WITH (security_invoker = on) AS
 SELECT 
     pu.id,
     pu.name AS unit_name,

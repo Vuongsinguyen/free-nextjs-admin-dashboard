@@ -19,7 +19,7 @@ const roleOptions: RoleOption[] = [
   {
     id: "all_users",
     nameKey: "roles.all_users",
-    icon: "/images/icons/Setting.png",
+    icon: "/images/icons/guest.png",
     color: "bg-gradient-to-br from-yellow-400 to-orange-500"
   },
   {
@@ -31,13 +31,13 @@ const roleOptions: RoleOption[] = [
   {
     id: "manager",
     nameKey: "roles.manager",
-    icon: "/images/icons/Setting.png",
+    icon: "/images/icons/manager.png",
     color: "bg-gradient-to-br from-rose-500 to-pink-600"
   },
   {
     id: "commercial",
     nameKey: "roles.commercial",
-    icon: "/images/icons/Setting.png",
+    icon: "/images/icons/commercial.png",
     color: "bg-gradient-to-br from-emerald-500 to-teal-600"
   },
 ];

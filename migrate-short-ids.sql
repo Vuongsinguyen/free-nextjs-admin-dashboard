@@ -15,7 +15,8 @@ BEGIN
   END LOOP;
   RETURN result;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = '';
 
 -- Step 2: Show current schema
 SELECT 

@@ -55,7 +55,8 @@ BEGIN
   END LOOP;
   RETURN result;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = '';
 
 COMMENT ON FUNCTION generate_short_id IS 'Generate a random short ID with specified length (default 12 chars)';
 

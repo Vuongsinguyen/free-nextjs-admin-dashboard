@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -52,6 +52,37 @@ const AppSidebar: React.FC = () => {
   const { t } = useLocale();
   const pathname = usePathname();
   const { menuGroups, loading: menuLoading } = useMenu();
+
+  // Filter out specific menu entries (e.g., "Role Permissions") from sidebar
+  const filteredMenuGroups = useMemo(() => {
+    // Helper to deep-filter menu items
+    const shouldRemove = (item: MenuItem) =>
+      item.name_key === 'rolePermissions' || (item.path?.includes('/user-management/permissions'));
+
+    const filterItems = (items: MenuItem[]): MenuItem[] => {
+      return items
+        .map((item) => {
+          // Recursively filter children first
+          const subItems = item.subItems ? filterItems(item.subItems) : [];
+
+          // If this item should be removed, drop it entirely
+          if (shouldRemove(item)) return null;
+
+          // Keep item only if it has a valid path or has remaining subitems
+          if ((item.path && item.path.length > 0) || subItems.length > 0) {
+            return { ...item, subItems } as MenuItem;
+          }
+
+          // Otherwise, drop empty containers
+          return null;
+        })
+        .filter((x): x is MenuItem => x !== null);
+    };
+
+    return menuGroups
+      .map((group) => ({ ...group, items: filterItems(group.items) }))
+      .filter((group) => group.items.length > 0);
+  }, [menuGroups]);
 
   // Convert MenuItem to NavItem format
   const convertMenuItemToNavItem = (item: MenuItem): NavItem => {
@@ -327,7 +358,7 @@ const AppSidebar: React.FC = () => {
             )}
 
             {/* Render dynamic menu from database */}
-            {!menuLoading && menuGroups.map((group) => (
+            {!menuLoading && filteredMenuGroups.map((group) => (
               <div key={group.group}>
                 <h2
                   className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
