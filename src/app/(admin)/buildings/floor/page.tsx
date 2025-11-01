@@ -35,8 +35,8 @@ const FloorPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [totalUnitsAll, setTotalUnitsAll] = useState(0);
-  const [totalOccupiedAll, setTotalOccupiedAll] = useState(0);
+  // const [totalUnitsAll, setTotalUnitsAll] = useState(0);
+  // const [totalOccupiedAll, setTotalOccupiedAll] = useState(0);
   const itemsPerPage = 20;
 
   const [formData, setFormData] = useState({
@@ -67,22 +67,22 @@ const FloorPage = () => {
       setTotalCount(count || 0);
 
       // Get total units and occupied units for all floors (for statistics)
-      const { data: allFloorsData } = await supabase
-        .from('floors')
-        .select('id, total_units');
+      // const { data: allFloorsData } = await supabase
+      //   .from('floors')
+      //   .select('id, total_units');
       
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const totalUnits = (allFloorsData || []).reduce((sum: number, f: any) => sum + (f.total_units || 0), 0);
-      setTotalUnitsAll(totalUnits);
+      // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // const totalUnits = (allFloorsData || []).reduce((sum: number, f: any) => sum + (f.total_units || 0), 0);
+      // setTotalUnitsAll(totalUnits);
 
-      // Get total occupied units
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count: occupiedCount } = await (supabase as any)
-        .from('property_units')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'occupied');
+      // // Get total occupied units
+      // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // const { count: occupiedCount } = await (supabase as any)
+      //   .from('property_units')
+      //   .select('*', { count: 'exact', head: true })
+      //   .eq('status', 'occupied');
       
-      setTotalOccupiedAll(occupiedCount || 0);
+      // setTotalOccupiedAll(occupiedCount || 0);
 
       // Get paginated data
       const from = (currentPage - 1) * itemsPerPage;
@@ -282,90 +282,66 @@ const FloorPage = () => {
     (floor.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const occupancyRate = totalUnitsAll > 0 ? ((totalOccupiedAll / totalUnitsAll) * 100).toFixed(1) : "0";
+  // const occupancyRate = totalUnitsAll > 0 ? ((totalOccupiedAll / totalUnitsAll) * 100).toFixed(1) : "0";
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Floors</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Floors</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
+            Manage floor information
+          </p>
         </div>
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Units</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalUnitsAll}</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Occupied</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalOccupiedAll}</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Occupancy Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{occupancyRate}%</p>
-            </div>
-          </div>
+        <div className="flex gap-2">
+          {floors.length === 0 && !loading && (
+            <button
+              onClick={handleSeedFloors}
+              disabled={seeding}
+              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+            >
+              {seeding ? 'Seeding...' : 'Seed Sample Data'}
+            </button>
+          )}
+          <button
+            onClick={handleAdd}
+            className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            + Add Floor
+          </button>
         </div>
       </div>
-      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
+
+      {/* Search */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
         <input
           type="text"
           placeholder="Search by building name or floor number..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
-      <div className="bg-white rounded-lg shadow dark:bg-gray-900">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Floors</h2>
-          <div className="flex gap-2">
-            {floors.length === 0 && !loading && (
-              <button
-                onClick={handleSeedFloors}
-                disabled={seeding}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-              >
-                {seeding ? 'Seeding...' : 'Seed Sample Data'}
-              </button>
-            )}
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
-            >
-              + Add Floor
-            </button>
-          </div>
-        </div>
+
+      {/* Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Floor</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Building</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Zone</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Property</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Total Units</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Occupied</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Occupancy</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Status</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Actions</th>
+            <thead className="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Floor</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Building</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Zone</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Property</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-300">Units</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-300">Occupied</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Rate</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Status</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
                   <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading...</td>
@@ -378,7 +354,7 @@ const FloorPage = () => {
                 filteredFloors.map((floor) => {
                   const rate = floor.total_units > 0 ? ((floor.occupied_units || 0) / floor.total_units * 100).toFixed(0) : 0;
                   return (
-                    <tr key={floor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <tr key={floor.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{floor.name}</div>
@@ -432,17 +408,15 @@ const FloorPage = () => {
         
         {/* Pagination */}
         {totalCount > itemsPerPage && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
-            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-              <span>
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
-              </span>
+          <div className="flex items-center justify-between bg-white dark:bg-gray-800 px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
@@ -458,10 +432,10 @@ const FloorPage = () => {
                     )}
                     <button
                       onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-1 text-sm font-medium rounded-lg ${
+                      className={`px-3 py-1 rounded-md text-sm font-medium ${
                         currentPage === page
                           ? 'bg-brand-500 text-white'
-                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
+                          : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}
@@ -471,7 +445,7 @@ const FloorPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / itemsPerPage), prev + 1))}
                 disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
-                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

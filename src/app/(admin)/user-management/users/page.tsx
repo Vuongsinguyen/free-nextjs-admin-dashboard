@@ -17,10 +17,12 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [propertyOptions, setPropertyOptions] = useState<string[]>([]);
   const [filters, setFilters] = useState<IUserFilters>({
     search: "",
     role: "",
     status: "",
+    property: "",
   });
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "displayCode",
@@ -34,6 +36,17 @@ export default function UsersPage() {
     const loadUsers = async () => {
       setIsLoading(true);
       try {
+        // Fetch properties for filter options
+        const { data: propertiesData, error: propertiesError } = await supabase
+          .from('properties')
+          .select('name')
+          .order('name');
+
+        if (propertiesError) throw propertiesError;
+        
+        const propertyNames = (propertiesData || []).map((p: { name: string }) => p.name);
+        setPropertyOptions(propertyNames);
+
         // Fetch users from auth.users via RPC or custom table
         // Note: Direct access to auth.users requires admin/service_role
         // For now, we'll use a custom users table or profiles table
@@ -102,6 +115,10 @@ export default function UsersPage() {
 
     if (filters.status) {
       result = result.filter(user => user.status === filters.status);
+    }
+
+    if (filters.property) {
+      result = result.filter(user => user.propertyName === filters.property);
     }
 
     // Apply sorting
@@ -311,6 +328,7 @@ export default function UsersPage() {
         filters={filters}
         onFiltersChange={setFilters}
         users={users}
+        propertyOptions={propertyOptions}
       />
 
       {/* User Table */}
