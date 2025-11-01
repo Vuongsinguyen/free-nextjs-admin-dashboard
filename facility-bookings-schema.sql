@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS facility_bookings (
   end_time TIME NOT NULL,
   duration DECIMAL(10,2) NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('confirmed', 'pending', 'cancelled', 'completed', 'in-progress')),
   payment_status TEXT NOT NULL CHECK (payment_status IN ('paid', 'unpaid', 'refunded')),
   attendees INTEGER,
   purpose TEXT,
@@ -25,7 +24,6 @@ CREATE TABLE IF NOT EXISTS facility_bookings (
 CREATE INDEX IF NOT EXISTS idx_facility_bookings_facility_id ON facility_bookings(facility_id);
 CREATE INDEX IF NOT EXISTS idx_facility_bookings_user_id ON facility_bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_facility_bookings_booking_date ON facility_bookings(booking_date);
-CREATE INDEX IF NOT EXISTS idx_facility_bookings_status ON facility_bookings(status);
 CREATE INDEX IF NOT EXISTS idx_facility_bookings_created_at ON facility_bookings(created_at);
 
 -- Enable Row Level Security
@@ -77,7 +75,6 @@ INSERT INTO facility_bookings (
   end_time,
   duration,
   total_price,
-  status,
   payment_status,
   attendees,
   purpose,
@@ -94,7 +91,6 @@ INSERT INTO facility_bookings (
     '10:00',
     2,
     300000,
-    'confirmed',
     'paid',
     15,
     'Swimming lessons for kids',
@@ -111,7 +107,6 @@ INSERT INTO facility_bookings (
     '16:00',
     2,
     200000,
-    'pending',
     'unpaid',
     1,
     'Personal training session',
@@ -128,7 +123,6 @@ INSERT INTO facility_bookings (
     '12:00',
     2,
     250000,
-    'confirmed',
     'paid',
     4,
     'Tennis tournament practice',
@@ -139,5 +133,4 @@ COMMENT ON TABLE facility_bookings IS 'Stores facility booking information';
 COMMENT ON COLUMN facility_bookings.booking_code IS 'Unique booking code';
 COMMENT ON COLUMN facility_bookings.facility_id IS 'Reference to facilities table';
 COMMENT ON COLUMN facility_bookings.user_id IS 'Reference to users table (optional)';
-COMMENT ON COLUMN facility_bookings.status IS 'Booking status: confirmed, pending, cancelled, completed, in-progress';
 COMMENT ON COLUMN facility_bookings.payment_status IS 'Payment status: paid, unpaid, refunded';
