@@ -196,6 +196,7 @@ export default function EventModal({ event, onClose, onSave, viewMode = false }:
         pdf_files: allPdfUrls.length > 0 ? allPdfUrls : null,
         image_files: allImageUrls.length > 0 ? allImageUrls : null,
         created_by: user.email,
+        user_id: user.id, // Thêm user_id để RLS policy hoạt động
       };
 
       if (event) {
