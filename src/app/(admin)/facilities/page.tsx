@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import FacilityModal from "@/components/facilities/FacilityModal";
 
 interface Facility {
   id: string;
@@ -31,6 +32,9 @@ export default function FacilitiesPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [viewMode, setViewMode] = useState(false);
 
   // Load facilities
   useEffect(() => {
@@ -59,6 +63,48 @@ export default function FacilitiesPage() {
 
     loadFacilities();
   }, []);
+
+  const handleView = (facility: Facility) => {
+    setSelectedFacility(facility);
+    setViewMode(true);
+    setShowModal(true);
+  };
+
+  const handleEdit = (facility: Facility) => {
+    setSelectedFacility(facility);
+    setViewMode(false);
+    setShowModal(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedFacility(null);
+    setViewMode(false);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedFacility(null);
+    setViewMode(false);
+  };
+
+  const handleSave = async () => {
+    // Reload facilities after save
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('facilities')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setFacilities(data || []);
+    } catch (error) {
+      console.error('Failed to reload facilities:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Apply filters
   useEffect(() => {
@@ -113,8 +159,14 @@ export default function FacilitiesPage() {
             {/* Description removed as requested */}
           </p>
         </div>
-        <button className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          + Add Facility
+        <button
+          onClick={handleAdd}
+          className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add Facility
         </button>
       </div>
 
@@ -195,12 +247,20 @@ export default function FacilitiesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center gap-2">
-                      <button className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                      <button
+                        onClick={() => handleEdit(facility)}
+                        className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+                        title="Edit"
+                      >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                      <button
+                        onClick={() => handleView(facility)}
+                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        title="View"
+                      >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -253,6 +313,16 @@ export default function FacilitiesPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Facility Modal */}
+      {showModal && (
+        <FacilityModal
+          facility={selectedFacility}
+          onClose={handleCloseModal}
+          onSave={handleSave}
+          viewMode={viewMode}
+        />
       )}
     </div>
   );

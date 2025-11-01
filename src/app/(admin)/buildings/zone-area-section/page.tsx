@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 interface Zone {
   id: string;
@@ -167,7 +166,6 @@ const ZoneAreaSectionPage = () => {
 
   return (
     <div className="p-4 md:p-6">
-      <PageBreadCrumb pageTitle="Zone / Area / Section" />
       <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
         <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
           <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Zones</p><p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p></div>

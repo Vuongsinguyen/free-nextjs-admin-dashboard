@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 interface Floor {
   id: string;
@@ -286,6 +287,7 @@ const FloorPage = () => {
 
   return (
     <div className="p-4 md:p-6">
+      <PageBreadCrumb pageTitle="Floor" />
       <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
         <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
           <div className="flex items-center justify-between">
