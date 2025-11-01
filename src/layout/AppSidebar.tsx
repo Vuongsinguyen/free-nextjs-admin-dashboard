@@ -350,15 +350,8 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            {/* Loading state */}
-            {menuLoading && (
-              <div className="text-center text-gray-400 py-4">
-                Loading menu...
-              </div>
-            )}
-
             {/* Render dynamic menu from database */}
-            {!menuLoading && filteredMenuGroups.map((group) => (
+            {filteredMenuGroups.map((group) => (
               <div key={group.group}>
                 <h2
                   className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
