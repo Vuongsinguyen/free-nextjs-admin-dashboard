@@ -62,8 +62,10 @@ export default function FacilityBookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState<BookingWithFacility | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [filterFacility, setFilterFacility] = useState<string>("all");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<BookingFormData>({
     facility_id: "",
     user_name: "",
@@ -318,6 +320,36 @@ export default function FacilityBookingsPage() {
       alert("Failed to create booking. Please try again.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteBooking = async () => {
+    if (!selectedBooking) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("facility_bookings")
+        .delete()
+        .eq("id", selectedBooking.id);
+
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
+
+      alert("Booking deleted successfully!");
+      setShowDeleteModal(false);
+      setShowModal(false);
+      setSelectedBooking(null);
+      
+      // Refresh data
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      alert("Failed to delete booking. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -582,6 +614,18 @@ export default function FacilityBookingsPage() {
               </div>
 
               <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                    setShowDeleteModal(true);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                >
+                  <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete
+                </button>
                 <button
                   onClick={() => setShowModal(false)}
                   className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -986,6 +1030,49 @@ export default function FacilityBookingsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedBooking && (
+        <div className="fixed inset-0 bg-blackO z-999999 flex items-center justify-center p-4">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-2">
+                Delete Booking
+              </h3>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
+                Are you sure you want to delete booking <span className="font-semibold">{selectedBooking.booking_code}</span>? This action cannot be undone.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteBooking}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+                  disabled={deleting}
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
