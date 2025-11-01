@@ -1,49 +1,60 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Invoice {
-  id: number;
-  invoiceNumber: string;
+  id: string;
+  invoice_number: string;
   apartment: string;
-  residentName: string;
+  resident_name: string;
   amount: number;
   status: "paid" | "unpaid" | "overdue";
-  dueDate: string;
+  due_date: string;
   notes?: string;
   // Fee breakdowns
-  waterFee: number;
-  managementFee: number;
-  urbanManagementFee: number;
-  parkingFee: number;
-  latePaymentPenalty: number;
-  otherFees: number;
+  water_fee: number;
+  management_fee: number;
+  urban_management_fee: number;
+  parking_fee: number;
+  late_payment_penalty: number;
+  other_fees: number;
   area: number; // m2
+  created_at?: string;
+  updated_at?: string;
 }
 
-const initialInvoices: Invoice[] = [
-  { id: 1, invoiceNumber: "INV-2025-001", apartment: "A101", residentName: "Nguyễn Văn A", amount: 5000000, status: "paid", dueDate: "2025-01-15", notes: "Đã thanh toán đầy đủ", waterFee: 800000, managementFee: 3000000, urbanManagementFee: 500000, parkingFee: 400000, latePaymentPenalty: 0, otherFees: 300000, area: 85 },
-  { id: 4, invoiceNumber: "INV-2025-004", apartment: "B201", residentName: "Phạm Thị D", amount: 5500000, status: "paid", dueDate: "2025-01-20", notes: "", waterFee: 850000, managementFee: 3200000, urbanManagementFee: 550000, parkingFee: 450000, latePaymentPenalty: 0, otherFees: 250000, area: 88 },
-  { id: 6, invoiceNumber: "INV-2025-006", apartment: "B203", residentName: "Vũ Thị F", amount: 5200000, status: "paid", dueDate: "2025-01-25", notes: "Đã chuyển khoản", waterFee: 780000, managementFee: 2900000, urbanManagementFee: 520000, parkingFee: 420000, latePaymentPenalty: 0, otherFees: 0, area: 82 },
-  { id: 8, invoiceNumber: "INV-2025-008", apartment: "C302", residentName: "Bùi Thị H", amount: 4700000, status: "paid", dueDate: "2025-01-10", notes: "", waterFee: 680000, managementFee: 2500000, urbanManagementFee: 470000, parkingFee: 370000, latePaymentPenalty: 0, otherFees: 200000, area: 72 },
-  { id: 10, invoiceNumber: "INV-2025-010", apartment: "D401", residentName: "Ngô Thị K", amount: 6500000, status: "paid", dueDate: "2025-01-05", notes: "Thanh toán tiền mặt", waterFee: 1000000, managementFee: 3700000, urbanManagementFee: 650000, parkingFee: 550000, latePaymentPenalty: 0, otherFees: 0, area: 98 },
-  { id: 13, invoiceNumber: "INV-2025-013", apartment: "E501", residentName: "Võ Văn N", amount: 5100000, status: "paid", dueDate: "2025-01-18", notes: "", waterFee: 760000, managementFee: 2850000, urbanManagementFee: 510000, parkingFee: 410000, latePaymentPenalty: 0, otherFees: 200000, area: 80 },
-  { id: 15, invoiceNumber: "INV-2025-015", apartment: "E503", residentName: "Phan Văn P", amount: 5800000, status: "paid", dueDate: "2025-01-22", notes: "Đã thanh toán online", waterFee: 880000, managementFee: 3300000, urbanManagementFee: 580000, parkingFee: 480000, latePaymentPenalty: 0, otherFees: 200000, area: 90 },
-  { id: 17, invoiceNumber: "INV-2025-017", apartment: "F602", residentName: "Hồ Văn R", amount: 4750000, status: "paid", dueDate: "2025-01-12", notes: "", waterFee: 690000, managementFee: 2580000, urbanManagementFee: 475000, parkingFee: 375000, latePaymentPenalty: 0, otherFees: 200000, area: 73 },
-  { id: 19, invoiceNumber: "INV-2025-019", apartment: "G701", residentName: "La Văn T", amount: 5600000, status: "paid", dueDate: "2025-01-28", notes: "Đã xác nhận", waterFee: 840000, managementFee: 3150000, urbanManagementFee: 560000, parkingFee: 460000, latePaymentPenalty: 0, otherFees: 200000, area: 89 },
-  { id: 22, invoiceNumber: "INV-2025-022", apartment: "H801", residentName: "Bà Thị W", amount: 6800000, status: "paid", dueDate: "2025-01-08", notes: "", waterFee: 1050000, managementFee: 3900000, urbanManagementFee: 680000, parkingFee: 580000, latePaymentPenalty: 0, otherFees: 200000, area: 102 },
-  { id: 24, invoiceNumber: "INV-2025-024", apartment: "H803", residentName: "Chú Thị Y", amount: 5450000, status: "paid", dueDate: "2025-01-16", notes: "Đã thanh toán qua app", waterFee: 820000, managementFee: 3070000, urbanManagementFee: 545000, parkingFee: 445000, latePaymentPenalty: 0, otherFees: 200000, area: 85 },
-  { id: 26, invoiceNumber: "INV-2025-026", apartment: "I902", residentName: "Chị Thị AA", amount: 4800000, status: "paid", dueDate: "2025-01-14", notes: "", waterFee: 700000, managementFee: 2630000, urbanManagementFee: 480000, parkingFee: 380000, latePaymentPenalty: 0, otherFees: 200000, area: 74 },
-  { id: 28, invoiceNumber: "INV-2025-028", apartment: "J1001", residentName: "Anh Văn Z", amount: 6300000, status: "paid", dueDate: "2025-01-11", notes: "Đã nhận biên lai", waterFee: 960000, managementFee: 3600000, urbanManagementFee: 630000, parkingFee: 530000, latePaymentPenalty: 0, otherFees: 200000, area: 96 },
-];
-
 export default function PaymentsPage() {
-  const [invoices] = useState<Invoice[]>(initialInvoices);
-  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>(initialInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 10;
+
+  // Fetch paid invoices from database
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('status', 'paid')
+        .order('due_date', { ascending: false });
+      
+      if (error) throw error;
+      setInvoices(data || []);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
 
   const handleImportExcel = () => {
     // TODO: Implement Excel import functionality
@@ -62,14 +73,14 @@ export default function PaymentsPage() {
     // Search filter
     if (searchTerm) {
       result = result.filter(inv =>
-        inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.residentName.toLowerCase().includes(searchTerm.toLowerCase())
+        inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inv.resident_name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Month filter
     if (filterMonth) {
-      result = result.filter(inv => inv.dueDate.startsWith(filterMonth));
+      result = result.filter(inv => inv.due_date.startsWith(filterMonth));
     }
 
     setFilteredInvoices(result);
@@ -190,27 +201,41 @@ export default function PaymentsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {currentInvoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">#{inv.id}</td>
-                  <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-white">{inv.invoiceNumber}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.apartment}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.residentName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.area}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.waterFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.managementFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.urbanManagementFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.parkingFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.otherFees > 0 ? inv.otherFees.toLocaleString() + ' VND' : '-'}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">{inv.amount.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.dueDate}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400">
-                      Paid
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan={13} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    Loading payments...
                   </td>
                 </tr>
-              ))}
+              ) : currentInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan={13} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No payments found
+                  </td>
+                </tr>
+              ) : (
+                currentInvoices.map((inv) => (
+                  <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{inv.id.substring(0, 8)}</td>
+                    <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-white">{inv.invoice_number}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.apartment}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.resident_name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.area}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.water_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.management_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.urban_management_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.parking_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.other_fees > 0 ? inv.other_fees.toLocaleString() + ' VND' : '-'}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">{inv.amount.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.due_date}</td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                        Paid
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -1,86 +1,101 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Invoice {
-  id: number;
-  invoiceNumber: string;
+  id: string;
+  invoice_number: string;
   apartment: string;
-  residentName: string;
+  resident_name: string;
   amount: number;
   status: "paid" | "unpaid" | "overdue";
-  dueDate: string;
+  due_date: string;
   notes?: string;
   // Fee breakdowns
-  waterFee: number;
-  managementFee: number;
-  urbanManagementFee: number;
-  parkingFee: number;
-  latePaymentPenalty: number;
-  otherFees: number;
+  water_fee: number;
+  management_fee: number;
+  urban_management_fee: number;
+  parking_fee: number;
+  late_payment_penalty: number;
+  other_fees: number;
   area: number; // m2
+  created_at?: string;
+  updated_at?: string;
 }
 
-const initialInvoices: Invoice[] = [
-  { id: 1, invoiceNumber: "INV-2025-001", apartment: "A101", residentName: "Nguyễn Văn A", amount: 5000000, status: "paid", dueDate: "2025-01-15", notes: "Đã thanh toán đầy đủ", waterFee: 800000, managementFee: 3000000, urbanManagementFee: 500000, parkingFee: 400000, latePaymentPenalty: 0, otherFees: 300000, area: 85 },
-  { id: 2, invoiceNumber: "INV-2025-002", apartment: "A102", residentName: "Trần Thị B", amount: 4500000, status: "unpaid", dueDate: "2025-02-15", notes: "", waterFee: 750000, managementFee: 2800000, urbanManagementFee: 450000, parkingFee: 350000, latePaymentPenalty: 0, otherFees: 150000, area: 78 },
-  { id: 3, invoiceNumber: "INV-2025-003", apartment: "A103", residentName: "Lê Văn C", amount: 6000000, status: "overdue", dueDate: "2024-12-15", notes: "Quá hạn thanh toán", waterFee: 950000, managementFee: 3500000, urbanManagementFee: 600000, parkingFee: 500000, latePaymentPenalty: 450000, otherFees: 0, area: 92 },
-  { id: 4, invoiceNumber: "INV-2025-004", apartment: "B201", residentName: "Phạm Thị D", amount: 5500000, status: "paid", dueDate: "2025-01-20", notes: "", waterFee: 850000, managementFee: 3200000, urbanManagementFee: 550000, parkingFee: 450000, latePaymentPenalty: 0, otherFees: 250000, area: 88 },
-  { id: 5, invoiceNumber: "INV-2025-005", apartment: "B202", residentName: "Hoàng Văn E", amount: 4800000, status: "unpaid", dueDate: "2025-02-20", notes: "", waterFee: 700000, managementFee: 2600000, urbanManagementFee: 480000, parkingFee: 380000, latePaymentPenalty: 0, otherFees: 200000, area: 75 },
-  { id: 6, invoiceNumber: "INV-2025-006", apartment: "B203", residentName: "Vũ Thị F", amount: 5200000, status: "paid", dueDate: "2025-01-25", notes: "Đã chuyển khoản", waterFee: 780000, managementFee: 2900000, urbanManagementFee: 520000, parkingFee: 420000, latePaymentPenalty: 0, otherFees: 0, area: 82 },
-  { id: 7, invoiceNumber: "INV-2025-007", apartment: "C301", residentName: "Đặng Văn G", amount: 7000000, status: "overdue", dueDate: "2024-11-30", notes: "Cần liên hệ khẩn", waterFee: 1100000, managementFee: 4000000, urbanManagementFee: 700000, parkingFee: 600000, latePaymentPenalty: 600000, otherFees: 0, area: 105 },
-  { id: 8, invoiceNumber: "INV-2025-008", apartment: "C302", residentName: "Bùi Thị H", amount: 4700000, status: "paid", dueDate: "2025-01-10", notes: "", waterFee: 680000, managementFee: 2500000, urbanManagementFee: 470000, parkingFee: 370000, latePaymentPenalty: 0, otherFees: 200000, area: 72 },
-  { id: 9, invoiceNumber: "INV-2025-009", apartment: "C303", residentName: "Đinh Văn I", amount: 5300000, status: "unpaid", dueDate: "2025-02-10", notes: "", waterFee: 790000, managementFee: 2950000, urbanManagementFee: 530000, parkingFee: 430000, latePaymentPenalty: 0, otherFees: 0, area: 84 },
-  { id: 10, invoiceNumber: "INV-2025-010", apartment: "D401", residentName: "Ngô Thị K", amount: 6500000, status: "paid", dueDate: "2025-01-05", notes: "Thanh toán tiền mặt", waterFee: 1000000, managementFee: 3700000, urbanManagementFee: 650000, parkingFee: 550000, latePaymentPenalty: 0, otherFees: 0, area: 98 },
-  { id: 11, invoiceNumber: "INV-2025-011", apartment: "D402", residentName: "Dương Văn L", amount: 4900000, status: "unpaid", dueDate: "2025-02-05", notes: "", waterFee: 720000, managementFee: 2700000, urbanManagementFee: 490000, parkingFee: 390000, latePaymentPenalty: 0, otherFees: 200000, area: 76 },
-  { id: 12, invoiceNumber: "INV-2025-012", apartment: "D403", residentName: "Lý Thị M", amount: 5400000, status: "overdue", dueDate: "2024-12-20", notes: "Đã nhắc nhở", waterFee: 820000, managementFee: 3050000, urbanManagementFee: 540000, parkingFee: 440000, latePaymentPenalty: 400000, otherFees: 0, area: 86 },
-  { id: 13, invoiceNumber: "INV-2025-013", apartment: "E501", residentName: "Võ Văn N", amount: 5100000, status: "paid", dueDate: "2025-01-18", notes: "", waterFee: 760000, managementFee: 2850000, urbanManagementFee: 510000, parkingFee: 410000, latePaymentPenalty: 0, otherFees: 200000, area: 80 },
-  { id: 14, invoiceNumber: "INV-2025-014", apartment: "E502", residentName: "Trương Thị O", amount: 4600000, status: "unpaid", dueDate: "2025-02-18", notes: "", waterFee: 670000, managementFee: 2500000, urbanManagementFee: 460000, parkingFee: 360000, latePaymentPenalty: 0, otherFees: 200000, area: 71 },
-  { id: 15, invoiceNumber: "INV-2025-015", apartment: "E503", residentName: "Phan Văn P", amount: 5800000, status: "paid", dueDate: "2025-01-22", notes: "Đã thanh toán online", waterFee: 880000, managementFee: 3300000, urbanManagementFee: 580000, parkingFee: 480000, latePaymentPenalty: 0, otherFees: 200000, area: 90 },
-  { id: 16, invoiceNumber: "INV-2025-016", apartment: "F601", residentName: "Mai Thị Q", amount: 6200000, status: "overdue", dueDate: "2024-12-10", notes: "Chưa liên hệ được", waterFee: 950000, managementFee: 3550000, urbanManagementFee: 620000, parkingFee: 520000, latePaymentPenalty: 530000, otherFees: 0, area: 95 },
-  { id: 17, invoiceNumber: "INV-2025-017", apartment: "F602", residentName: "Hồ Văn R", amount: 4750000, status: "paid", dueDate: "2025-01-12", notes: "", waterFee: 690000, managementFee: 2580000, urbanManagementFee: 475000, parkingFee: 375000, latePaymentPenalty: 0, otherFees: 200000, area: 73 },
-  { id: 18, invoiceNumber: "INV-2025-018", apartment: "F603", residentName: "Tô Thị S", amount: 5250000, status: "unpaid", dueDate: "2025-02-12", notes: "", waterFee: 780000, managementFee: 2920000, urbanManagementFee: 525000, parkingFee: 425000, latePaymentPenalty: 0, otherFees: 200000, area: 83 },
-  { id: 19, invoiceNumber: "INV-2025-019", apartment: "G701", residentName: "La Văn T", amount: 5600000, status: "paid", dueDate: "2025-01-28", notes: "Đã xác nhận", waterFee: 840000, managementFee: 3150000, urbanManagementFee: 560000, parkingFee: 460000, latePaymentPenalty: 0, otherFees: 200000, area: 89 },
-  { id: 20, invoiceNumber: "INV-2025-020", apartment: "G702", residentName: "Từ Thị U", amount: 4850000, status: "unpaid", dueDate: "2025-02-28", notes: "", waterFee: 710000, managementFee: 2660000, urbanManagementFee: 485000, parkingFee: 385000, latePaymentPenalty: 0, otherFees: 200000, area: 74 },
-  { id: 21, invoiceNumber: "INV-2025-021", apartment: "G703", residentName: "Ông Văn V", amount: 5350000, status: "overdue", dueDate: "2024-12-05", notes: "Đã gửi email nhắc nhở", waterFee: 800000, managementFee: 3000000, urbanManagementFee: 535000, parkingFee: 435000, latePaymentPenalty: 430000, otherFees: 0, area: 87 },
-  { id: 22, invoiceNumber: "INV-2025-022", apartment: "H801", residentName: "Bà Thị W", amount: 6800000, status: "paid", dueDate: "2025-01-08", notes: "", waterFee: 1050000, managementFee: 3900000, urbanManagementFee: 680000, parkingFee: 580000, latePaymentPenalty: 0, otherFees: 200000, area: 102 },
-  { id: 23, invoiceNumber: "INV-2025-023", apartment: "H802", residentName: "Cô Văn X", amount: 4950000, status: "unpaid", dueDate: "2025-02-08", notes: "", waterFee: 730000, managementFee: 2740000, urbanManagementFee: 495000, parkingFee: 395000, latePaymentPenalty: 0, otherFees: 200000, area: 77 },
-  { id: 24, invoiceNumber: "INV-2025-024", apartment: "H803", residentName: "Chú Thị Y", amount: 5450000, status: "paid", dueDate: "2025-01-16", notes: "Đã thanh toán qua app", waterFee: 820000, managementFee: 3070000, urbanManagementFee: 545000, parkingFee: 445000, latePaymentPenalty: 0, otherFees: 200000, area: 85 },
-  { id: 25, invoiceNumber: "INV-2025-025", apartment: "I901", residentName: "Anh Văn Z", amount: 5700000, status: "overdue", dueDate: "2024-11-25", notes: "Cần gọi điện thoại", waterFee: 860000, managementFee: 3220000, urbanManagementFee: 570000, parkingFee: 470000, latePaymentPenalty: 490000, otherFees: 0, area: 91 },
-  { id: 26, invoiceNumber: "INV-2025-026", apartment: "I902", residentName: "Chị Thị AA", amount: 4800000, status: "paid", dueDate: "2025-01-14", notes: "", waterFee: 700000, managementFee: 2630000, urbanManagementFee: 480000, parkingFee: 380000, latePaymentPenalty: 0, otherFees: 200000, area: 74 },
-  { id: 27, invoiceNumber: "INV-2025-027", apartment: "I903", residentName: "Em Văn BB", amount: 5150000, status: "unpaid", dueDate: "2025-02-14", notes: "", waterFee: 760000, managementFee: 2850000, urbanManagementFee: 515000, parkingFee: 415000, latePaymentPenalty: 0, otherFees: 200000, area: 81 },
-  { id: 28, invoiceNumber: "INV-2025-028", apartment: "J1001", residentName: "Cậu Thị CC", amount: 6300000, status: "paid", dueDate: "2025-01-11", notes: "Đã nhận biên lai", waterFee: 960000, managementFee: 3600000, urbanManagementFee: 630000, parkingFee: 530000, latePaymentPenalty: 0, otherFees: 200000, area: 96 },
-  { id: 29, invoiceNumber: "INV-2025-029", apartment: "J1002", residentName: "Dì Văn DD", amount: 4900000, status: "unpaid", dueDate: "2025-02-11", notes: "", waterFee: 720000, managementFee: 2700000, urbanManagementFee: 490000, parkingFee: 390000, latePaymentPenalty: 0, otherFees: 200000, area: 76 },
-  { id: 30, invoiceNumber: "INV-2025-030", apartment: "J1003", residentName: "Bác Thị EE", amount: 5500000, status: "overdue", dueDate: "2024-12-01", notes: "Đã gửi thư nhắc nhở", waterFee: 830000, managementFee: 3110000, urbanManagementFee: 550000, parkingFee: 450000, latePaymentPenalty: 460000, otherFees: 0, area: 88 },
-];
-
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
-  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>(initialInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Invoice | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const itemsPerPage = 10;
+
+  // Fetch invoices from database
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .order('due_date', { ascending: false });
+      
+      if (error) throw error;
+      setInvoices(data || []);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Seed sample data
+  const handleSeed = async () => {
+    try {
+      setSeeding(true);
+      const response = await fetch('/api/invoices/seed', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to seed data');
+      }
+      
+      await fetchInvoices();
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      alert('Failed to seed data. Please try again.');
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   const handleAdd = () => {
     setEditing({
-      id: 0,
-      invoiceNumber: "",
+      id: "",
+      invoice_number: "",
       apartment: "",
-      residentName: "",
+      resident_name: "",
       area: 0,
-      waterFee: 0,
-      managementFee: 0,
-      urbanManagementFee: 0,
-      parkingFee: 0,
-      latePaymentPenalty: 0,
-      otherFees: 0,
+      water_fee: 0,
+      management_fee: 0,
+      urban_management_fee: 0,
+      parking_fee: 0,
+      late_payment_penalty: 0,
+      other_fees: 0,
       amount: 0,
       status: "unpaid",
-      dueDate: new Date().toISOString().slice(0, 10),
+      due_date: new Date().toISOString().slice(0, 10),
       notes: "",
     });
     setShowModal(true);
@@ -91,9 +106,20 @@ export default function InvoicesPage() {
     setShowModal(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this invoice?")) {
-      setInvoices(prev => prev.filter(inv => inv.id !== id));
+      try {
+        const { error } = await supabase
+          .from('invoices')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        await fetchInvoices();
+      } catch (error) {
+        console.error('Error deleting invoice:', error);
+        alert('Failed to delete invoice. Please try again.');
+      }
     }
   };
 
@@ -104,8 +130,8 @@ export default function InvoicesPage() {
     // Search filter
     if (searchTerm) {
       result = result.filter(inv =>
-        inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.residentName.toLowerCase().includes(searchTerm.toLowerCase())
+        inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inv.resident_name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -116,7 +142,7 @@ export default function InvoicesPage() {
 
     // Month filter
     if (filterMonth) {
-      result = result.filter(inv => inv.dueDate.startsWith(filterMonth));
+      result = result.filter(inv => inv.due_date.startsWith(filterMonth));
     }
 
     setFilteredInvoices(result);
@@ -133,39 +159,59 @@ export default function InvoicesPage() {
     setCurrentPage(page);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editing) return;
 
-    if (!editing.invoiceNumber.trim() || !editing.apartment.trim() || !editing.residentName.trim()) {
+    if (!editing.invoice_number.trim() || !editing.apartment.trim() || !editing.resident_name.trim()) {
       alert("Please fill in all required fields");
       return;
     }
 
     // Calculate total amount from fee breakdown
-    const totalAmount = editing.waterFee + editing.managementFee + editing.urbanManagementFee + editing.parkingFee + editing.latePaymentPenalty + editing.otherFees;
+    const totalAmount = editing.water_fee + editing.management_fee + editing.urban_management_fee + editing.parking_fee + editing.late_payment_penalty + editing.other_fees;
 
     if (totalAmount <= 0) {
       alert("Total amount must be greater than 0");
       return;
     }
 
-    const updatedInvoice: Invoice = {
-      ...editing,
+    const invoiceData = {
+      invoice_number: editing.invoice_number,
+      apartment: editing.apartment,
+      resident_name: editing.resident_name,
       amount: totalAmount,
+      status: editing.status,
+      due_date: editing.due_date,
+      notes: editing.notes || "",
+      water_fee: editing.water_fee,
+      management_fee: editing.management_fee,
+      urban_management_fee: editing.urban_management_fee,
+      parking_fee: editing.parking_fee,
+      late_payment_penalty: editing.late_payment_penalty,
+      other_fees: editing.other_fees,
+      area: editing.area,
     };
 
-    if (editing.id === 0) {
-      const newInvoice: Invoice = {
-        ...updatedInvoice,
-        id: Math.max(0, ...invoices.map(inv => inv.id)) + 1,
-      };
-      setInvoices(prev => [...prev, newInvoice]);
-    } else {
-      setInvoices(prev => prev.map(inv => (inv.id === editing.id ? updatedInvoice : inv)));
-    }
+    try {
+      if (!editing.id) {
+        // @ts-expect-error - Supabase types not yet generated for invoices table
+        const { error } = await supabase.from('invoices').insert([invoiceData]);
+        
+        if (error) throw error;
+      } else {
+        // @ts-expect-error - Supabase types not yet generated for invoices table
+        const { error } = await supabase.from('invoices').update(invoiceData).eq('id', editing.id);
+        
+        if (error) throw error;
+      }
 
-    setShowModal(false);
-    setEditing(null);
+      await fetchInvoices();
+      setShowModal(false);
+      setEditing(null);
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+      alert('Failed to save invoice. Please try again.');
+    }
   };
 
   // Calculate statistics
@@ -180,14 +226,24 @@ export default function InvoicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Service Fee Invoices</h1>
-          {/* Description removed as requested */}
         </div>
-        <button
-          onClick={handleAdd}
-          className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium"
-        >
-          + Add Invoice
-        </button>
+        <div className="flex items-center gap-3">
+          {invoices.length === 0 && !loading && (
+            <button
+              onClick={handleSeed}
+              disabled={seeding}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {seeding ? "Seeding..." : "Seed Sample Data"}
+            </button>
+          )}
+          <button
+            onClick={handleAdd}
+            className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium"
+          >
+            + Add Invoice
+          </button>
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -283,56 +339,70 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {currentInvoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">#{inv.id}</td>
-                  <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-white">{inv.invoiceNumber}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.apartment}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.residentName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.area}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.waterFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.managementFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.urbanManagementFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.parkingFee.toLocaleString()} VND</td>
-                  <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">{inv.latePaymentPenalty > 0 ? inv.latePaymentPenalty.toLocaleString() + ' VND' : '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.otherFees > 0 ? inv.otherFees.toLocaleString() + ' VND' : '-'}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">{inv.amount.toLocaleString()} VND</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                      inv.status === "paid"
-                        ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-                        : inv.status === "overdue"
-                        ? "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400"
-                    }`}>
-                      {inv.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.dueDate}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEdit(inv)}
-                        className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-                        title="Edit"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(inv.id)}
-                        className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                        title="Delete"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={15} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    Loading invoices...
                   </td>
                 </tr>
-              ))}
+              ) : currentInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan={15} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No invoices found
+                  </td>
+                </tr>
+              ) : (
+                currentInvoices.map((inv) => (
+                  <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{inv.id.substring(0, 8)}</td>
+                    <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-white">{inv.invoice_number}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.apartment}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.resident_name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.area}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.water_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.management_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.urban_management_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.parking_fee.toLocaleString()} VND</td>
+                    <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">{inv.late_payment_penalty > 0 ? inv.late_payment_penalty.toLocaleString() + ' VND' : '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.other_fees > 0 ? inv.other_fees.toLocaleString() + ' VND' : '-'}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">{inv.amount.toLocaleString()} VND</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                        inv.status === "paid"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                          : inv.status === "overdue"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                      }`}>
+                        {inv.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{inv.due_date}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(inv)}
+                          className="p-1.5 rounded text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20"
+                          title="Edit"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(inv.id)}
+                          className="p-1.5 rounded text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          title="Delete"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -407,7 +477,7 @@ export default function InvoicesPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {editing.id === 0 ? "Add Invoice" : "Edit Invoice"}
+                  {!editing.id ? "Add Invoice" : "Edit Invoice"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
@@ -427,8 +497,8 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    value={editing.invoiceNumber}
-                    onChange={(e) => setEditing({ ...editing!, invoiceNumber: e.target.value })}
+                    value={editing.invoice_number}
+                    onChange={(e) => setEditing({ ...editing!, invoice_number: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -449,8 +519,8 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    value={editing.residentName}
-                    onChange={(e) => setEditing({ ...editing!, residentName: e.target.value })}
+                    value={editing.resident_name}
+                    onChange={(e) => setEditing({ ...editing!, resident_name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -473,8 +543,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.waterFee}
-                    onChange={(e) => setEditing({ ...editing!, waterFee: Number(e.target.value) })}
+                    value={editing.water_fee}
+                    onChange={(e) => setEditing({ ...editing!, water_fee: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -485,8 +555,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.managementFee}
-                    onChange={(e) => setEditing({ ...editing!, managementFee: Number(e.target.value) })}
+                    value={editing.management_fee}
+                    onChange={(e) => setEditing({ ...editing!, management_fee: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -497,8 +567,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.urbanManagementFee}
-                    onChange={(e) => setEditing({ ...editing!, urbanManagementFee: Number(e.target.value) })}
+                    value={editing.urban_management_fee}
+                    onChange={(e) => setEditing({ ...editing!, urban_management_fee: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -509,8 +579,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.parkingFee}
-                    onChange={(e) => setEditing({ ...editing!, parkingFee: Number(e.target.value) })}
+                    value={editing.parking_fee}
+                    onChange={(e) => setEditing({ ...editing!, parking_fee: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -521,8 +591,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.latePaymentPenalty}
-                    onChange={(e) => setEditing({ ...editing!, latePaymentPenalty: Number(e.target.value) })}
+                    value={editing.late_payment_penalty}
+                    onChange={(e) => setEditing({ ...editing!, late_payment_penalty: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -533,8 +603,8 @@ export default function InvoicesPage() {
                   <input
                     type="number"
                     min={0}
-                    value={editing.otherFees}
-                    onChange={(e) => setEditing({ ...editing!, otherFees: Number(e.target.value) })}
+                    value={editing.other_fees}
+                    onChange={(e) => setEditing({ ...editing!, other_fees: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -558,8 +628,8 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="date"
-                    value={editing.dueDate}
-                    onChange={(e) => setEditing({ ...editing!, dueDate: e.target.value })}
+                    value={editing.due_date}
+                    onChange={(e) => setEditing({ ...editing!, due_date: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -568,7 +638,7 @@ export default function InvoicesPage() {
                     Notes
                   </label>
                   <textarea
-                    value={editing.notes}
+                    value={editing.notes || ""}
                     onChange={(e) => setEditing({ ...editing!, notes: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
@@ -582,7 +652,7 @@ export default function InvoicesPage() {
                   onClick={handleSave}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                 >
-                  {editing.id === 0 ? "Create" : "Update"}
+                  {!editing.id ? "Create" : "Update"}
                 </button>
                 <button
                   onClick={() => setShowModal(false)}
