@@ -181,7 +181,7 @@ export default function UserRolesPage() {
       // If permissions are selected, insert them into role_permissions
       if (selectedPermissions.size > 0 && roleData) {
         const permissionInserts = Array.from(selectedPermissions).map(permissionId => ({
-          role_id: (roleData as any).id,
+          role_id: (roleData as Role).id,
           permission_id: permissionId
         }));
 
