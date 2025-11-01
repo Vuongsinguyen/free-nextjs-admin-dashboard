@@ -159,50 +159,24 @@ export default function ShopManagementPage() {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      "Coffee Shop": "bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400",
-      "Restaurant": "bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400",
-      "Supermarket": "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-      "Pool": "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400",
-      "Fest": "bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400",
-      "Convenience Store": "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
+      "Coffee Shop": "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400",
+      "Restaurant": "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
+      "Supermarket": "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+      "Pool": "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+      "Fest": "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
+      "Convenience Store": "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400",
     };
-    return colors[category] || "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+    return colors[category] || "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
   };
 
   const getStatusColor = (status: string) => {
     return status === "active"
-      ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-      : "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Shop Management
-          </h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-300">
-            Manage shops for voucher system
-          </p>
-        </div>
-        <div className="flex gap-3">
-          {shops.length === 0 && !loading && (
-            <button
-              onClick={handleSeedShops}
-              disabled={seeding}
-              className="rounded-lg bg-green-600 px-6 py-2.5 text-white hover:bg-green-700 disabled:bg-gray-400"
-            >
-              {seeding ? "Seeding..." : "🌱 Seed 20 Shops"}
-            </button>
-          )}
-          <button className="rounded-lg bg-primary px-6 py-2.5 text-white hover:bg-primary/90">
-            + Create Shop
-          </button>
-        </div>
-      </div>
-
+    <div className="p-4 md:p-6">
       {/* Loading State */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
@@ -211,311 +185,256 @@ export default function ShopManagementPage() {
       ) : (
         <>
           {/* Filters */}
-          <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
+          <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {/* Search */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Search
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search shop name..."
-              className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
-            />
-          </div>
+              {/* Search */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Search
+                </label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search shop name..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                />
+              </div>
 
-          {/* Category Filter */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Category
-            </label>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
-            >
-              <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Province Filter */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Province
-            </label>
-            <select
-              value={filterProvince}
-              onChange={(e) => setFilterProvince(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
-            >
-              <option value="">All Provinces</option>
-              {provinces.map((province) => (
-                <option key={province} value={province}>
-                  {province}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* District Filter */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              District
-            </label>
-            <select
-              value={filterDistrict}
-              onChange={(e) => setFilterDistrict(e.target.value)}
-              disabled={!filterProvince}
-              className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-strokedark dark:bg-meta-4"
-            >
-              <option value="">All Districts</option>
-              {districts.map((district) => (
-                <option key={district} value={district}>
-                  {district}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Status
-            </label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-3 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {/* Clear Filters */}
-          <div className="flex items-end">
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setFilterCategory("");
-                setFilterProvince("");
-                setFilterDistrict("");
-                setFilterStatus("");
-              }}
-              className="w-full rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-
-        {/* Results count */}
-        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-          Showing {filteredShops.length} of {shops.length} shops
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="rounded-lg border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  ID
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Shop Name
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
+              {/* Category Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Category
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Province
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  District
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Address
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Google Map
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Status
-                </th>
-                <th className="px-4 py-4 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredShops.length > 0 ? (
-                filteredShops.map((shop) => (
-                  <tr
-                    key={shop.id}
-                    className="border-b border-stroke hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-                  >
-                    <td className="px-4 py-4">
-                      <p className="text-sm font-medium text-black dark:text-white">
-                        #{shop.id}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm font-medium text-black dark:text-white">
-                        {shop.name}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getCategoryColor(
-                          shop.category
-                        )}`}
-                      >
-                        {shop.category}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {shop.province}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
-                        {shop.district}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4 max-w-xs">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {shop.address}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <a
-                        href={shop.googleMapLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline"
-                      >
-                        View Map
-                      </a>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                          shop.status
-                        )}`}
-                      >
-                        {shop.status === "active" ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                          title="View details"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-                          title="Edit"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                          title="Delete"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center">
-                    <p className="text-gray-500 dark:text-gray-400">
-                      No shops found
-                    </p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                </label>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-stroke px-4 py-4 dark:border-strokedark">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredShops.length} shops
-          </p>
-          <div className="flex gap-2">
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
-              Previous
-            </button>
-            <button className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              1
-            </button>
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
-              Next
-            </button>
+              {/* Province Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Province
+                </label>
+                <select
+                  value={filterProvince}
+                  onChange={(e) => setFilterProvince(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                >
+                  <option value="">All Provinces</option>
+                  {provinces.map((province) => (
+                    <option key={province} value={province}>
+                      {province}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* District Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  District
+                </label>
+                <select
+                  value={filterDistrict}
+                  onChange={(e) => setFilterDistrict(e.target.value)}
+                  disabled={!filterProvince}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">All Districts</option>
+                  {districts.map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Status
+                </label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                >
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              {/* Clear Filters */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilterCategory("");
+                    setFilterProvince("");
+                    setFilterDistrict("");
+                    setFilterStatus("");
+                  }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+
+            {/* Results count */}
+            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+              Showing {filteredShops.length} of {shops.length} shops
+            </div>
           </div>
-        </div>
-      </div>
+
+          {/* Shops Table */}
+          <div className="bg-white rounded-lg shadow dark:bg-gray-900">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Shops
+              </h2>
+              <div className="flex gap-2">
+                {shops.length === 0 && !loading && (
+                  <button
+                    onClick={handleSeedShops}
+                    disabled={seeding}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+                  >
+                    {seeding ? "Seeding..." : "🌱 Seed 20 Shops"}
+                  </button>
+                )}
+                <button className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
+                  + Add Shop
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Shop Name
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Province
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      District
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Address
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Google Map
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+                  {filteredShops.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                        No shops found
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredShops.map((shop) => (
+                      <tr key={shop.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {shop.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryColor(shop.category)}`}>
+                            {shop.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {shop.province}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {shop.district}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 max-w-xs">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                            {shop.address}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <a
+                            href={shop.googleMapLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300"
+                          >
+                            View Map
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${getStatusColor(shop.status)}`}>
+                            {shop.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                          <button className="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3">
+                            Edit
+                          </button>
+                          <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+              <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                <span>
+                  Showing {filteredShops.length} shops
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300">
+                  Previous
+                </button>
+                <button className="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+                  1
+                </button>
+                <button className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300">
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>

@@ -1,168 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface BusTicketType {
-  id: number;
-  ticketName: string;
-  ticketCode: string;
-  description: string;
+  id: string;
+  ticket_name: string;
+  ticket_code: string;
+  description: string | null;
   price: number;
   validity: number; // days
   routes: string[];
-  busType: "Express" | "Standard" | "VIP";
-  maxUsagePerDay: number;
-  availableTimeSlots: string[];
+  bus_type: "Express" | "Standard" | "VIP";
+  max_usage_per_day: number;
+  available_time_slots: string[];
   status: "active" | "inactive";
   discount: number; // percentage
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
-const mockTicketTypes: BusTicketType[] = [
-  {
-    id: 1,
-    ticketName: "Monthly Pass - Express",
-    ticketCode: "MP-EXP-001",
-    description: "Unlimited express bus rides for 30 days",
-    price: 500000,
-    validity: 30,
-    routes: ["District 1 - District 7", "District 2 - District 9", "Thu Duc - District 1"],
-    busType: "Express",
-    maxUsagePerDay: 10,
-    availableTimeSlots: ["06:00-09:00", "16:00-19:00"],
-    status: "active",
-    discount: 0,
-    createdAt: "2025-10-01",
-    updatedAt: "2025-10-15"
-  },
-  {
-    id: 2,
-    ticketName: "Weekly Pass - Standard",
-    ticketCode: "WP-STD-002",
-    description: "Unlimited standard bus rides for 7 days",
-    price: 150000,
-    validity: 7,
-    routes: ["District 3 - Binh Thanh", "District 5 - Tan Binh", "District 10 - Go Vap"],
-    busType: "Standard",
-    maxUsagePerDay: 8,
-    availableTimeSlots: ["05:00-22:00"],
-    status: "active",
-    discount: 10,
-    createdAt: "2025-09-15",
-    updatedAt: "2025-10-20"
-  },
-  {
-    id: 3,
-    ticketName: "VIP Monthly Pass",
-    ticketCode: "MP-VIP-003",
-    description: "Premium VIP bus service with luxury amenities for 30 days",
-    price: 1200000,
-    validity: 30,
-    routes: ["All Routes"],
-    busType: "VIP",
-    maxUsagePerDay: 15,
-    availableTimeSlots: ["24/7"],
-    status: "active",
-    discount: 15,
-    createdAt: "2025-09-01",
-    updatedAt: "2025-10-25"
-  },
-  {
-    id: 4,
-    ticketName: "Single Trip - Express",
-    ticketCode: "ST-EXP-004",
-    description: "One-way express bus ticket",
-    price: 25000,
-    validity: 1,
-    routes: ["District 1 - District 7", "District 2 - District 9"],
-    busType: "Express",
-    maxUsagePerDay: 1,
-    availableTimeSlots: ["06:00-20:00"],
-    status: "active",
-    discount: 0,
-    createdAt: "2025-08-10",
-    updatedAt: "2025-10-10"
-  },
-  {
-    id: 5,
-    ticketName: "Student Pass - Standard",
-    ticketCode: "SP-STD-005",
-    description: "Discounted monthly pass for students",
-    price: 200000,
-    validity: 30,
-    routes: ["All Standard Routes"],
-    busType: "Standard",
-    maxUsagePerDay: 12,
-    availableTimeSlots: ["05:00-23:00"],
-    status: "active",
-    discount: 40,
-    createdAt: "2025-09-05",
-    updatedAt: "2025-10-18"
-  },
-  {
-    id: 6,
-    ticketName: "Weekend Pass - VIP",
-    ticketCode: "WKP-VIP-006",
-    description: "VIP access for weekends only",
-    price: 400000,
-    validity: 8,
-    routes: ["Premium Routes"],
-    busType: "VIP",
-    maxUsagePerDay: 6,
-    availableTimeSlots: ["Saturday-Sunday 24/7"],
-    status: "inactive",
-    discount: 5,
-    createdAt: "2025-08-20",
-    updatedAt: "2025-10-05"
-  },
-  {
-    id: 7,
-    ticketName: "Peak Hour Pass - Express",
-    ticketCode: "PHP-EXP-007",
-    description: "Express service during rush hours only",
-    price: 180000,
-    validity: 15,
-    routes: ["District 1 - District 7", "Thu Duc - District 1"],
-    busType: "Express",
-    maxUsagePerDay: 4,
-    availableTimeSlots: ["06:00-09:00", "16:30-19:30"],
-    status: "active",
-    discount: 0,
-    createdAt: "2025-09-10",
-    updatedAt: "2025-10-22"
-  },
-  {
-    id: 8,
-    ticketName: "Off-Peak Pass - Standard",
-    ticketCode: "OPP-STD-008",
-    description: "Discounted pass for off-peak hours",
-    price: 120000,
-    validity: 30,
-    routes: ["All Standard Routes"],
-    busType: "Standard",
-    maxUsagePerDay: 6,
-    availableTimeSlots: ["10:00-16:00", "20:00-05:00"],
-    status: "active",
-    discount: 30,
-    createdAt: "2025-08-25",
-    updatedAt: "2025-10-12"
-  }
-];
-
 export default function TicketsManagementPage() {
-  const [ticketTypes] = useState<BusTicketType[]>(mockTicketTypes);
+  const [ticketTypes, setTicketTypes] = useState<BusTicketType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBusType, setFilterBusType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
+  useEffect(() => {
+    fetchTicketTypes();
+  }, []);
+
+  const fetchTicketTypes = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('bus_ticket_types')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTicketTypes(data || []);
+    } catch (error) {
+      console.error('Error fetching bus ticket types:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      const response = await fetch('/api/bus-ticket-types/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('Successfully seeded ' + data.count + ' bus ticket types');
+        fetchTicketTypes();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   // Filter ticket types
   const filteredTickets = ticketTypes.filter((ticket) => {
     const matchesSearch =
-      ticket.ticketName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.ticketCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBusType = filterBusType === "" || ticket.busType === filterBusType;
+      ticket.ticket_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.ticket_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (ticket.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesBusType = filterBusType === "" || ticket.bus_type === filterBusType;
     const matchesStatus = filterStatus === "" || ticket.status === filterStatus;
     return matchesSearch && matchesBusType && matchesStatus;
   });
@@ -170,54 +85,39 @@ export default function TicketsManagementPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400";
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
       case "inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
     }
   };
 
   const getBusTypeColor = (busType: string) => {
     switch (busType) {
       case "VIP":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400";
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
       case "Express":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       case "Standard":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-black dark:text-white">
-            BUS TICKETS MANAGEMENT
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Manage bus ticket types for mobile app
-          </p>
-        </div>
-        <button className="rounded-lg bg-primary px-6 py-2.5 text-white font-semibold uppercase tracking-wide shadow hover:bg-primary/90 flex items-center gap-2">
-          <span className="text-lg leading-none">+</span> CREATE TICKET
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="rounded-lg border border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <div className="p-4 md:p-6">
+      {/* Search */}
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="md:col-span-2">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name, code, or description..."
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           </div>
 
@@ -225,7 +125,7 @@ export default function TicketsManagementPage() {
             <select
               value={filterBusType}
               onChange={(e) => setFilterBusType(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
               <option value="">All Bus Types</option>
               <option value="Express">Express</option>
@@ -238,7 +138,7 @@ export default function TicketsManagementPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -246,196 +146,161 @@ export default function TicketsManagementPage() {
             </select>
           </div>
         </div>
+      </div>
 
-        {/* Table */}
+      {/* Tickets Table */}
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Bus Ticket Types
+          </h2>
+          <div className="flex gap-2">
+            {ticketTypes.length === 0 && !loading && (
+              <button
+                onClick={handleSeed}
+                disabled={seeding}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+              >
+                {seeding ? 'Seeding...' : 'Seed Sample Data'}
+              </button>
+            )}
+            <button className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
+              + Add Ticket
+            </button>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="border-b border-stroke bg-gray-2 text-left dark:border-strokedark dark:bg-meta-4">
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  TICKET CODE
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Code
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  NAME
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Name
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  DESCRIPTION
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Description
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  BUS TYPE
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Bus Type
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  PRICE
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Price
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  VALIDITY
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Validity
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  MAX USAGE/DAY
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Max/Day
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  DISCOUNT
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Discount
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  STATUS
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Status
                 </th>
-                <th className="px-4 py-4 font-bold text-black dark:text-white uppercase text-xs tracking-wider">
-                  ACTIONS
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Actions
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {filteredTickets.length > 0 ? (
+            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+              {loading ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Loading...
+                  </td>
+                </tr>
+              ) : filteredTickets.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    No ticket types found
+                  </td>
+                </tr>
+              ) : (
                 filteredTickets.map((ticket) => (
-                  <tr
-                    key={ticket.id}
-                    className="border-b border-stroke dark:border-strokedark hover:bg-gray-2 dark:hover:bg-meta-4"
-                  >
-                    <td className="px-4 py-4">
-                      <p className="text-sm font-mono font-medium text-black dark:text-white">
-                        {ticket.ticketCode}
-                      </p>
+                  <tr key={ticket.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-mono font-medium text-gray-900 dark:text-white">
+                        {ticket.ticket_code}
+                      </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm font-medium text-black dark:text-white">
-                        {ticket.ticketName}
-                      </p>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {ticket.ticket_name}
+                      </div>
                     </td>
-                    <td className="px-4 py-4 max-w-xs">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {ticket.description}
-                      </p>
+                    <td className="px-6 py-4 max-w-xs">
+                      <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                        {ticket.description || '-'}
+                      </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${getBusTypeColor(ticket.busType)}`}>
-                        {ticket.busType}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getBusTypeColor(ticket.bus_type)}`}>
+                        {ticket.bus_type}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm font-medium text-black dark:text-white">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {ticket.price.toLocaleString()} VNĐ
-                      </p>
+                      </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-black dark:text-white">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white">
                         {ticket.validity} {ticket.validity === 1 ? 'day' : 'days'}
-                      </p>
+                      </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <p className="text-sm text-center text-black dark:text-white">
-                        {ticket.maxUsagePerDay}
-                      </p>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {ticket.max_usage_per_day}
+                      </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {ticket.discount > 0 ? (
-                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-500/10 dark:text-orange-400">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
                           {ticket.discount}%
                         </span>
                       ) : (
                         <span className="text-sm text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${getStatusColor(
-                          ticket.status,
-                        )}`}
-                      >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${getStatusColor(ticket.status)}`}>
                         {ticket.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="text-primary hover:text-primary/80 bg-primary/10 rounded-full p-1"
-                          title="View details"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="text-orange-500 hover:text-orange-600 bg-orange-100 rounded-full p-1"
-                          title="Edit"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="text-red-500 hover:text-red-600 bg-red-100 rounded-full p-1"
-                          title="Delete"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                      <button className="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3">
+                        Edit
+                      </button>
+                      <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
-              ) : (
-                <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center">
-                    <p className="text-gray-500 dark:text-gray-400">
-                      No ticket types found
-                    </p>
-                  </td>
-                </tr>
               )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredTickets.length} ticket types
-          </p>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+            <span>
+              Showing {filteredTickets.length} ticket types
+            </span>
+          </div>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
+            <button className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300">
               Previous
             </button>
-            <button className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
+            <button className="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600">
               1
             </button>
-            <button className="rounded-lg border border-stroke px-4 py-2 text-sm hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
+            <button className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300">
               Next
             </button>
           </div>

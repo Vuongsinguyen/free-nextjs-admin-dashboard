@@ -1,285 +1,657 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 interface Property {
-  id: number;
+  id: string;
   code: string;
   name: string;
-  location: string;
-  developer: string;
-  totalArea: number; // m2
-  categoryId: number;
-  categoryName: string;
-  totalZones: number;
-  totalBuildings: number;
-  totalUnits: number;
-  status: "planning" | "under-construction" | "completed" | "operational";
-  startDate: string;
-  completionDate: string;
-  description: string;
+  description: string | null;
+  address: string | null;
+  province: string | null;
+  district: string | null;
+  ward: string | null;
+  total_area: number | null;
+  status: "active" | "inactive" | "planned" | "under_construction";
+  zone_count?: number;
+  building_count?: number;
+  unit_count?: number;
 }
 
 const PropertyPage = () => {
-  const [properties] = useState<Property[]>([
-    {
-      id: 1,
-      code: "PRJ001",
-      name: "Vinhomes Grand Park",
-      location: "Quận 9, TP.HCM",
-      developer: "Vingroup",
-      totalArea: 271,
-      categoryId: 1,
-      categoryName: "Apartment",
-      totalZones: 12,
-      totalBuildings: 45,
-      totalUnits: 8500,
-      status: "operational",
-      startDate: "2018-01-15",
-      completionDate: "2023-12-30",
-      description: "Khu đô thị sinh thái thông minh quy mô lớn",
-    },
-    {
-      id: 2,
-      code: "PRJ002",
-      name: "Masteri Thảo Điền",
-      location: "Quận 2, TP.HCM",
-      developer: "Masterise Homes",
-      totalArea: 6.3,
-      categoryId: 1,
-      categoryName: "Apartment",
-      totalZones: 3,
-      totalBuildings: 5,
-      totalUnits: 2200,
-      status: "operational",
-      startDate: "2015-03-20",
-      completionDate: "2019-06-15",
-      description: "Tổ hợp căn hộ cao cấp bên bờ sông Sài Gòn",
-    },
-    {
-      id: 3,
-      code: "PRJ003",
-      name: "Phú Mỹ Hưng Garden Homes",
-      location: "Quận 7, TP.HCM",
-      developer: "Phú Mỹ Hưng",
-      totalArea: 15.5,
-      categoryId: 2,
-      categoryName: "Villa",
-      totalZones: 5,
-      totalBuildings: 0,
-      totalUnits: 180,
-      status: "completed",
-      startDate: "2016-05-10",
-      completionDate: "2020-08-20",
-      description: "Khu biệt thự vườn cao cấp",
-    },
-    {
-      id: 4,
-      code: "PRJ004",
-      name: "Sala Urban",
-      location: "Quận 2, TP.HCM",
-      developer: "Danh Khôi",
-      totalArea: 9.2,
-      categoryId: 3,
-      categoryName: "Shop House",
-      totalZones: 2,
-      totalBuildings: 8,
-      totalUnits: 156,
-      status: "operational",
-      startDate: "2017-08-01",
-      completionDate: "2021-12-15",
-      description: "Khu phố thương mại kết hợp nhà ở",
-    },
-  ]);
-
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const itemsPerPage = 20;
 
-  // Removed Add Property action as requested
+  const [formData, setFormData] = useState({
+    code: "",
+    name: "",
+    description: "",
+    address: "",
+    province: "",
+    district: "",
+    ward: "",
+    total_area: 0,
+    status: "active" as Property["status"],
+  });
 
-  // Removed edit/delete/modal logic; page is now read-only cards
+  useEffect(() => {
+    fetchProperties();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      
+      // Get total count
+      const { count } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true });
+      setTotalCount(count || 0);
+
+      // Get paginated data with zone counts only (buildings are under zones)
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+      
+      const { data, error } = await supabase
+        .from('properties')
+        .select(`
+          *,
+          zones(id)
+        `)
+        .order('code')
+        .range(from, to);
+
+      if (error) throw error;
+
+      // For each property, get building and unit counts through zones
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const propertiesWithCounts = await Promise.all((data || []).map(async (p: any) => {
+        // Count buildings through zones
+        const { count: buildingCount } = await supabase
+          .from('buildings')
+          .select('*', { count: 'exact', head: true })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .in('zone_id', p.zones?.map((z: any) => z.id) || []);
+        
+        // Count units directly
+        const { count: unitCount } = await supabase
+          .from('property_units')
+          .select('*', { count: 'exact', head: true })
+          .eq('property_id', p.id);
+        
+        return {
+          ...p,
+          zone_count: p.zones?.length || 0,
+          building_count: buildingCount || 0,
+          unit_count: unitCount || 0,
+        };
+      }));
+      
+      setProperties(propertiesWithCounts);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSeedProperties = async () => {
+    setSeeding(true);
+    try {
+      const response = await fetch('/api/properties/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('Successfully seeded ' + data.count + ' properties');
+        fetchProperties();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const handleAdd = () => {
+    setEditingProperty(null);
+    setFormData({
+      code: "",
+      name: "",
+      description: "",
+      address: "",
+      province: "",
+      district: "",
+      ward: "",
+      total_area: 0,
+      status: "active",
+    });
+    setShowModal(true);
+  };
+
+  const handleEdit = (property: Property) => {
+    setEditingProperty(property);
+    setFormData({
+      code: property.code,
+      name: property.name,
+      description: property.description || "",
+      address: property.address || "",
+      province: property.province || "",
+      district: property.district || "",
+      ward: property.ward || "",
+      total_area: property.total_area || 0,
+      status: property.status,
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this property?")) return;
+    
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any).from('properties').delete().eq('id', id);
+      if (error) throw error;
+      alert('Property deleted successfully');
+      fetchProperties();
+    } catch (error) {
+      alert('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingProperty) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('properties')
+          .update({
+            code: formData.code,
+            name: formData.name,
+            description: formData.description || null,
+            address: formData.address || null,
+            province: formData.province || null,
+            district: formData.district || null,
+            ward: formData.ward || null,
+            total_area: formData.total_area || null,
+            status: formData.status,
+          })
+          .eq('id', editingProperty.id);
+        
+        if (error) throw error;
+        alert('Property updated successfully');
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('properties')
+          .insert([{
+            code: formData.code,
+            name: formData.name,
+            description: formData.description || null,
+            address: formData.address || null,
+            province: formData.province || null,
+            district: formData.district || null,
+            ward: formData.ward || null,
+            total_area: formData.total_area || null,
+            status: formData.status,
+          }]);
+        
+        if (error) throw error;
+        alert('Property created successfully');
+      }
+      
+      setShowModal(false);
+      setEditingProperty(null);
+      setFormData({
+        code: "",
+        name: "",
+        description: "",
+        address: "",
+        province: "",
+        district: "",
+        ward: "",
+        total_area: 0,
+        status: "active",
+      });
+      fetchProperties();
+    } catch (error) {
+      alert('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
+  const filteredProperties = properties.filter((property) =>
+    property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (property.province || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusBadge = (status: Property["status"]) => {
     const badges = {
-      planning: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
-      "under-construction": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
-      completed: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-      operational: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+      active: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+      inactive: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+      planned: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+      under_construction: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
     };
-    const labels = {
-      planning: "Planning",
-      "under-construction": "Under Construction",
-      completed: "Completed",
-      operational: "Operational",
-    };
-    return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badges[status]}`}>
-        {labels[status]}
-      </span>
-    );
+    return badges[status];
   };
-
-  const filteredProperties = properties.filter((prop) => {
-    const matchesSearch = prop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         prop.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         prop.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || prop.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const totalArea = properties.reduce((sum, prop) => sum + prop.totalArea, 0);
-  const totalUnits = properties.reduce((sum, prop) => sum + prop.totalUnits, 0);
-  const operationalCount = properties.filter((p) => p.status === "operational").length;
 
   return (
     <div className="p-4 md:p-6">
+      <PageBreadCrumb pageTitle="Property / Project" />
+
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
         <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{properties.length}</p>
-            </div>
-            <div className="p-3 bg-brand-50 rounded-lg dark:bg-brand-900/20">
-              <svg className="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Area</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalArea.toFixed(1)} ha</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-lg dark:bg-purple-900/20">
-              <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Units</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalUnits.toLocaleString()}</p>
-            </div>
-            <div className="p-3 bg-green-50 rounded-lg dark:bg-green-900/20">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Operational</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{operationalCount}</p>
-            </div>
-            <div className="p-3 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-              <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <input
-              type="text"
-              placeholder="Search by name, code, or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
           <div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            >
-              <option value="all">All Status</option>
-              <option value="planning">Planning</option>
-              <option value="under-construction">Under Construction</option>
-              <option value="completed">Completed</option>
-              <option value="operational">Operational</option>
-            </select>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Properties</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p>
+          </div>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {properties.filter(p => p.status === 'active').length}
+            </p>
+          </div>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Zones</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {properties.reduce((sum, p) => sum + (p.zone_count || 0), 0)}
+            </p>
+          </div>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Buildings</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {properties.reduce((sum, p) => sum + (p.building_count || 0), 0)}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Projects Table (Admin) */}
+      {/* Search */}
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
+        <input
+          type="text"
+          placeholder="Search by property name, code, or province..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+        />
+      </div>
+
+      {/* Properties Table */}
       <div className="bg-white rounded-lg shadow dark:bg-gray-900">
-        <div className="flex items-center p-4 border-b border-gray-200 dark:border-gray-800">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Real Estate Projects</h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Properties / Projects
+          </h2>
+          <div className="flex gap-2">
+            {properties.length === 0 && !loading && (
+              <button
+                onClick={handleSeedProperties}
+                disabled={seeding}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+              >
+                {seeding ? 'Seeding...' : 'Seed Sample Data'}
+              </button>
+            )}
+            <button
+              onClick={handleAdd}
+              className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+            >
+              + Add Property
+            </button>
+          </div>
         </div>
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Code</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Project Name</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Location</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Developer</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Category</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Area (ha)</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Zones</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Buildings</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">Units</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Status</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Code
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Location
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Area (ha)
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Zones
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Buildings
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
-              {filteredProperties.map((property) => (
-                <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold text-brand-700 bg-brand-100 rounded dark:bg-brand-900/20 dark:text-brand-400">
-                      {property.code}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Loading...
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{property.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{property.description}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.location}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.developer}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.categoryName}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.totalArea}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.totalZones}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.totalBuildings}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900 dark:text-white">{property.totalUnits}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(property.status)}</td>
                 </tr>
-              ))}
+              ) : filteredProperties.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    No properties found
+                  </td>
+                </tr>
+              ) : (
+                filteredProperties.map((property) => (
+                  <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {property.code}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {property.name}
+                      </div>
+                      {property.description && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {property.description}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {property.province || '-'}
+                      </div>
+                      {property.address && (
+                        <div className="text-xs text-gray-400 dark:text-gray-500">
+                          {property.address}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {property.total_area || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {property.zone_count || 0}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {property.building_count || 0}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(property.status)}`}
+                      >
+                        {property.status.replace('_', ' ').charAt(0).toUpperCase() + property.status.replace('_', ' ').slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                      <button
+                        onClick={() => handleEdit(property)}
+                        className="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(property.id)}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalCount > itemsPerPage && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+              <span>
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                Previous
+              </button>
+              {Array.from({ length: Math.ceil(totalCount / itemsPerPage) }, (_, i) => i + 1)
+                .filter(page => {
+                  const totalPages = Math.ceil(totalCount / itemsPerPage);
+                  return page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
+                })
+                .map((page, index, array) => (
+                  <React.Fragment key={page}>
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span className="px-3 py-1 text-sm text-gray-700 dark:text-gray-300">...</span>
+                    )}
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 text-sm font-medium rounded-lg ${
+                        currentPage === page
+                          ? 'bg-brand-500 text-white'
+                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / itemsPerPage), prev + 1))}
+                disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {editingProperty ? "Edit Property" : "Add Property"}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Code *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    required
+                    placeholder="e.g., PRJ001"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    required
+                    placeholder="e.g., Vinhomes Grand Park"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="Street address"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Province
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.province}
+                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="e.g., TP.HCM"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    District
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.district}
+                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="e.g., Quận 9"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Ward
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.ward}
+                    onChange={(e) => setFormData({ ...formData, ward: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="e.g., Phường Long Thạnh Mỹ"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Total Area (ha)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.total_area}
+                    onChange={(e) => setFormData({ ...formData, total_area: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    min="0"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Status *
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Property["status"] })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    required
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="planned">Planned</option>
+                    <option value="under_construction">Under Construction</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="Property description..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+                >
+                  {editingProperty ? "Update" : "Create"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,456 +1,570 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
-interface PropertyUnit {
-  id: number;
-  unitNumber: string;
-  floorNumber: number;
-  buildingName: string;
-  zoneName: string;
-  propertyName: string;
-  area: number; // m2
-  bedrooms: number;
-  bathrooms: number;
-  unitType: "studio" | "1br" | "2br" | "3br" | "4br" | "penthouse";
-  status: "available" | "occupied" | "reserved" | "under-renovation";
-  ownerName: string;
-  rentPrice: number; // VND
+interface Floor {
+  id: string;
+  name: string;
+  floor_number: number;
+  description: string | null;
+  total_units: number;
+  status: "active" | "inactive" | "maintenance";
+  building_id: string;
+  building_name?: string;
+  building_code?: string;
+  zone_name?: string;
+  property_name?: string;
+  occupied_units?: number;
 }
 
-const PropertyUnitPage = () => {
-  const [units, setUnits] = useState<PropertyUnit[]>([
-    {
-      id: 1,
-      unitNumber: "01",
-      floorNumber: 1,
-      buildingName: "Rainbow Tower 1",
-      zoneName: "The Rainbow",
-      propertyName: "Vinhomes Grand Park",
-      area: 72,
-      bedrooms: 2,
-      bathrooms: 2,
-      unitType: "2br",
-      status: "occupied",
-      ownerName: "Nguyễn Văn A",
-      rentPrice: 15000000,
-    },
-    {
-      id: 2,
-      unitNumber: "02",
-      floorNumber: 1,
-      buildingName: "Rainbow Tower 1",
-      zoneName: "The Rainbow",
-      propertyName: "Vinhomes Grand Park",
-      area: 85,
-      bedrooms: 3,
-      bathrooms: 2,
-      unitType: "3br",
-      status: "occupied",
-      ownerName: "Trần Thị B",
-      rentPrice: 18000000,
-    },
-    {
-      id: 3,
-      unitNumber: "03",
-      floorNumber: 1,
-      buildingName: "Rainbow Tower 1",
-      zoneName: "The Rainbow",
-      propertyName: "Vinhomes Grand Park",
-      area: 50,
-      bedrooms: 1,
-      bathrooms: 1,
-      unitType: "1br",
-      status: "available",
-      ownerName: "",
-      rentPrice: 12000000,
-    },
-    {
-      id: 4,
-      unitNumber: "04",
-      floorNumber: 1,
-      buildingName: "Rainbow Tower 1",
-      zoneName: "The Rainbow",
-      propertyName: "Vinhomes Grand Park",
-      area: 105,
-      bedrooms: 3,
-      bathrooms: 3,
-      unitType: "3br",
-      status: "reserved",
-      ownerName: "Lê Văn C",
-      rentPrice: 22000000,
-    },
-  ]);
+interface Building {
+  id: string;
+  name: string;
+  code: string;
+  zone_name?: string;
+  property_name?: string;
+}
 
+const FloorPage = () => {
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [editingUnit, setEditingUnit] = useState<PropertyUnit | null>(null);
+  const [editingFloor, setEditingFloor] = useState<Floor | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalUnitsAll, setTotalUnitsAll] = useState(0);
+  const [totalOccupiedAll, setTotalOccupiedAll] = useState(0);
+  const itemsPerPage = 20;
 
   const [formData, setFormData] = useState({
-    unitNumber: "",
-    floorNumber: 1,
-    buildingName: "Rainbow Tower 1",
-    zoneName: "The Rainbow",
-    propertyName: "Vinhomes Grand Park",
-    area: 0,
-    bedrooms: 1,
-    bathrooms: 1,
-    unitType: "1br" as PropertyUnit["unitType"],
-    status: "available" as PropertyUnit["status"],
-    ownerName: "",
-    rentPrice: 0,
+    name: "",
+    floor_number: 1,
+    building_id: "",
+    description: "",
+    total_units: 0,
+    status: "active" as Floor["status"],
   });
 
-  const handleEdit = (unit: PropertyUnit) => {
-    setEditingUnit(unit);
+  useEffect(() => {
+    fetchFloors();
+    fetchBuildings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const fetchFloors = async () => {
+    try {
+      setLoading(true);
+      
+      // Get total count and statistics
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count } = await (supabase as any)
+        .from('floors')
+        .select('*', { count: 'exact', head: true });
+      
+      setTotalCount(count || 0);
+
+      // Get total units and occupied units for all floors (for statistics)
+      const { data: allFloorsData } = await supabase
+        .from('floors')
+        .select('id, total_units');
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const totalUnits = (allFloorsData || []).reduce((sum: number, f: any) => sum + (f.total_units || 0), 0);
+      setTotalUnitsAll(totalUnits);
+
+      // Get total occupied units
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count: occupiedCount } = await (supabase as any)
+        .from('property_units')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'occupied');
+      
+      setTotalOccupiedAll(occupiedCount || 0);
+
+      // Get paginated data
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      const { data: floorsData, error: floorsError } = await supabase
+        .from('floors')
+        .select('*, building:buildings(name, code, zone:zones(name, property:properties(name)))')
+        .order('building_id')
+        .order('floor_number')
+        .range(from, to);
+
+      if (floorsError) throw floorsError;
+
+      const floorsWithOccupancy = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (floorsData || []).map(async (floor: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { count } = await (supabase as any)
+            .from('property_units')
+            .select('*', { count: 'exact', head: true })
+            .eq('floor_id', floor.id)
+            .eq('status', 'occupied');
+
+          const building = floor.building;
+          
+          return {
+            ...floor,
+            building_name: building?.name,
+            building_code: building?.code,
+            zone_name: building?.zone?.name,
+            property_name: building?.zone?.property?.name,
+            occupied_units: count || 0,
+          };
+        })
+      );
+
+      setFloors(floorsWithOccupancy);
+    } catch (error) {
+      console.error('Error fetching floors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBuildings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('buildings')
+        .select('id, name, code, zone:zones(name, property:properties(name))')
+        .order('name');
+
+      if (error) throw error;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const buildingsWithInfo = (data || []).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        code: b.code,
+        zone_name: b.zone?.name,
+        property_name: b.zone?.property?.name,
+      }));
+
+      setBuildings(buildingsWithInfo);
+      
+      if (buildingsWithInfo.length > 0 && !formData.building_id) {
+        setFormData(prev => ({ ...prev, building_id: buildingsWithInfo[0].id }));
+      }
+    } catch (error) {
+      console.error('Error fetching buildings:', error);
+    }
+  };
+
+  const handleSeedFloors = async () => {
+    setSeeding(true);
+    try {
+      const response = await fetch('/api/floors/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Successfully seeded ${data.count} floors`);
+        fetchFloors();
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const handleAdd = () => {
+    setEditingFloor(null);
     setFormData({
-      unitNumber: unit.unitNumber,
-      floorNumber: unit.floorNumber,
-      buildingName: unit.buildingName,
-      zoneName: unit.zoneName,
-      propertyName: unit.propertyName,
-      area: unit.area,
-      bedrooms: unit.bedrooms,
-      bathrooms: unit.bathrooms,
-      unitType: unit.unitType,
-      status: unit.status,
-      ownerName: unit.ownerName,
-      rentPrice: unit.rentPrice,
+      name: "",
+      floor_number: 1,
+      building_id: buildings.length > 0 ? buildings[0].id : "",
+      description: "",
+      total_units: 0,
+      status: "active",
     });
     setShowModal(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this property unit?")) {
-      setUnits(units.filter((u) => u.id !== id));
+  const handleEdit = (floor: Floor) => {
+    setEditingFloor(floor);
+    setFormData({
+      name: floor.name,
+      floor_number: floor.floor_number,
+      building_id: floor.building_id,
+      description: floor.description || "",
+      total_units: floor.total_units,
+      status: floor.status,
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this floor?")) return;
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from('floors')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      alert('Floor deleted successfully');
+      fetchFloors();
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingUnit) {
-      setUnits(units.map((u) => (u.id === editingUnit.id ? { ...u, ...formData } : u)));
-    } else {
-      const newUnit: PropertyUnit = {
-        id: Math.max(...units.map((u) => u.id)) + 1,
-        ...formData,
-      };
-      setUnits([...units, newUnit]);
+
+    try {
+      if (editingFloor) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('floors')
+          .update({
+            name: formData.name,
+            floor_number: formData.floor_number,
+            building_id: formData.building_id,
+            description: formData.description || null,
+            total_units: formData.total_units,
+            status: formData.status,
+          })
+          .eq('id', editingFloor.id);
+
+        if (error) throw error;
+        alert('Floor updated successfully');
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('floors')
+          .insert([{
+            name: formData.name,
+            floor_number: formData.floor_number,
+            building_id: formData.building_id,
+            description: formData.description || null,
+            total_units: formData.total_units,
+            status: formData.status,
+          }]);
+
+        if (error) throw error;
+        alert('Floor created successfully');
+      }
+
+      setShowModal(false);
+      setEditingFloor(null);
+      setFormData({
+        name: "",
+        floor_number: 1,
+        building_id: buildings.length > 0 ? buildings[0].id : "",
+        description: "",
+        total_units: 0,
+        status: "active",
+      });
+      fetchFloors();
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    setShowModal(false);
   };
 
-  const getStatusBadge = (status: PropertyUnit["status"]) => {
-    const badges = {
-      available: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-      occupied: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-      reserved: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
-      "under-renovation": "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
-    };
-    return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badges[status]}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1).replace("-", " ")}
-      </span>
-    );
-  };
+  const filteredFloors = floors.filter((floor) =>
+    (floor.building_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    floor.floor_number.toString().includes(searchTerm) ||
+    (floor.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const filteredUnits = units.filter((unit) => {
-    const matchesSearch =
-      unit.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.buildingName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.ownerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const occupancyRate = totalUnitsAll > 0 ? ((totalOccupiedAll / totalUnitsAll) * 100).toFixed(1) : "0";
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Property Units</h1>
-        </div>
-      </div>
-
-
-
-      {/* Search and Filters */}
-            {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Search
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by unit number, building, or owner..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
+    <div className="p-4 md:p-6">
+      <PageBreadCrumb pageTitle="Floor" />
+      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Floors</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="all">All Status</option>
-              <option value="available">Available</option>
-              <option value="occupied">Occupied</option>
-              <option value="reserved">Reserved</option>
-              <option value="under-renovation">Under Renovation</option>
-            </select>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Units</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalUnitsAll}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Occupied</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalOccupiedAll}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Occupancy Rate</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{occupancyRate}%</p>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900 mb-6 p-4">
+        <input
+          type="text"
+          placeholder="Search by building name or floor number..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+        />
+      </div>
+      <div className="bg-white rounded-lg shadow dark:bg-gray-900">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Floors</h2>
+          <div className="flex gap-2">
+            {floors.length === 0 && !loading && (
+              <button
+                onClick={handleSeedFloors}
+                disabled={seeding}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+              >
+                {seeding ? 'Seeding...' : 'Seed Sample Data'}
+              </button>
+            )}
+            <button
+              onClick={handleAdd}
+              className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+            >
+              + Add Floor
+            </button>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Unit #</th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Floor</th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Building</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Type</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Area (m²)</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Bed/Bath</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Owner</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Rent Price</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Zone</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Property</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Total Units</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Occupied</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Occupancy</th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Status</th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredUnits.map((unit) => (
-                <tr key={unit.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold text-brand-700 bg-brand-100 rounded dark:bg-brand-900/20 dark:text-brand-400">
-                      {unit.unitNumber}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">Floor {unit.floorNumber}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{unit.buildingName}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{unit.zoneName}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
-                      {unit.unitType.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">{unit.area}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {unit.bedrooms}BR / {unit.bathrooms}BA
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {unit.ownerName || "-"}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {unit.rentPrice.toLocaleString()} VND
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(unit.status)}</td>
-                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                    <button
-                      onClick={() => handleEdit(unit)}
-                      className="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
-                      title="Edit"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(unit.id)}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                      title="Delete"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </td>
+            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-800">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading...</td>
                 </tr>
-              ))}
+              ) : filteredFloors.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No floors found</td>
+                </tr>
+              ) : (
+                filteredFloors.map((floor) => {
+                  const rate = floor.total_units > 0 ? ((floor.occupied_units || 0) / floor.total_units * 100).toFixed(0) : 0;
+                  return (
+                    <tr key={floor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">{floor.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Floor {floor.floor_number}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{floor.building_name}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{floor.building_code}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{floor.zone_name || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{floor.property_name || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm text-gray-900 dark:text-white">{floor.total_units}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm text-gray-900 dark:text-white">{floor.occupied_units || 0}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-16 bg-gray-200 rounded-full h-2 dark:bg-gray-700 mr-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{ width: `${rate}%` }}></div>
+                          </div>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{rate}%</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          floor.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" :
+                          floor.status === "maintenance" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400" :
+                          "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                        }`}>
+                          {floor.status.charAt(0).toUpperCase() + floor.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                        <button onClick={() => handleEdit(floor)} className="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3">Edit</button>
+                        <button onClick={() => handleDelete(floor.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        {totalCount > itemsPerPage && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+              <span>
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                Previous
+              </button>
+              {Array.from({ length: Math.ceil(totalCount / itemsPerPage) }, (_, i) => i + 1)
+                .filter(page => {
+                  const totalPages = Math.ceil(totalCount / itemsPerPage);
+                  return page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
+                })
+                .map((page, index, array) => (
+                  <React.Fragment key={page}>
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span className="px-3 py-1 text-sm text-gray-700 dark:text-gray-300">...</span>
+                    )}
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 text-sm font-medium rounded-lg ${
+                        currentPage === page
+                          ? 'bg-brand-500 text-white'
+                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / itemsPerPage), prev + 1))}
+                disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl mx-4 my-8">
+        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg mx-4">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {editingUnit ? "Edit Property Unit" : "Add Property Unit"}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{editingFloor ? "Edit Floor" : "Add Floor"}</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-500">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-4 max-h-[70vh] overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unit Number *</label>
-                  <input
-                    type="text"
-                    value={formData.unitNumber}
-                    onChange={(e) => setFormData({ ...formData, unitNumber: e.target.value })}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Building *</label>
+                  <select
+                    value={formData.building_id}
+                    onChange={(e) => setFormData({ ...formData, building_id: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     required
-                  />
+                  >
+                    {buildings.map((building) => (
+                      <option key={building.id} value={building.id}>{building.name} ({building.zone_name})</option>
+                    ))}
+                  </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Floor Number *</label>
                   <input
                     type="number"
-                    value={formData.floorNumber}
-                    onChange={(e) => setFormData({ ...formData, floorNumber: parseInt(e.target.value) })}
+                    value={formData.floor_number}
+                    onChange={(e) => setFormData({ ...formData, floor_number: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     required
+                    min="1"
                   />
                 </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Building *</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
                   <input
                     type="text"
-                    value={formData.buildingName}
-                    onChange={(e) => setFormData({ ...formData, buildingName: e.target.value })}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     required
+                    placeholder="e.g., Floor 1"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unit Type *</label>
-                  <select
-                    value={formData.unitType}
-                    onChange={(e) => setFormData({ ...formData, unitType: e.target.value as PropertyUnit["unitType"] })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="studio">Studio</option>
-                    <option value="1br">1 Bedroom</option>
-                    <option value="2br">2 Bedrooms</option>
-                    <option value="3br">3 Bedrooms</option>
-                    <option value="4br">4 Bedrooms</option>
-                    <option value="penthouse">Penthouse</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Area (m²) *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total Units</label>
                   <input
                     type="number"
-                    value={formData.area}
-                    onChange={(e) => setFormData({ ...formData, area: parseInt(e.target.value) })}
+                    value={formData.total_units}
+                    onChange={(e) => setFormData({ ...formData, total_units: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    required
+                    min="0"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bedrooms *</label>
-                  <input
-                    type="number"
-                    value={formData.bedrooms}
-                    onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bathrooms *</label>
-                  <input
-                    type="number"
-                    value={formData.bathrooms}
-                    onChange={(e) => setFormData({ ...formData, bathrooms: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    required
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status *</label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as PropertyUnit["status"] })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as Floor["status"] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     required
                   >
-                    <option value="available">Available</option>
-                    <option value="occupied">Occupied</option>
-                    <option value="reserved">Reserved</option>
-                    <option value="under-renovation">Under Renovation</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="maintenance">Maintenance</option>
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rent Price (VND) *</label>
-                  <input
-                    type="number"
-                    value={formData.rentPrice}
-                    onChange={(e) => setFormData({ ...formData, rentPrice: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    required
-                  />
-                </div>
-
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Owner Name</label>
-                  <input
-                    type="text"
-                    value={formData.ownerName}
-                    onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
               </div>
-
               <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
-                >
-                  {editingUnit ? "Update" : "Create"}
-                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">{editingFloor ? "Update" : "Create"}</button>
               </div>
             </form>
           </div>
@@ -460,4 +574,4 @@ const PropertyUnitPage = () => {
   );
 };
 
-export default PropertyUnitPage;
+export default FloorPage;
