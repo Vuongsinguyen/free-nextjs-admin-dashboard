@@ -9,6 +9,7 @@ export interface User {
   updatedAt: string;
   // New resident-specific fields
   propertyName?: string;
+  propertyUnitId?: string; // Foreign key to property_units table
   roomNumber?: string;
   fullName?: string;
   gender?: string;

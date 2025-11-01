@@ -53,7 +53,7 @@ export default function SignInForm() {
     console.log('🔵 Email:', email);
 
     if (!email || !password) {
-      setError('Vui lòng nhập đầy đủ email và mật khẩu');
+      setError(t('auth.signin.errors.requiredFields'));
       return;
     }
 
@@ -69,7 +69,10 @@ export default function SignInForm() {
         
         if (userRole !== selectedRole) {
           console.log('🔴 Role mismatch! User role:', userRole, '!== Selected role:', selectedRole);
-          setError(`Tài khoản này thuộc vai trò "${getRoleDisplayName(userRole)}" nhưng bạn đã chọn vai trò "${getRoleDisplayName(selectedRole)}". Vui lòng quay lại và chọn đúng vai trò hoặc đăng nhập với tài khoản khác.`);
+          const errorMessage = t('auth.signin.errors.roleMismatch')
+            .replace('{userRole}', getRoleDisplayName(userRole))
+            .replace('{selectedRole}', getRoleDisplayName(selectedRole));
+          setError(errorMessage);
           // Logout user vì role không khớp
           await logout();
           return;
@@ -108,7 +111,7 @@ export default function SignInForm() {
       return;
     } else {
       console.log('🔴 Login thất bại:', result.error);
-      setError(result.error || 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
+      setError(result.error || t('auth.signin.errors.invalidCredentials'));
     }
   };
   return (

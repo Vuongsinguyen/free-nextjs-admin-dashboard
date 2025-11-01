@@ -57,6 +57,7 @@ export default function UsersPage() {
           updatedAt: user.updated_at,
           // Resident-specific fields
           propertyName: user.property_name,
+          propertyUnitId: user.property_unit_id,
           roomNumber: user.room_number,
           fullName: user.full_name,
           gender: user.gender,
@@ -149,38 +150,80 @@ export default function UsersPage() {
     setShowModal(true);
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (confirm(t('userManagement.deleteConfirm'))) {
-      setUsers(prev => prev.filter(user => user.id !== userId));
+      try {
+        const { error } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', userId);
+        
+        if (error) throw error;
+        
+        setUsers(prev => prev.filter(user => user.id !== userId));
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      }
     }
   };
 
-  // Keep local modal behavior for mock users
-  const handleSaveUser = (userData: Partial<User>) => {
-    if (editingUser) {
-      // Update existing user
-      setUsers(prev =>
-        prev.map(user =>
-          user.id === editingUser.id
-            ? { ...user, ...userData, updatedAt: new Date().toISOString() }
-            : user
-        )
-      );
-    } else {
-      // Add new user (local only)
-      const newUser: User = {
-        id: `user_${Date.now()}`,
-        name: userData.name || "",
-        email: userData.email || "",
-        role: userData.role || "guest",
-        status: (userData.status as "active" | "inactive") || "active",
-        permissions: userData.permissions || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setUsers(prev => [...prev, newUser]);
+  // Save user to database
+  const handleSaveUser = async (userData: Partial<User>) => {
+    try {
+      if (editingUser) {
+        // Update existing user
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const updateData: any = {
+          name: userData.name,
+          email: userData.email,
+          role: userData.role,
+          status: userData.status,
+          property_unit_id: userData.propertyUnitId || null,
+          nationality: userData.nationality || null,
+          phone_number: userData.phoneNumber || null,
+          updated_at: new Date().toISOString(),
+        };
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('users')
+          .update(updateData)
+          .eq('id', editingUser.id);
+        
+        if (error) throw error;
+        
+        setUsers(prev =>
+          prev.map(user =>
+            user.id === editingUser.id
+              ? { ...user, ...userData, updatedAt: new Date().toISOString() }
+              : user
+          )
+        );
+      } else {
+        // Add new user - this requires Auth API
+        alert('Creating new users requires authentication setup. Please use Supabase Auth or admin API.');
+        // For now, keep local behavior
+        const newUser: User = {
+          id: `user_${Date.now()}`,
+          name: userData.name || "",
+          email: userData.email || "",
+          role: userData.role || "guest",
+          status: (userData.status as "active" | "inactive") || "active",
+          permissions: userData.permissions || [],
+          propertyUnitId: userData.propertyUnitId,
+          nationality: userData.nationality,
+          phoneNumber: userData.phoneNumber,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setUsers(prev => [...prev, newUser]);
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      alert('Failed to save user');
     }
-    setShowModal(false);
   };
 
   // const handleCreateRealUser = () => {

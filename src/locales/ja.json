@@ -93,7 +93,12 @@
         "forgotPassword": "パスワードをお忘れですか？",
         "signIn": "サインイン",
         "loggingIn": "サインイン中...",
-        "dontHaveAccount": "アカウントをお持ちでないですか？"
+        "dontHaveAccount": "アカウントをお持ちでないですか？",
+        "errors": {
+          "requiredFields": "メールアドレスとパスワードを入力してください",
+          "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。もう一度お試しください。",
+          "roleMismatch": "このアカウントは「{userRole}」ロールですが、「{selectedRole}」ロールを選択しました。戻って正しいロールを選択するか、別のアカウントでサインインしてください。"
+        }
       }
     },
     "dev": {

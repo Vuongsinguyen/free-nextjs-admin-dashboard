@@ -219,7 +219,12 @@
       "forgotPassword": "Quên mật khẩu?",
       "signIn": "Đăng nhập",
       "loggingIn": "Đang đăng nhập...",
-      "dontHaveAccount": "Chưa có tài khoản?"
+      "dontHaveAccount": "Chưa có tài khoản?",
+      "errors": {
+        "requiredFields": "Vui lòng nhập đầy đủ email và mật khẩu",
+        "invalidCredentials": "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
+        "roleMismatch": "Tài khoản này thuộc vai trò \"{userRole}\" nhưng bạn đã chọn vai trò \"{selectedRole}\". Vui lòng quay lại và chọn đúng vai trò hoặc đăng nhập với tài khoản khác."
+      }
     }
   },
   "dev": {

@@ -219,7 +219,12 @@
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",
       "loggingIn": "Logging in...",
-      "dontHaveAccount": "Don't have an account?"
+      "dontHaveAccount": "Don't have an account?",
+      "errors": {
+        "requiredFields": "Please enter both email and password",
+        "invalidCredentials": "Invalid email or password. Please try again.",
+        "roleMismatch": "This account belongs to the \"{userRole}\" role, but you selected the \"{selectedRole}\" role. Please go back and select the correct role or sign in with a different account."
+      }
     }
   },
   "dev": {

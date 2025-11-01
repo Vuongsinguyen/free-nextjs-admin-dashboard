@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserModalProps } from "@/types/user-management";
 import { useLocale } from "@/context/LocaleContext";
+import { supabase } from "@/lib/supabase";
 
 const roles = [
   { value: "Admin", label: "Admin" },
@@ -13,6 +14,12 @@ const roles = [
   { value: "Others", label: "Others" },
 ];
 
+interface PropertyUnit {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export default function UserModal({ user, onClose, onSave }: UserModalProps) {
   const { t } = useLocale();
   const [formData, setFormData] = useState({
@@ -21,9 +28,37 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
     role: "Guest",
     status: "active" as "active" | "inactive",
     permissions: [] as string[],
+    propertyUnitId: "",
+    nationality: "",
+    phoneNumber: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [propertyUnits, setPropertyUnits] = useState<PropertyUnit[]>([]);
+
+  useEffect(() => {
+    // Load property units
+    const loadPropertyUnits = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('property_units')
+          .select('id, code, name')
+          .order('code');
+        
+        if (error) throw error;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setPropertyUnits((data || []).map((unit: any) => ({
+          id: unit.id,
+          code: unit.code,
+          name: unit.name || unit.code,
+        })));
+      } catch (error) {
+        console.error('Error loading property units:', error);
+      }
+    };
+
+    loadPropertyUnits();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -33,6 +68,9 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
         role: user.role,
         status: user.status,
         permissions: user.permissions,
+        propertyUnitId: user.propertyUnitId || "",
+        nationality: user.nationality || "",
+        phoneNumber: user.phoneNumber || "",
       });
     } else {
       setFormData({
@@ -41,6 +79,9 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
         role: "Guest",
         status: "active",
         permissions: [],
+        propertyUnitId: "",
+        nationality: "",
+        phoneNumber: "",
       });
     }
     setErrors({});
@@ -185,6 +226,53 @@ export default function UserModal({ user, onClose, onSave }: UserModalProps) {
                   <option value="active">{t('userManagement.active')}</option>
                   <option value="inactive">{t('userManagement.inactive')}</option>
                 </select>
+              </div>
+
+              {/* Property Unit */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Property Unit
+                </label>
+                <select
+                  value={formData.propertyUnitId}
+                  onChange={(e) => setFormData({ ...formData, propertyUnitId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">Select Property Unit</option>
+                  {propertyUnits.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.code} - {unit.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              {/* Nationality */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Nationality / Quốc tịch
+                </label>
+                <input
+                  type="text"
+                  value={formData.nationality}
+                  onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter nationality (e.g. Vietnamese, American)"
+                />
               </div>
 
               {/* Permissions selection removed: permissions are assigned via Role */}
