@@ -219,6 +219,7 @@
       "forgotPassword": "Quên mật khẩu?",
       "signIn": "Đăng nhập",
       "loggingIn": "Đang đăng nhập...",
+      "loadingMenu": "Đang cấu hình menu thông minh…",
       "dontHaveAccount": "Chưa có tài khoản?",
       "errors": {
         "requiredFields": "Vui lòng nhập đầy đủ email và mật khẩu",

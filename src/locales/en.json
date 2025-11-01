@@ -219,6 +219,7 @@
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",
       "loggingIn": "Logging in...",
+      "loadingMenu": "Smart menu configuration in progress…",
       "dontHaveAccount": "Don't have an account?",
       "errors": {
         "requiredFields": "Please enter both email and password",

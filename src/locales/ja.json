@@ -93,6 +93,7 @@
         "forgotPassword": "パスワードをお忘れですか？",
         "signIn": "サインイン",
         "loggingIn": "サインイン中...",
+        "loadingMenu": "スマートメニュー設定中…",
         "dontHaveAccount": "アカウントをお持ちでないですか？",
         "errors": {
           "requiredFields": "メールアドレスとパスワードを入力してください",
