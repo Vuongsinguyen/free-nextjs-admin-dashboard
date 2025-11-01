@@ -170,9 +170,6 @@ export default function BuildingCategoryPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Building Categories
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Manage building types and categories
-          </p>
         </div>
         <div className="flex gap-2">
           {categories.length === 0 && !loading && (

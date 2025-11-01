@@ -257,9 +257,6 @@ const PropertyPage = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Properties / Projects
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage property information
-          </p>
         </div>
         <div className="flex gap-2">
           {properties.length === 0 && !loading && (

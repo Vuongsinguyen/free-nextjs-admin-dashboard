@@ -72,12 +72,6 @@ export default function ProvincePage() {
     });
   }, [provinces, searchTerm, filterType]);
 
-  const stats = {
-    total: provinces.length,
-    cities: provinces.filter(p => p.type === 'city').length,
-    provinceCount: provinces.filter(p => p.type === 'province').length,
-  };
-
   return (
     <div className="space-y-6">
       {isLoading && (
@@ -89,22 +83,6 @@ export default function ProvincePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Province Management</h1>
-      </div>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Total Provinces/Cities</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Cities</p>
-          <p className="text-2xl font-bold text-brand-600 dark:text-brand-400 mt-1">{stats.cities}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Provinces</p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.provinceCount}</p>
-        </div>
       </div>
 
       {/* Search & Filter */}

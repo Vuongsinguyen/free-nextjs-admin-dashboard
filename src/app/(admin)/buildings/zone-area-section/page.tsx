@@ -170,9 +170,6 @@ const ZoneAreaSectionPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Zones / Areas / Sections</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage zone information
-          </p>
         </div>
         <div className="flex gap-2">
           {zones.length === 0 && !loading && (<button onClick={handleSeedZones} disabled={seeding} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400">{seeding ? 'Seeding...' : 'Seed Sample Data'}</button>)}

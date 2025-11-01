@@ -186,9 +186,6 @@ const BuildingBlockPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Buildings / Blocks</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage building information
-          </p>
         </div>
         <div className="flex gap-2">
           {buildings.length === 0 && !loading && (
