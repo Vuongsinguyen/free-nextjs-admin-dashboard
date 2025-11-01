@@ -8,27 +8,30 @@ interface Role {
   name: string;
   display_name: string;
   description: string | null;
-  status: string;
 }
 
-interface MenuItem {
+interface Permission {
   id: string;
-  title: string;
-  path: string;
-  icon: string | null;
-  parent_id: string | null;
-  order_index: number;
-  children?: MenuItem[];
+  name: string;
+  description: string | null;
+  category: string;
 }
 
-export default function MenuPermissionsPage() {
+interface PermissionGroup {
+  category: string;
+  permissions: Permission[];
+}
+
+export default function PermissionsPage() {
   const [roles, setRoles] = useState<Role[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [permissions, setPermissions] = useState<Map<string, Set<string>>>(new Map());
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePermissions, setRolePermissions] = useState<Map<string, Set<string>>>(new Map());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [newRole, setNewRole] = useState({ name: "", display_name: "", description: "" });
 
   useEffect(() => {
     fetchData();
@@ -45,58 +48,32 @@ export default function MenuPermissionsPage() {
       if (rolesError) throw rolesError;
       setRoles(rolesData || []);
 
-      const { data: menuData, error: menuError } = await supabase
-        .from('menu_items')
+      const { data: permissionsData, error: permissionsError } = await supabase
+        .from('permissions')
         .select('*')
-        .order('order_index');
+        .order('category, name');
 
-      if (menuError) throw menuError;
-      
-      const menuMap = new Map<string, MenuItem>();
-      const rootItems: MenuItem[] = [];
-      
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (menuData || []).forEach((item: any) => {
-        menuMap.set(item.id, { ...item, children: [] });
-      });
+      if (permissionsError) throw permissionsError;
+      setPermissions(permissionsData || []);
 
-      menuMap.forEach(item => {
-        if (item.parent_id) {
-          const parent = menuMap.get(item.parent_id);
-          if (parent) {
-            parent.children = parent.children || [];
-            parent.children.push(item);
-          }
-        } else {
-          rootItems.push(item);
-        }
-      });
+      const { data: rolePermsData, error: rolePermsError } = await supabase
+        .from('role_permissions')
+        .select('role_id, permission_id');
 
-      setMenuItems(rootItems);
-
-      const { data: permData, error: permError } = await supabase
-        .from('role_menu_items')
-        .select('role_id, menu_item_id');
-
-      if (permError) throw permError;
+      if (rolePermsError) throw rolePermsError;
 
       const permMap = new Map<string, Set<string>>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (permData || []).forEach((perm: any) => {
-        if (!permMap.has(perm.role_id)) {
-          permMap.set(perm.role_id, new Set());
+      (rolePermsData || []).forEach((rp: any) => {
+        if (!permMap.has(rp.role_id)) {
+          permMap.set(rp.role_id, new Set());
         }
-        permMap.get(perm.role_id)!.add(perm.menu_item_id);
+        permMap.get(rp.role_id)!.add(rp.permission_id);
       });
 
-      setPermissions(permMap);
-      
+      setRolePermissions(permMap);
+
       if (rolesData && rolesData.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const firstRole = rolesData[0] as any;
-        if (firstRole.id) {
-          setSelectedRole(firstRole.id);
-        }
+        setSelectedRole(rolesData[0].id);
       }
 
     } catch (error) {
@@ -107,61 +84,66 @@ export default function MenuPermissionsPage() {
     }
   };
 
-  const toggleGroup = (menuId: string) => {
+  const groupPermissionsByCategory = (): PermissionGroup[] => {
+    const groups = new Map<string, Permission[]>();
+    
+    permissions.forEach(perm => {
+      const category = perm.category || 'Other';
+      if (!groups.has(category)) {
+        groups.set(category, []);
+      }
+      groups.get(category)!.push(perm);
+    });
+
+    return Array.from(groups.entries()).map(([category, perms]) => ({
+      category,
+      permissions: perms
+    }));
+  };
+
+  const toggleGroup = (category: string) => {
     const newExpanded = new Set(expandedGroups);
-    if (newExpanded.has(menuId)) {
-      newExpanded.delete(menuId);
+    if (newExpanded.has(category)) {
+      newExpanded.delete(category);
     } else {
-      newExpanded.add(menuId);
+      newExpanded.add(category);
     }
     setExpandedGroups(newExpanded);
   };
 
-  const toggleMenuItem = (roleId: string, menuItemId: string) => {
-    const newPermissions = new Map(permissions);
-    if (!newPermissions.has(roleId)) {
-      newPermissions.set(roleId, new Set());
+  const togglePermission = (roleId: string, permissionId: string) => {
+    const newRolePerms = new Map(rolePermissions);
+    if (!newRolePerms.has(roleId)) {
+      newRolePerms.set(roleId, new Set());
     }
     
-    const rolePerms = newPermissions.get(roleId)!;
-    if (rolePerms.has(menuItemId)) {
-      rolePerms.delete(menuItemId);
+    const rolePerms = newRolePerms.get(roleId)!;
+    if (rolePerms.has(permissionId)) {
+      rolePerms.delete(permissionId);
     } else {
-      rolePerms.add(menuItemId);
+      rolePerms.add(permissionId);
     }
     
-    setPermissions(newPermissions);
+    setRolePermissions(newRolePerms);
   };
 
-  const toggleParentAndChildren = (roleId: string, menuItem: MenuItem, checked: boolean) => {
-    const newPermissions = new Map(permissions);
-    if (!newPermissions.has(roleId)) {
-      newPermissions.set(roleId, new Set());
+  const toggleAllInGroup = (roleId: string, groupPermissions: Permission[], checked: boolean) => {
+    const newRolePerms = new Map(rolePermissions);
+    if (!newRolePerms.has(roleId)) {
+      newRolePerms.set(roleId, new Set());
     }
     
-    const rolePerms = newPermissions.get(roleId)!;
+    const rolePerms = newRolePerms.get(roleId)!;
     
-    if (checked) {
-      rolePerms.add(menuItem.id);
-    } else {
-      rolePerms.delete(menuItem.id);
-    }
-    
-    const toggleChildren = (item: MenuItem) => {
-      if (item.children) {
-        item.children.forEach(child => {
-          if (checked) {
-            rolePerms.add(child.id);
-          } else {
-            rolePerms.delete(child.id);
-          }
-          toggleChildren(child);
-        });
+    groupPermissions.forEach(perm => {
+      if (checked) {
+        rolePerms.add(perm.id);
+      } else {
+        rolePerms.delete(perm.id);
       }
-    };
+    });
     
-    toggleChildren(menuItem);
-    setPermissions(newPermissions);
+    setRolePermissions(newRolePerms);
   };
 
   const savePermissions = async () => {
@@ -169,24 +151,23 @@ export default function MenuPermissionsPage() {
     
     setSaving(true);
     try {
-      const rolePerms = permissions.get(selectedRole) || new Set();
+      const rolePerms = rolePermissions.get(selectedRole) || new Set();
       
       const { error: deleteError } = await supabase
-        .from('role_menu_items')
+        .from('role_permissions')
         .delete()
         .eq('role_id', selectedRole);
 
       if (deleteError) throw deleteError;
 
       if (rolePerms.size > 0) {
-        const inserts = Array.from(rolePerms).map(menuItemId => ({
+        const inserts = Array.from(rolePerms).map(permissionId => ({
           role_id: selectedRole,
-          menu_item_id: menuItemId
+          permission_id: permissionId
         }));
 
         const { error: insertError } = await supabase
-          .from('role_menu_items')
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .from('role_permissions')
           .insert(inserts as any);
 
         if (insertError) throw insertError;
@@ -201,71 +182,106 @@ export default function MenuPermissionsPage() {
     }
   };
 
-  const renderMenuItem = (item: MenuItem, level: number = 0) => {
+  const createRole = async () => {
+    if (!newRole.name || !newRole.display_name) {
+      alert('Please fill in role name and display name');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('roles')
+        .insert([{
+          name: newRole.name,
+          display_name: newRole.display_name,
+          description: newRole.description || null
+        }]);
+
+      if (error) throw error;
+
+      setShowRoleModal(false);
+      setNewRole({ name: "", display_name: "", description: "" });
+      fetchData();
+      alert('Role created successfully!');
+    } catch (error) {
+      console.error('Error creating role:', error);
+      alert('Error creating role. Please try again.');
+    }
+  };
+
+  const renderPermissionGroup = (group: PermissionGroup) => {
     if (!selectedRole) return null;
     
-    const rolePerms = permissions.get(selectedRole) || new Set();
-    const isChecked = rolePerms.has(item.id);
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedGroups.has(item.id);
+    const rolePerms = rolePermissions.get(selectedRole) || new Set();
+    const isExpanded = expandedGroups.has(group.category);
     
-    let childrenChecked = 0;
-    let childrenTotal = 0;
-    if (hasChildren) {
-      const countChildren = (children: MenuItem[]) => {
-        children.forEach(child => {
-          childrenTotal++;
-          if (rolePerms.has(child.id)) childrenChecked++;
-          if (child.children) countChildren(child.children);
-        });
-      };
-      countChildren(item.children!);
-    }
-    
-    const allChildrenChecked = hasChildren && childrenChecked === childrenTotal && childrenTotal > 0;
-    const someChildrenChecked = hasChildren && childrenChecked > 0 && childrenChecked < childrenTotal;
+    const checkedCount = group.permissions.filter(p => rolePerms.has(p.id)).length;
+    const totalCount = group.permissions.length;
+    const allChecked = checkedCount === totalCount && totalCount > 0;
+    const someChecked = checkedCount > 0 && checkedCount < totalCount;
 
     return (
-      <div key={item.id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-        <div className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 ${level > 0 ? 'pl-8' : ''}`}>
-          {hasChildren && (
-            <button
-              onClick={() => toggleGroup(item.id)}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-            >
-              <svg className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-          
-          {!hasChildren && <div className="w-4" />}
-          
-          <label className="flex items-center gap-2 cursor-pointer flex-1">
-            <input
-              type="checkbox"
-              checked={isChecked || allChildrenChecked}
-              ref={(el) => {
-                if (el) el.indeterminate = someChildrenChecked || false;
-              }}
-              onChange={(e) => {
-                if (hasChildren) {
-                  toggleParentAndChildren(selectedRole, item, e.target.checked);
-                } else {
-                  toggleMenuItem(selectedRole, item.id);
-                }
-              }}
-              className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
-            />
-            <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">{item.title}</span>
-            {item.path && <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{item.path}</span>}
-            {hasChildren && <span className="text-xs text-gray-500 dark:text-gray-400">{childrenChecked} / {childrenTotal}</span>}
-          </label>
+      <div key={group.category} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 dark:bg-gray-800 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              <button
+                onClick={() => toggleGroup(group.category)}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <svg 
+                  className={\`w-5 h-5 transition-transform \${isExpanded ? 'rotate-90' : ''}\`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              
+              <label className="flex items-center gap-3 cursor-pointer flex-1">
+                <input
+                  type="checkbox"
+                  checked={allChecked}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someChecked;
+                  }}
+                  onChange={(e) => toggleAllInGroup(selectedRole, group.permissions, e.target.checked)}
+                  className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{group.category}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {checkedCount} / {totalCount} permissions selected
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
-        
-        {hasChildren && isExpanded && (
-          <div className="bg-gray-50 dark:bg-gray-800">
-            {item.children!.map(child => renderMenuItem(child, level + 1))}
+
+        {isExpanded && (
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {group.permissions.map(permission => (
+              <div key={permission.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rolePerms.has(permission.id)}
+                    onChange={() => togglePermission(selectedRole, permission.id)}
+                    className="mt-0.5 w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white">{permission.name}</div>
+                    {permission.description && (
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {permission.description}
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -287,18 +303,29 @@ export default function MenuPermissionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Menu Permissions</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage which menu items each role can access</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Role Permissions</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage permissions for each role</p>
         </div>
-        <button
-          onClick={fetchData}
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Refresh
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowRoleModal(true)}
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create Role
+          </button>
+          <button
+            onClick={fetchData}
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -306,22 +333,26 @@ export default function MenuPermissionsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Roles</h2>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Select a role to manage its menu permissions</p>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Select a role to manage permissions</p>
             </div>
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {roles.map((role) => {
-                const rolePerms = permissions.get(role.id) || new Set();
+                const rolePerms = rolePermissions.get(role.id) || new Set();
                 return (
                   <button
                     key={role.id}
                     onClick={() => setSelectedRole(role.id)}
-                    className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedRole === role.id ? 'bg-brand-50 dark:bg-brand-900/20 border-l-4 border-brand-600' : ''}`}
+                    className={\`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors \${
+                      selectedRole === role.id ? 'bg-brand-50 dark:bg-brand-900/20 border-l-4 border-brand-600' : ''
+                    }\`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900 dark:text-white">{role.display_name}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{role.description || role.name}</p>
-                        <p className="text-xs text-brand-600 dark:text-brand-400 mt-2">{rolePerms.size} menu items assigned</p>
+                        <p className="text-xs text-brand-600 dark:text-brand-400 mt-2">
+                          {rolePerms.size} permissions assigned
+                        </p>
                       </div>
                       {selectedRole === role.id && (
                         <svg className="w-5 h-5 text-brand-600 dark:text-brand-400" fill="currentColor" viewBox="0 0 20 20">
@@ -338,11 +369,13 @@ export default function MenuPermissionsPage() {
 
         <div className="lg:col-span-2">
           {selectedRole ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu Items</h2>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Select which menu items this role can access</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Permissions</h2>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    Select permissions for {roles.find(r => r.id === selectedRole)?.display_name}
+                  </p>
                 </div>
                 <button
                   onClick={savePermissions}
@@ -367,24 +400,90 @@ export default function MenuPermissionsPage() {
                   )}
                 </button>
               </div>
-              <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[600px] overflow-y-auto">
-                {menuItems.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">No menu items found</div>
-                ) : (
-                  menuItems.map(item => renderMenuItem(item))
-                )}
+
+              <div className="space-y-3">
+                {groupPermissionsByCategory().map(group => renderPermissionGroup(group))}
               </div>
             </div>
           ) : (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-12 text-center">
               <svg className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <p className="text-gray-600 dark:text-gray-400">Select a role from the left to manage its menu permissions</p>
+              <p className="text-gray-600 dark:text-gray-400">Select a role from the left to manage its permissions</p>
             </div>
           )}
         </div>
       </div>
+
+      {showRoleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create New Role</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Role Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newRole.name}
+                    onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="e.g., admin, manager"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Display Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newRole.display_name}
+                    onChange={(e) => setNewRole({ ...newRole, display_name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="e.g., Administrator, Manager"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={newRole.description}
+                    onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Role description..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={createRole}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700"
+                >
+                  Create Role
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
+                    setNewRole({ name: "", display_name: "", description: "" });
+                  }}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
